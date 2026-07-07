@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://algo-viz/schemas/meta.schema.json",
+  "title": "Algorithm Metadata",
+  "description": "카탈로그 분류·검색의 단위. algorithms/index.json 은 이 레코드들의 배열.",
+  "type": "object",
+  "required": ["id", "title", "categories", "dataStructures", "complexity", "languages", "path"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$",
+      "description": "폴더명과 동일한 kebab-case 식별자" },
+    "title": { "type": "string" },
+    "categories": { "type": "array", "minItems": 1,
+      "items": { "enum": ["sorting", "graph", "dp", "search", "greedy", "string", "tree", "math", "backtracking", "geometry"] } },
+    "dataStructures": { "type": "array",
+      "items": { "enum": ["array", "matrix", "stack", "queue", "linked-list", "tree", "heap", "graph", "hash-table", "trie"] } },
+    "complexity": {
+      "type": "object",
+      "required": ["time"],
+      "properties": {
+        "time": {
+          "type": "object",
+          "properties": {
+            "best": { "type": "string" },
+            "avg": { "type": "string" },
+            "worst": { "type": "string" }
+          }
+        },
+        "space": { "type": "string" }
+      }
+    },
+    "difficulty": { "enum": ["beginner", "intermediate", "advanced"] },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "languages": { "type": "array", "minItems": 1,
+      "items": { "enum": ["cpp", "py", "js", "java", "go", "rust"] } },
+    "generation": { "type": "array",
+      "items": { "enum": ["model-a", "model-2"] },
+      "description": "이 알고리즘이 지원하는 트레이스 생성 방식" },
+    "path": { "type": "string", "description": "algorithms/<id>/ 형태의 상대 경로" }
+  },
+  "additionalProperties": false
+}

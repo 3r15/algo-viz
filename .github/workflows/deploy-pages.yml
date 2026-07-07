@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 카탈로그를 최신으로 만들어 배포 아티팩트에 포함
+      - name: 카탈로그 생성
+        run: node scripts/build-index.mjs
+
+      # (선택) Model 2 WASM 빌드가 필요하면 여기에서 Emscripten 설정 후 ./build.sh
+      # - name: Emscripten 설치
+      #   uses: mymindstorm/setup-emsdk@v14
+      # - run: bash build.sh
+
+      - uses: actions/configure-pages@v5
+      - name: 아티팩트 업로드 (사이트 루트)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

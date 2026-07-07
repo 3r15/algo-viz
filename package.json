@@ -1,0 +1,19 @@
+{
+  "name": "algo-viz",
+  "version": "0.1.0",
+  "description": "C++ 알고리즘을 라인별 실행·되감기하며 자료구조 변화를 시각화하는 학습 사이트 (정적, GitHub Pages).",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "serve": "python3 -m http.server 8000",
+    "validate": "node scripts/validate-all.mjs",
+    "index": "node scripts/build-index.mjs",
+    "index:check": "node scripts/build-index.mjs --check",
+    "build:wasm": "bash build.sh",
+    "check": "npm run index:check && npm run validate"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

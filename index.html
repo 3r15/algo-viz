@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>트레이스 생성 방식 비교 — 그림자 생성기 vs C++→WASM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f14; --panel:#121a21; --panel2:#0e151b; --line:#233039;
+    --ink:#c9d6df; --muted:#63747f; --dim:#3a464f;
+    --ampA:#e9a94b; --cyanB:#46c7e6; --green:#6fbf73; --warn:#d9863f;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--sans);
+    font-size:14px; line-height:1.5;
+    background-image:radial-gradient(circle at 12% -5%, #10202a 0%, transparent 45%),
+                     radial-gradient(circle at 92% 0%, #1a1410 0%, transparent 42%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:22px 18px 60px}
+
+  /* ---- header ---- */
+  header{display:flex; flex-wrap:wrap; gap:18px 26px; align-items:flex-end;
+    border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:20px}
+  .brand h1{font-family:var(--mono); font-weight:600; font-size:19px; letter-spacing:-0.3px;
+    margin:0 0 4px}
+  .brand .sub{color:var(--muted); font-size:12.5px; max-width:52ch}
+  .brand .algo{font-family:var(--mono); color:var(--cyanB); font-size:12.5px; margin-top:6px}
+  .brand .algo b{color:var(--ampA)}
+
+  .controls{margin-left:auto; display:flex; flex-direction:column; gap:9px; align-items:flex-end}
+  .inputrow{display:flex; gap:8px; align-items:center}
+  .inputrow label{font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--muted)}
+  #arr{font-family:var(--mono); background:var(--panel2); border:1px solid var(--line);
+    color:var(--ink); padding:7px 10px; border-radius:5px; width:200px; font-size:13px}
+  #arr:focus{outline:none; border-color:var(--cyanB)}
+  .btn{font-family:var(--mono); font-size:12px; background:var(--panel); color:var(--ink);
+    border:1px solid var(--line); padding:7px 12px; border-radius:5px; cursor:pointer;
+    transition:border-color .15s, background .15s}
+  .btn:hover{border-color:var(--dim); background:#16202a}
+  .btn.primary{border-color:#3c5460; color:#dff4fb}
+  .btn.primary:hover{border-color:var(--cyanB)}
+  .note{font-family:var(--mono); font-size:11px; color:var(--warn); min-height:14px}
+
+  /* ---- equivalence lamp ---- */
+  .lamp{display:flex; align-items:center; gap:9px; font-family:var(--mono); font-size:12px;
+    padding:7px 13px; border:1px solid var(--line); border-radius:6px; background:var(--panel2)}
+  .lamp .dot{width:10px; height:10px; border-radius:50%; background:var(--dim);
+    box-shadow:0 0 0 0 transparent; transition:all .2s}
+  .lamp.lock .dot{background:var(--green); box-shadow:0 0 10px 1px rgba(111,191,115,.7)}
+  .lamp.mismatch .dot{background:#e05a5a; box-shadow:0 0 10px 1px rgba(224,90,90,.6)}
+  .lamp .txt{letter-spacing:.06em}
+  .lamp.lock .txt{color:var(--green)} .lamp.mismatch .txt{color:#e88}
+
+  /* ---- channels ---- */
+  .channels{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .chan{border:1px solid var(--line); border-radius:9px; background:var(--panel);
+    overflow:hidden; display:flex; flex-direction:column}
+  .chan.a{--acc:var(--ampA)}
+  .chan.b{--acc:var(--cyanB)}
+  .chan-head{display:flex; align-items:center; gap:10px; padding:11px 14px;
+    border-bottom:1px solid var(--line); background:linear-gradient(180deg,#141d25,#111922)}
+  .chan-tag{font-family:var(--mono); font-weight:600; font-size:12px; letter-spacing:.1em;
+    color:var(--acc); border:1px solid color-mix(in srgb, var(--acc) 40%, var(--line));
+    padding:3px 8px; border-radius:4px}
+  .chan-name{font-family:var(--mono); font-size:12.5px; color:var(--ink)}
+  .chan-mech{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:auto}
+  .chan-status{font-family:var(--mono); font-size:10.5px; padding:3px 7px; border-radius:4px;
+    border:1px solid var(--line); color:var(--muted); white-space:nowrap}
+  .chan-status.live{color:var(--green); border-color:color-mix(in srgb,var(--green) 40%,var(--line))}
+  .chan-status.pre{color:var(--warn); border-color:color-mix(in srgb,var(--warn) 40%,var(--line))}
+
+  /* code panel */
+  .code{font-family:var(--mono); font-size:12.5px; padding:10px 0; background:var(--panel2);
+    border-bottom:1px solid var(--line)}
+  .cl{display:flex; padding:1px 14px; white-space:pre; color:#9fb0bb; transition:background .1s}
+  .cl .ln{color:var(--dim); width:22px; text-align:right; margin-right:14px; user-select:none;
+    flex:none}
+  .cl.on{background:color-mix(in srgb, var(--acc) 14%, transparent);
+    box-shadow:inset 3px 0 0 var(--acc); color:#eaf2f7}
+  .cl .kw{color:#6ea8c7} .cl.on .kw{color:#9fd0e8}
+
+  /* viz */
+  .viz{padding:16px 16px 10px; min-height:186px; display:flex; align-items:flex-end;
+    justify-content:center; gap:10px; position:relative;
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0/100% 44px,
+      var(--panel)}
+  .bar-col{display:flex; flex-direction:column; align-items:center; gap:5px; width:40px}
+  .bar-val{font-family:var(--mono); font-size:12px; color:var(--muted); transition:color .15s}
+  .bar{width:30px; border-radius:3px 3px 0 0;
+    background:color-mix(in srgb, var(--acc) 26%, #1b2831);
+    border:1px solid color-mix(in srgb, var(--acc) 30%, var(--line));
+    transition:height .28s cubic-bezier(.4,0,.2,1), background .15s, border-color .15s}
+  .bar-ix{font-family:var(--mono); font-size:10px; color:var(--dim)}
+  .bar-col.cmp .bar{background:#2b3a44; border-color:#c9d6df; box-shadow:0 0 0 1px #c9d6df inset}
+  .bar-col.cmp .bar-val{color:#eaf2f7}
+  .bar-col.swp .bar{background:var(--acc); border-color:var(--acc);
+    box-shadow:0 0 12px 0 color-mix(in srgb,var(--acc) 60%, transparent)}
+  .bar-col.swp .bar-val{color:var(--acc)}
+  .bar-col.sorted .bar{background:color-mix(in srgb,var(--green) 22%, #16221a);
+    border-color:color-mix(in srgb,var(--green) 45%,var(--line))}
+  .bar-col.sorted .bar-val{color:var(--green)}
+  .viz.blank{align-items:center; color:var(--muted); font-family:var(--mono); font-size:12px;
+    text-align:center; line-height:1.7}
+
+  /* readout */
+  .readout{font-family:var(--mono); font-size:11.5px; padding:10px 14px; display:flex;
+    flex-wrap:wrap; gap:4px 16px; border-top:1px solid var(--line); color:var(--muted)}
+  .readout b{color:var(--ink); font-weight:500}
+  .readout .op{color:var(--acc)}
+  .readout .exp{flex-basis:100%; color:#aebac3}
+
+  /* transport */
+  .transport{display:flex; align-items:center; gap:14px; margin:16px 0 4px;
+    border:1px solid var(--line); border-radius:9px; background:var(--panel); padding:11px 14px}
+  .tbtns{display:flex; gap:6px}
+  .tbtn{font-family:var(--mono); font-size:13px; width:38px; height:34px; display:grid;
+    place-items:center; background:var(--panel2); border:1px solid var(--line); border-radius:6px;
+    color:var(--ink); cursor:pointer; transition:border-color .15s,background .15s}
+  .tbtn:hover{border-color:var(--dim); background:#16202a}
+  .tbtn.play{width:44px; color:#dff4fb; border-color:#3c5460}
+  #scrub{flex:1; accent-color:var(--cyanB); cursor:pointer}
+  .counter{font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap;
+    min-width:78px; text-align:right}
+  .speed{display:flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px;
+    color:var(--muted)}
+  .speed input{width:78px; accent-color:var(--ampA)}
+
+  /* footer compare table */
+  .foot{margin-top:26px}
+  .foot h2{font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:.04em;
+    color:var(--ink); border-bottom:1px solid var(--line); padding-bottom:8px; margin:0 0 4px}
+  table{width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px}
+  th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--muted); font-weight:500}
+  td:first-child{font-family:var(--mono); color:var(--muted); white-space:nowrap}
+  .cA{color:var(--ampA)} .cB{color:var(--cyanB)}
+  .verdict{font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-top:14px;
+    background:var(--panel2); border:1px solid var(--line); border-left:3px solid var(--cyanB);
+    border-radius:6px; padding:12px 15px; line-height:1.7}
+  .verdict b{color:var(--ink)}
+  code{font-family:var(--mono); background:var(--panel2); border:1px solid var(--line);
+    padding:1px 5px; border-radius:4px; font-size:11.5px; color:#aebac3}
+
+  @media (max-width:820px){
+    .channels{grid-template-columns:1fr}
+    .controls{margin-left:0; align-items:stretch; width:100%}
+    header{align-items:flex-start}
+  }
+  @media (prefers-reduced-motion:reduce){ .bar,.lamp .dot{transition:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <h1>DUAL-TRACE // 트레이스 생성 방식 비교</h1>
+      <div class="sub">같은 알고리즘·같은 입력을 두 방식으로 계측해 트레이스를 만들고, 하나의 트랜스포트로 나란히 재생합니다. 두 트레이스가 스텝 단위로 일치하면 <span style="color:var(--green)">LOCK</span> 램프가 켜집니다.</div>
+      <div class="algo">algorithm: <b>bubble sort</b> · input mutable · step-back enabled</div>
+    </div>
+    <div class="controls">
+      <div class="inputrow">
+        <label for="arr">input[]</label>
+        <input id="arr" value="5 2 9 1 5 6" spellcheck="false" />
+        <button class="btn primary" id="run">Run</button>
+      </div>
+      <div class="inputrow">
+        <button class="btn" id="rand">Randomize</button>
+        <button class="btn" id="reset">Default</button>
+        <div class="lamp" id="lamp"><span class="dot"></span><span class="txt">—</span></div>
+      </div>
+      <div class="note" id="note"></div>
+    </div>
+  </header>
+
+  <div class="channels">
+    <!-- CHANNEL A -->
+    <section class="chan a" id="chanA">
+      <div class="chan-head">
+        <span class="chan-tag">CH·A</span>
+        <span class="chan-name">JS 그림자 생성기</span>
+        <span class="chan-mech">Model 1 · 브라우저 재구현</span>
+        <span class="chan-status live" id="statusA">LIVE</span>
+      </div>
+      <div class="code" id="codeA"></div>
+      <div class="viz" id="vizA"></div>
+      <div class="readout" id="readA"></div>
+    </section>
+
+    <!-- CHANNEL 2 -->
+    <section class="chan b" id="chanB">
+      <div class="chan-head">
+        <span class="chan-tag">CH·2</span>
+        <span class="chan-name">C++ → WASM</span>
+        <span class="chan-mech">Model 2 · 계측 소스 컴파일</span>
+        <span class="chan-status" id="statusB">…</span>
+      </div>
+      <div class="code" id="codeB"></div>
+      <div class="viz" id="vizB"></div>
+      <div class="readout" id="readB"></div>
+    </section>
+  </div>
+
+  <!-- SHARED TRANSPORT -->
+  <div class="transport">
+    <div class="tbtns">
+      <button class="tbtn" id="first" title="처음">⏮</button>
+      <button class="tbtn" id="prev" title="이전 스텝">◀</button>
+      <button class="tbtn play" id="play" title="재생/정지">▶</button>
+      <button class="tbtn" id="next" title="다음 스텝">▶</button>
+      <button class="tbtn" id="last" title="끝">⏭</button>
+    </div>
+    <input type="range" id="scrub" min="0" max="0" value="0" />
+    <div class="speed">속도<input type="range" id="speed" min="1" max="10" value="5" /></div>
+    <div class="counter" id="counter">0 / 0</div>
+  </div>
+
+  <!-- COMPARISON -->
+  <div class="foot">
+    <h2>두 방식 비교</h2>
+    <table>
+      <thead><tr><th>기준</th><th class="cA">CH·A — JS 그림자 생성기</th><th class="cB">CH·2 — C++ → WASM</th></tr></thead>
+      <tbody>
+        <tr><td>표시 코드 = 실행 코드</td>
+          <td>아니오 — 화면은 C++, 실행은 JS 재구현. 논리 불일치 위험 있음</td>
+          <td>예 — 화면의 그 C++을 그대로 컴파일해 실행. 불일치 없음</td></tr>
+        <tr><td>임의 입력(런타임)</td>
+          <td>가능 — 입력마다 즉시 재생성</td>
+          <td>가능(WASM 빌드 후) — <code>run_trace(input)</code> 호출</td></tr>
+        <tr><td>빌드 파이프라인</td>
+          <td>불필요 — 순수 정적, 바로 GH Pages</td>
+          <td>필요 — Emscripten 컴파일(1회, CI 자동화 가능)</td></tr>
+        <tr><td>배포 용량</td>
+          <td>작음 — JS 몇 KB</td>
+          <td>큼 — <code>.wasm</code> + 글루 수십~수백 KB</td></tr>
+        <tr><td>첫 실행 지연</td>
+          <td>없음</td>
+          <td>WASM 인스턴스화 지연(수십 ms)</td></tr>
+        <tr><td>새 알고리즘 추가</td>
+          <td>JS 생성기 1개 작성</td>
+          <td>C++에 계측 훅 삽입 + 재빌드</td></tr>
+        <tr><td>C++ 정확도(오버플로/UB 등)</td>
+          <td>JS 수 체계라 재현 안 될 수 있음</td>
+          <td>실제 C++ 의미론 그대로</td></tr>
+      </tbody>
+    </table>
+    <div class="verdict" id="verdict">
+      <b>이 데모의 CH·2는 지금 어떤 상태?</b> <span id="verdictText"></span>
+    </div>
+  </div>
+</div>
+
+<!--
+  실제 GitHub Pages에서 CH·2를 "실시간·임의 입력"으로 켜려면:
+  build.sh 로 bubble_sort.cpp 를 WASM 컴파일한 뒤, 아래 주석을 해제하세요.
+  <script src="bubble_sort.js"></script>   (Emscripten glue, EXPORT_NAME=createBubbleSort)
+  이 스크립트가 있으면 페이지가 자동 감지해 CH·2를 라이브로 전환합니다.
+-->
+
+<script>
+/* ============================================================
+   공유: 표시용 C++ 소스 (CH·A, CH·2 가 같은 코드를 보여줌)
+   trace 의 line 필드가 이 줄 번호를 가리킨다.
+   ============================================================ */
+const CPP = [
+  "void bubbleSort(vector<int>& a) {",
+  "  int n = a.size();",
+  "  for (int i = 0; i < n - 1; i++) {",
+  "    for (int j = 0; j < n - 1 - i; j++) {",
+  "      if (a[j] > a[j + 1]) {",
+  "        swap(a[j], a[j + 1]);",
+  "      }",
+  "    }",
+  "  }",
+  "}"
+];
+
+/* ============================================================
+   CH·2 참조 트레이스 — 실제 bubble_sort.cpp 를 g++ 로 네이티브
+   컴파일해 기본 입력 [5,2,9,1,5,6] 에서 뽑은 결과(사전 계산).
+   WASM 미빌드 상태에서 CH·2 시연에 사용.
+   ============================================================ */
+const DEFAULT_INPUT = [5,2,9,1,5,6];
+const REFERENCE_TRACE = [{"line":2,"i":0,"j":0,"op":"start","a":-1,"b":-1,"sortedFrom":6,"values":[5,2,9,1,5,6],"explain":"정렬 시작"},{"line":5,"i":0,"j":0,"op":"compare","a":0,"b":1,"sortedFrom":6,"values":[5,2,9,1,5,6],"explain":"a[0] 와 a[1] 비교"},{"line":6,"i":0,"j":0,"op":"swap","a":0,"b":1,"sortedFrom":6,"values":[2,5,9,1,5,6],"explain":"a[0] > a[1] 이므로 교환"},{"line":5,"i":0,"j":1,"op":"compare","a":1,"b":2,"sortedFrom":6,"values":[2,5,9,1,5,6],"explain":"a[1] 와 a[2] 비교"},{"line":5,"i":0,"j":2,"op":"compare","a":2,"b":3,"sortedFrom":6,"values":[2,5,9,1,5,6],"explain":"a[2] 와 a[3] 비교"},{"line":6,"i":0,"j":2,"op":"swap","a":2,"b":3,"sortedFrom":6,"values":[2,5,1,9,5,6],"explain":"a[2] > a[3] 이므로 교환"},{"line":5,"i":0,"j":3,"op":"compare","a":3,"b":4,"sortedFrom":6,"values":[2,5,1,9,5,6],"explain":"a[3] 와 a[4] 비교"},{"line":6,"i":0,"j":3,"op":"swap","a":3,"b":4,"sortedFrom":6,"values":[2,5,1,5,9,6],"explain":"a[3] > a[4] 이므로 교환"},{"line":5,"i":0,"j":4,"op":"compare","a":4,"b":5,"sortedFrom":6,"values":[2,5,1,5,9,6],"explain":"a[4] 와 a[5] 비교"},{"line":6,"i":0,"j":4,"op":"swap","a":4,"b":5,"sortedFrom":6,"values":[2,5,1,5,6,9],"explain":"a[4] > a[5] 이므로 교환"},{"line":3,"i":0,"j":0,"op":"pass-end","a":-1,"b":-1,"sortedFrom":5,"values":[2,5,1,5,6,9],"explain":"패스 완료 — 뒤쪽 1개 확정"},{"line":5,"i":1,"j":0,"op":"compare","a":0,"b":1,"sortedFrom":5,"values":[2,5,1,5,6,9],"explain":"a[0] 와 a[1] 비교"},{"line":5,"i":1,"j":1,"op":"compare","a":1,"b":2,"sortedFrom":5,"values":[2,5,1,5,6,9],"explain":"a[1] 와 a[2] 비교"},{"line":6,"i":1,"j":1,"op":"swap","a":1,"b":2,"sortedFrom":5,"values":[2,1,5,5,6,9],"explain":"a[1] > a[2] 이므로 교환"},{"line":5,"i":1,"j":2,"op":"compare","a":2,"b":3,"sortedFrom":5,"values":[2,1,5,5,6,9],"explain":"a[2] 와 a[3] 비교"},{"line":5,"i":1,"j":3,"op":"compare","a":3,"b":4,"sortedFrom":5,"values":[2,1,5,5,6,9],"explain":"a[3] 와 a[4] 비교"},{"line":3,"i":1,"j":0,"op":"pass-end","a":-1,"b":-1,"sortedFrom":4,"values":[2,1,5,5,6,9],"explain":"패스 완료 — 뒤쪽 2개 확정"},{"line":5,"i":2,"j":0,"op":"compare","a":0,"b":1,"sortedFrom":4,"values":[2,1,5,5,6,9],"explain":"a[0] 와 a[1] 비교"},{"line":6,"i":2,"j":0,"op":"swap","a":0,"b":1,"sortedFrom":4,"values":[1,2,5,5,6,9],"explain":"a[0] > a[1] 이므로 교환"},{"line":5,"i":2,"j":1,"op":"compare","a":1,"b":2,"sortedFrom":4,"values":[1,2,5,5,6,9],"explain":"a[1] 와 a[2] 비교"},{"line":5,"i":2,"j":2,"op":"compare","a":2,"b":3,"sortedFrom":4,"values":[1,2,5,5,6,9],"explain":"a[2] 와 a[3] 비교"},{"line":3,"i":2,"j":0,"op":"pass-end","a":-1,"b":-1,"sortedFrom":3,"values":[1,2,5,5,6,9],"explain":"패스 완료 — 뒤쪽 3개 확정"},{"line":5,"i":3,"j":0,"op":"compare","a":0,"b":1,"sortedFrom":3,"values":[1,2,5,5,6,9],"explain":"a[0] 와 a[1] 비교"},{"line":5,"i":3,"j":1,"op":"compare","a":1,"b":2,"sortedFrom":3,"values":[1,2,5,5,6,9],"explain":"a[1] 와 a[2] 비교"},{"line":3,"i":3,"j":0,"op":"pass-end","a":-1,"b":-1,"sortedFrom":2,"values":[1,2,5,5,6,9],"explain":"패스 완료 — 뒤쪽 4개 확정"},{"line":5,"i":4,"j":0,"op":"compare","a":0,"b":1,"sortedFrom":2,"values":[1,2,5,5,6,9],"explain":"a[0] 와 a[1] 비교"},{"line":3,"i":4,"j":0,"op":"pass-end","a":-1,"b":-1,"sortedFrom":1,"values":[1,2,5,5,6,9],"explain":"패스 완료 — 뒤쪽 5개 확정"},{"line":10,"i":0,"j":0,"op":"done","a":-1,"b":-1,"sortedFrom":0,"values":[1,2,5,5,6,9],"explain":"정렬 완료"}];
+
+/* ============================================================
+   Model A — JS 그림자 생성기 (bubble_sort.cpp 와 동일 로직)
+   line 번호를 위 CPP 배열에 맞춰 기록한다.
+   ============================================================ */
+function generateTraceA(input){
+  const a = input.slice();
+  const steps = [];
+  const n = a.length;
+  const push = (line,i,j,op,ai,bi,sortedFrom,explain)=>
+    steps.push({line,i,j,op,a:ai,b:bi,sortedFrom,values:a.slice(),explain});
+
+  push(2,0,0,'start',-1,-1,n,'정렬 시작');
+  for(let i=0;i<n-1;i++){
+    for(let j=0;j<n-1-i;j++){
+      push(5,i,j,'compare',j,j+1,n-i,`a[${j}] 와 a[${j+1}] 비교`);
+      if(a[j]>a[j+1]){
+        [a[j],a[j+1]]=[a[j+1],a[j]];
+        push(6,i,j,'swap',j,j+1,n-i,`a[${j}] > a[${j+1}] 이므로 교환`);
+      }
+    }
+    push(3,i,0,'pass-end',-1,-1,n-1-i,`패스 완료 — 뒤쪽 ${i+1}개 확정`);
+  }
+  push(10,0,0,'done',-1,-1,0,'정렬 완료');
+  return steps;
+}
+
+/* ============================================================
+   Model 2 — WASM 브리지 (실제 배포 시 활성)
+   bubble_sort.js(Emscripten glue) 가 로드돼 있으면 라이브.
+   ============================================================ */
+let wasmRunTrace = null;   // (input:number[]) => step[]
+async function initWasm(){
+  if (typeof createBubbleSort !== 'function') return false;   // 미빌드 → 감지 실패
+  try{
+    const Module = await createBubbleSort();
+    const run = Module.cwrap('run_trace','string',['string']);
+    wasmRunTrace = (input)=> JSON.parse(run(input.join(' ')));
+    return true;
+  }catch(e){ console.warn('WASM init 실패:', e); return false; }
+}
+
+/* ============================================================
+   상태 & 렌더링
+   ============================================================ */
+const S = {
+  inputA: DEFAULT_INPUT.slice(),
+  traceA: [],
+  trace2: [],          // CH·2 트레이스
+  input2: DEFAULT_INPUT.slice(),  // CH·2 가 실제로 계산한 입력
+  trace2Valid: true,   // CH·2 가 현재 inputA 에 해당하는가
+  wasmReady: false,
+  step: 0,
+  playing: false,
+  timer: null,
+};
+
+const $ = id => document.getElementById(id);
+const vizState = { A:[], B:[] };  // 재사용 DOM 열 캐시
+
+function maxSteps(){
+  const b = S.trace2Valid ? S.trace2.length : 0;
+  return Math.max(S.traceA.length, b, 1);
+}
+
+function renderCode(hostId, step, chan){
+  const host = $(hostId);
+  if(host.childElementCount !== CPP.length){
+    host.innerHTML = '';
+    CPP.forEach((txt,idx)=>{
+      const row = document.createElement('div');
+      row.className = 'cl'; row.dataset.line = idx+1;
+      const ln = document.createElement('span'); ln.className='ln'; ln.textContent = idx+1;
+      const code = document.createElement('span'); code.textContent = txt;
+      row.append(ln, code); host.append(row);
+    });
+  }
+  [...host.children].forEach(row=>{
+    row.classList.toggle('on', step && Number(row.dataset.line)===step.line);
+  });
+}
+
+function renderViz(hostId, step, cacheKey){
+  const host = $(hostId);
+  if(!step){
+    host.classList.add('blank');
+    host.innerHTML = 'CH·2 트레이스 없음<br>기본 입력 <code>5 2 9 1 5 6</code> 로 되돌리거나<br>WASM 을 빌드하세요';
+    vizState[cacheKey] = [];
+    return;
+  }
+  host.classList.remove('blank');
+  const vals = step.values, maxV = Math.max(...vals, 1);
+  let cache = vizState[cacheKey];
+  if(cache.length !== vals.length){
+    host.innerHTML = ''; cache = [];
+    vals.forEach((_,idx)=>{
+      const col=document.createElement('div'); col.className='bar-col';
+      const val=document.createElement('div'); val.className='bar-val';
+      const bar=document.createElement('div'); bar.className='bar';
+      const ix=document.createElement('div'); ix.className='bar-ix'; ix.textContent=idx;
+      col.append(val,bar,ix); host.append(col);
+      cache.push({col,val,bar});
+    });
+    vizState[cacheKey]=cache;
+  }
+  vals.forEach((v,idx)=>{
+    const {col,val,bar}=cache[idx];
+    val.textContent=v;
+    bar.style.height=(12+(v/maxV)*120)+'px';
+    col.classList.toggle('sorted', idx>=step.sortedFrom);
+    col.classList.toggle('cmp', step.op==='compare' && (idx===step.a||idx===step.b));
+    col.classList.toggle('swp', step.op==='swap' && (idx===step.a||idx===step.b));
+  });
+}
+
+function renderReadout(hostId, step){
+  const host=$(hostId);
+  if(!step){ host.innerHTML=''; return; }
+  const opLabel={start:'START',compare:'COMPARE',swap:'SWAP','pass-end':'PASS-END',done:'DONE'}[step.op]||step.op;
+  host.innerHTML =
+    `<span>line <b>${step.line}</b></span>`+
+    `<span>i <b>${step.i}</b></span><span>j <b>${step.j}</b></span>`+
+    `<span>op <span class="op">${opLabel}</span></span>`+
+    `<span class="exp">${step.explain}</span>`;
+}
+
+function tracesEquivalent(t1,t2){
+  if(t1.length!==t2.length) return false;
+  for(let k=0;k<t1.length;k++){
+    const x=t1[k], y=t2[k];
+    if(x.line!==y.line||x.op!==y.op||x.a!==y.a||x.b!==y.b) return false;
+    if(x.values.length!==y.values.length) return false;
+    for(let m=0;m<x.values.length;m++) if(x.values[m]!==y.values[m]) return false;
+  }
+  return true;
+}
+
+function updateLamp(){
+  const lamp=$('lamp'), dot=lamp.querySelector('.txt');
+  lamp.classList.remove('lock','mismatch');
+  if(!S.trace2Valid){ dot.textContent='N/A'; return; }
+  if(tracesEquivalent(S.traceA,S.trace2)){ lamp.classList.add('lock'); dot.textContent='LOCK ✓ 동일'; }
+  else { lamp.classList.add('mismatch'); dot.textContent='MISMATCH'; }
+}
+
+function stepFor(trace){
+  if(!trace.length) return null;
+  return trace[Math.min(S.step, trace.length-1)];
+}
+
+function render(){
+  const sa = stepFor(S.traceA);
+  const sb = S.trace2Valid ? stepFor(S.trace2) : (arraysEqual(S.input2,S.inputA)?stepFor(S.trace2):null);
+  renderCode('codeA', sa, 'A'); renderViz('vizA', sa, 'A'); renderReadout('readA', sa);
+  const sbShow = S.trace2Valid ? stepFor(S.trace2) : null;
+  renderCode('codeB', sbShow, 'B'); renderViz('vizB', sbShow, 'B'); renderReadout('readB', sbShow);
+
+  const max=maxSteps();
+  $('scrub').max=max-1; $('scrub').value=S.step;
+  $('counter').textContent=`${S.step+1} / ${max}`;
+  updateLamp();
+}
+
+/* ============================================================
+   입력 / 실행
+   ============================================================ */
+function arraysEqual(a,b){ return a.length===b.length && a.every((v,i)=>v===b[i]); }
+
+function parseInput(str){
+  const parts=str.replace(/,/g,' ').trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return null;
+  if(parts.length>12) return {err:'최대 12개까지 지원'};
+  const nums=[];
+  for(const p of parts){ const n=Number(p); if(!Number.isInteger(n)||Math.abs(n)>999) return {err:'정수(±999)만'}; nums.push(n); }
+  return {nums};
+}
+
+function run(){
+  const parsed=parseInput($('arr').value);
+  $('note').textContent='';
+  if(!parsed){ $('note').textContent='입력이 비었습니다'; return; }
+  if(parsed.err){ $('note').textContent=parsed.err; return; }
+
+  S.inputA=parsed.nums;
+  S.traceA=generateTraceA(S.inputA);
+
+  if(S.wasmReady){
+    S.input2=S.inputA.slice();
+    S.trace2=wasmRunTrace(S.input2);
+    S.trace2Valid=true;
+    setStatusB('live','LIVE · WASM');
+  } else if(arraysEqual(S.inputA, DEFAULT_INPUT)){
+    S.input2=DEFAULT_INPUT.slice();
+    S.trace2=REFERENCE_TRACE;
+    S.trace2Valid=true;
+    setStatusB('pre','사전계산 · 네이티브 C++');
+  } else {
+    S.trace2=[]; S.trace2Valid=false;
+    setStatusB('pre','WASM 미빌드 — 기본 입력만');
+    $('note').textContent='CH·2는 WASM 빌드 전이라 기본 입력만 재생합니다 (CH·A는 실시간).';
+  }
+  S.step=0; stopPlay(); render();
+}
+
+function setStatusB(cls,txt){
+  const el=$('statusB'); el.className='chan-status '+cls; el.textContent=txt;
+}
+
+/* ============================================================
+   트랜스포트
+   ============================================================ */
+function setStep(i){ S.step=Math.max(0,Math.min(i,maxSteps()-1)); render(); }
+function stopPlay(){ S.playing=false; if(S.timer)clearInterval(S.timer); S.timer=null; $('play').textContent='▶'; }
+function togglePlay(){
+  if(S.playing){ stopPlay(); return; }
+  if(S.step>=maxSteps()-1) S.step=0;
+  S.playing=true; $('play').textContent='⏸';
+  const delay=()=>1350-Number($('speed').value)*115;
+  const tick=()=>{ if(S.step>=maxSteps()-1){ stopPlay(); return; } setStep(S.step+1); };
+  S.timer=setInterval(tick, delay());
+}
+
+$('run').onclick=run;
+$('reset').onclick=()=>{ $('arr').value='5 2 9 1 5 6'; run(); };
+$('rand').onclick=()=>{
+  const n=5+Math.floor(Math.random()*3);
+  const arr=Array.from({length:n},()=>Math.floor(Math.random()*20));
+  $('arr').value=arr.join(' '); run();
+};
+$('first').onclick=()=>{ stopPlay(); setStep(0); };
+$('last').onclick=()=>{ stopPlay(); setStep(maxSteps()-1); };
+$('prev').onclick=()=>{ stopPlay(); setStep(S.step-1); };
+$('next').onclick=()=>{ stopPlay(); setStep(S.step+1); };
+$('play').onclick=togglePlay;
+$('scrub').oninput=e=>{ stopPlay(); setStep(Number(e.target.value)); };
+$('speed').oninput=()=>{ if(S.playing){ stopPlay(); togglePlay(); } };
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'&&e.target.id==='arr') return;
+  if(e.key==='ArrowRight'){ stopPlay(); setStep(S.step+1); }
+  if(e.key==='ArrowLeft'){ stopPlay(); setStep(S.step-1); }
+  if(e.key===' '){ e.preventDefault(); togglePlay(); }
+});
+
+function verdict(){
+  const t=$('verdictText');
+  if(S.wasmReady){
+    t.innerHTML='<span style="color:var(--green)">WASM 로드됨 — 화면의 C++ 그대로 컴파일된 모듈이 임의 입력을 실시간 실행합니다.</span> CH·A(JS)와 스텝 단위로 대조되어 LOCK 램프로 동치 여부가 표시됩니다.';
+  }else{
+    t.innerHTML='<span style="color:var(--warn)">WASM 미빌드</span> — CH·2는 실제 <code>bubble_sort.cpp</code>를 g++로 네이티브 컴파일해 뽑은 <b>기본 입력 참조 트레이스</b>를 재생 중입니다. '+
+      '<code>build.sh</code>로 WASM을 만들고 <code>bubble_sort.js</code>를 포함하면, CH·2가 임의 입력까지 브라우저에서 실시간 실행합니다. '+
+      '이 "빌드가 있어야 켜진다"는 점이 두 방식의 핵심 차이입니다.';
+  }
+}
+
+/* ============================================================
+   부팅
+   ============================================================ */
+(async function boot(){
+  S.wasmReady = await initWasm();
+  if(!S.wasmReady) setStatusB('pre','사전계산 · 네이티브 C++');
+  run();
+  verdict();
+})();
+</script>
+</body>
+</html>

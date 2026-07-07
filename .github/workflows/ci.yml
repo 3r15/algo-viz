@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    name: 트레이스 계약 검증
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 카탈로그 최신성 검사
+        run: node scripts/build-index.mjs --check
+      - name: 모든 트레이스/메타 검증
+        run: node scripts/validate-all.mjs
+
+  cpp-build:
+    name: C++ 소스 컴파일 확인 (네이티브)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: g++ 로 모든 code/*.cpp 컴파일
+        run: |
+          shopt -s nullglob
+          fail=0
+          for f in algorithms/*/code/*.cpp *.cpp; do
+            [ -e "$f" ] || continue
+            echo "컴파일: $f"
+            g++ -std=c++17 -O2 -fsyntax-only "$f" || fail=1
+          done
+          exit $fail
