@@ -31,11 +31,14 @@ export function renderArray(host, step) {
     caches.set(host, cache);
   }
 
+  // 확정 구간(초록): 뒤쪽 [sortedFrom, n) OR 앞쪽 [0, sortedTo)
+  // bubble 은 뒤에서 채워지고(sortedFrom), insertion 은 앞에서 채워진다(sortedTo).
+  const sortedTo = step.sortedTo ?? 0;
   vals.forEach((v, idx) => {
     const { col, val, bar } = cache[idx];
     val.textContent = v;
     bar.style.height = (12 + (v / maxV) * 120) + 'px';
-    col.classList.toggle('sorted', idx >= step.sortedFrom);
+    col.classList.toggle('sorted', idx >= step.sortedFrom || idx < sortedTo);
     col.classList.toggle('cmp', step.op === 'compare' && (idx === step.a || idx === step.b));
     col.classList.toggle('swp', step.op === 'swap' && (idx === step.a || idx === step.b));
   });

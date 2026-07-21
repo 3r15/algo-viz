@@ -38,6 +38,7 @@ export async function loadAlgorithm(id) {
     code: Array.isArray(mod.code) ? mod.code : [],
     defaultInput: mod.defaultInput ?? [5, 2, 9, 1, 5, 6],
     category: mod.category ?? base.category,
+    graph: mod.graph ?? null,   // 그래프 알고리즘의 정적 구조(렌더러 ctx)
   };
 }
 

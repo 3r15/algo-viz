@@ -11,6 +11,7 @@ import { loadAlgorithm } from '../algorithm-loader.js';
 import { getRenderer } from '../renderers/registry.js';
 import { highlightCpp } from '../highlight.js';
 import '../renderers/array.js';
+import '../renderers/graph.js';
 
 const CAT_LABEL = {
   sorting: '정렬', graph: '그래프', dp: 'DP', search: '탐색', greedy: '그리디',
@@ -122,6 +123,10 @@ export async function renderAlgorithm(container, id) {
   };
   el.arr.value = current.defaultInput.join(' ');
 
+  // 배열 알고리즘만 입력칸 사용 — 그래프 등은 고정 구조라 입력행을 숨긴다
+  const arrayInput = current.dataStructure === 'array';
+  if (!arrayInput) q('.inputrow').style.display = 'none';
+
   const store = createStore();
 
   function renderCode(step) {
@@ -143,13 +148,14 @@ export async function renderAlgorithm(container, id) {
   function paintViz(step) {
     if (!step) return;
     const render = getRenderer(current.dataStructure) || getRenderer('array');
-    render(el.viz, step);
+    render(el.viz, step, { graph: current.graph });
   }
 
   function renderReadout(step) {
     if (!step) { el.readout.innerHTML = ''; return; }
     const opLabel = { start: 'START', compare: 'COMPARE', swap: 'SWAP',
-      'pass-end': 'PASS-END', done: 'DONE' }[step.op] || step.op;
+      'pass-end': 'PASS-END', done: 'DONE', write: 'WRITE', set: 'SET', read: 'READ',
+      visit: 'VISIT', enqueue: 'ENQUEUE', dequeue: 'DEQUEUE', mark: 'MARK' }[step.op] || step.op;
     el.readout.innerHTML =
       `<span>line <b>${step.line}</b></span>` +
       (step.i != null ? `<span>i <b>${step.i}</b></span>` : '') +
@@ -168,8 +174,12 @@ export async function renderAlgorithm(container, id) {
   });
 
   function run() {
-    const parsed = parseInput(el.arr.value);
     el.note.textContent = '';
+    if (!arrayInput) {                       // 그래프 등: 입력 무시, 고정 구조로 생성
+      store.setTraces({ traceA: current.generate(current.defaultInput), trace2Valid: false });
+      return;
+    }
+    const parsed = parseInput(el.arr.value);
     if (!parsed) { el.note.textContent = '입력이 비었습니다'; return; }
     if (parsed.err) { el.note.textContent = parsed.err; return; }
     store.setTraces({ traceA: current.generate(parsed.nums), trace2Valid: false });

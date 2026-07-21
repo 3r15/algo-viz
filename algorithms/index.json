@@ -36,7 +36,6 @@
     "generation": [
       "model-a"
     ],
-    "placeholder": true,
     "path": "algorithms/bfs/"
   },
   {
@@ -114,7 +113,6 @@
     "generation": [
       "model-a"
     ],
-    "placeholder": true,
     "path": "algorithms/insertion-sort/"
   },
   {
@@ -153,7 +151,6 @@
     "generation": [
       "model-a"
     ],
-    "placeholder": true,
     "path": "algorithms/merge-sort/"
   },
   {
@@ -191,7 +188,6 @@
     "generation": [
       "model-a"
     ],
-    "placeholder": true,
     "path": "algorithms/quick-sort/"
   }
 ]

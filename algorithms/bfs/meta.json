@@ -13,6 +13,5 @@
   "tags": ["graph-traversal", "shortest-path", "queue"],
   "languages": ["cpp"],
   "generation": ["model-a"],
-  "placeholder": true,
   "path": "algorithms/bfs/"
 }

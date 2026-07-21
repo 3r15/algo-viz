@@ -55,9 +55,11 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
   catalog-data.js          # index.json 로드 + 필터/검색(순수 함수, DOM 무관)
   store.js                 # 플레이어 상태 + 트랜스포트(DOM 무관). undo 없음
   algorithm-loader.js      # 폴더 규약으로 generator.js/meta.json 로드
+  highlight.js             # 경량 C++ 신택스 하이라이터(표시 코드용)
   renderers/
-    registry.js            # registerRenderer('<type>', render)
-    array.js               # array 렌더러(요소 재사용, 인덱스 슬롯 기준)
+    registry.js            # registerRenderer('<type>', render). render(host, step, ctx)
+    array.js               # array 렌더러(요소 재사용, 인덱스 슬롯 기준, sortedFrom/sortedTo)
+    graph.js               # graph 렌더러(SVG, 정점 상태색 + 큐). ctx.graph 로 구조 수신
 build.sh                   # (휴면) 계측 C++ → WASM. 진실 원천 algorithms/<id>/code/. 현재 소비처 없음
 schemas/
   trace.schema.json        # 트레이스 계약
@@ -131,10 +133,11 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 시드 알고리즘(bubble-sort): Model A generator + Model 2 C++ + 동치(LOCK) 확인
 - [x] 앱 셸 + 해시 라우팅 — 인라인 데모를 `app/` 모듈로 추출, `algorithms/<id>/` 동적 로드
 - [x] 공용 플레이어(store + 트랜스포트 + 스크러버) 모듈 분리 → `app/store.js`
-- [x] 렌더러 레지스트리 + array 렌더러 분리 → `app/renderers/`. 이후 stack/queue/tree/graph
+- [x] 렌더러 레지스트리 + array/graph 렌더러 → `app/renderers/`. 이후 stack/queue/tree/heap
 - [x] **방식 결정: Model A(제품) 확정, Model 2 는 CI 검증 오라클로 강등** — 제품은 단일 채널
 - [x] 카탈로그 뷰(`#/catalog`): 검색(title/tags/aliases) + 파셋(분류/자료구조/난이도) → 카드 → `#/algo/:id`
-- [ ] 알고리즘 확충: quick/merge/insertion sort → BFS/DFS → DP 테이블 (카탈로그를 채워야 필터가 의미)
+- [x] 알고리즘 5종: bubble/insertion/quick/merge sort(array) + BFS(graph, SVG 렌더러)
+- [ ] 알고리즘 확충 계속: DFS → DP 테이블 → 다익스트라 등 (새 자료구조는 렌더러 추가)
 - [ ] (선택) `build.sh` WASM 경로 정리 — 소비처 없으니 제거 또는 명시적 보존 결정
 - [ ] (선택) GitHub Actions: `index.json` 생성 + Model 2 WASM 빌드 + 스키마 검증
 
