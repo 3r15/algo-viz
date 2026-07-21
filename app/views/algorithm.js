@@ -149,7 +149,8 @@ export async function renderAlgorithm(container, id) {
   function renderReadout(step) {
     if (!step) { el.readout.innerHTML = ''; return; }
     const opLabel = { start: 'START', compare: 'COMPARE', swap: 'SWAP',
-      'pass-end': 'PASS-END', done: 'DONE' }[step.op] || step.op;
+      'pass-end': 'PASS-END', done: 'DONE', write: 'WRITE', set: 'SET', read: 'READ',
+      visit: 'VISIT', enqueue: 'ENQUEUE', dequeue: 'DEQUEUE', mark: 'MARK' }[step.op] || step.op;
     el.readout.innerHTML =
       `<span>line <b>${step.line}</b></span>` +
       (step.i != null ? `<span>i <b>${step.i}</b></span>` : '') +
