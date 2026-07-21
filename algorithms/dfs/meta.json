@@ -1,0 +1,17 @@
+{
+  "id": "dfs",
+  "title": "깊이 우선 탐색 (DFS)",
+  "summary": "현재 정점에서 갈 수 있는 데까지 재귀로 깊이 파고든 뒤 되돌아오는 그래프 탐색.",
+  "aliases": ["깊이우선탐색", "depth first search", "dfs"],
+  "categories": ["graph", "search"],
+  "dataStructures": ["graph", "stack"],
+  "complexity": {
+    "time": { "best": "O(V+E)", "avg": "O(V+E)", "worst": "O(V+E)" },
+    "space": "O(V)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["graph-traversal", "recursion", "stack"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/dfs/"
+}

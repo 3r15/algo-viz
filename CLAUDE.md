@@ -56,6 +56,7 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
   store.js                 # 플레이어 상태 + 트랜스포트(DOM 무관). undo 없음
   algorithm-loader.js      # 폴더 규약으로 generator.js/meta.json 로드
   highlight.js             # 경량 C++ 신택스 하이라이터(표시 코드용)
+  graph-editor.js          # 그래프 직접 그리기 입력 편집기(정점/간선/시작점, 인접 리스트·행렬)
   renderers/
     registry.js            # registerRenderer('<type>', render). render(host, step, ctx)
     array.js               # array 렌더러(요소 재사용, 인덱스 슬롯 기준, sortedFrom/sortedTo)
@@ -105,6 +106,11 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
 - **알고리즘 페이지 레이아웃**: 상단 3정보(분류·시간·공간) → 툴바(입력+조작 패널, 코드 위) → 코드 → viz(고정 높이) → 하단 태그. 태그/분류 클릭 → 검색.
 - **placeholder 알고리즘**: `meta.json` 에 `"placeholder": true` 면 generator 없이 카탈로그·"준비 중" 페이지에만 노출.
+- **그래프 알고리즘 입력**: `dataStructure==='graph'` 이면 배열 입력행 대신 `graph-editor.js` 편집기를 붙인다.
+  generator 는 `defaultGraph`·`capabilities` 를 export 하고 `generate(graph)` 로 그래프를 받는다(인자 없으면 defaultGraph — 검증기 호환).
+  간선은 `[u,v,w]`(가중치 기본 1). 렌더러엔 `ctx.graph`(현재 그린 그래프)를 넘긴다. BFS 는 `queue`, DFS 는 `stack` 필드로 보조 자료구조 표시.
+- **옵션 게이팅**: 편집기의 방향/가중치 옵션은 `IMPLEMENTED[opt] && algo.capabilities[opt]` 일 때만 설정 가능.
+  아니면 비활성 + 사유("준비 중"=편집기 미구현, "미지원"=알고리즘이 안 씀). 현재 방향·가중치 둘 다 미구현(예정).
 - `prefers-reduced-motion` 존중, 키보드 포커스 가시화, 모바일 반응형.
 
 ---
@@ -136,8 +142,9 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 렌더러 레지스트리 + array/graph 렌더러 → `app/renderers/`. 이후 stack/queue/tree/heap
 - [x] **방식 결정: Model A(제품) 확정, Model 2 는 CI 검증 오라클로 강등** — 제품은 단일 채널
 - [x] 카탈로그 뷰(`#/catalog`): 검색(title/tags/aliases) + 파셋(분류/자료구조/난이도) → 카드 → `#/algo/:id`
-- [x] 알고리즘 5종: bubble/insertion/quick/merge sort(array) + BFS(graph, SVG 렌더러)
-- [ ] 알고리즘 확충 계속: DFS → DP 테이블 → 다익스트라 등 (새 자료구조는 렌더러 추가)
+- [x] 알고리즘 6종: bubble/insertion/quick/merge sort(array) + BFS/DFS(graph, SVG 렌더러, visited 벡터)
+- [x] 그래프 직접 그리기 입력 편집기(`graph-editor.js`) + 알고리즘별 옵션 게이팅(capabilities)
+- [ ] 확충 계속: 가중치/방향 그래프 편집기 구현(예정) → 다익스트라 → DP 테이블 등
 - [ ] (선택) `build.sh` WASM 경로 정리 — 소비처 없으니 제거 또는 명시적 보존 결정
 - [ ] (선택) GitHub Actions: `index.json` 생성 + Model 2 WASM 빌드 + 스키마 검증
 

@@ -10,6 +10,7 @@ import { createStore } from '../store.js';
 import { loadAlgorithm } from '../algorithm-loader.js';
 import { getRenderer } from '../renderers/registry.js';
 import { highlightCpp } from '../highlight.js';
+import { createGraphEditor } from '../graph-editor.js';
 import '../renderers/array.js';
 import '../renderers/graph.js';
 
@@ -91,6 +92,7 @@ export async function renderAlgorithm(container, id) {
           <button class="btn" data-act="rand">Randomize</button>
           <button class="btn" data-act="reset">Default</button>
         </div>
+        <div class="editor-slot"></div>
         <div class="transport">
           <div class="tbtns">
             <button class="tbtn" data-act="first" title="처음">⏮</button>
@@ -123,9 +125,15 @@ export async function renderAlgorithm(container, id) {
   };
   el.arr.value = current.defaultInput.join(' ');
 
-  // 배열 알고리즘만 입력칸 사용 — 그래프 등은 고정 구조라 입력행을 숨긴다
-  const arrayInput = current.dataStructure === 'array';
-  if (!arrayInput) q('.inputrow').style.display = 'none';
+  // 그래프 알고리즘: 배열 입력행 대신 그래프 편집기를 붙인다.
+  const isGraph = current.dataStructure === 'graph';
+  let activeGraph = isGraph ? (current.defaultGraph || { nodes: [], edges: [], start: 0 }) : null;
+  let editor = null;
+  if (isGraph) {
+    q('.inputrow').style.display = 'none';
+    editor = createGraphEditor(current.defaultGraph, { onRun: g => run(g), capabilities: current.capabilities });
+    q('.editor-slot').append(editor.el);
+  }
 
   const store = createStore();
 
@@ -148,7 +156,7 @@ export async function renderAlgorithm(container, id) {
   function paintViz(step) {
     if (!step) return;
     const render = getRenderer(current.dataStructure) || getRenderer('array');
-    render(el.viz, step, { graph: current.graph });
+    render(el.viz, step, { graph: activeGraph });
   }
 
   function renderReadout(step) {
@@ -173,10 +181,13 @@ export async function renderAlgorithm(container, id) {
     el.play.textContent = state.playing ? '⏸' : '▶';
   });
 
-  function run() {
+  function run(graphArg) {
     el.note.textContent = '';
-    if (!arrayInput) {                       // 그래프 등: 입력 무시, 고정 구조로 생성
-      store.setTraces({ traceA: current.generate(current.defaultInput), trace2Valid: false });
+    if (isGraph) {                           // 그래프: 편집기로 그린 그래프를 입력으로
+      const g = graphArg || activeGraph;
+      if (!g.nodes.length) { el.note.textContent = '정점을 1개 이상 추가한 뒤 실행하세요'; return; }
+      activeGraph = g;                       // 렌더러가 이 그래프로 그린다
+      store.setTraces({ traceA: current.generate(g), trace2Valid: false });
       return;
     }
     const parsed = parseInput(el.arr.value);

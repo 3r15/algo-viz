@@ -16,8 +16,10 @@ export function renderGraph(host, step, ctx) {
   if (!graph || !Array.isArray(step?.values)) return;
 
   let cache = caches.get(host);
-  if (!cache || cache.n !== graph.nodes.length || !host.contains(cache.root)) {
+  // 그래프 객체가 바뀌면(사용자가 새로 그려 실행) 정점 수가 같아도 재구성
+  if (!cache || cache.graph !== graph || !host.contains(cache.root)) {
     cache = build(host, graph);
+    cache.graph = graph;
     caches.set(host, cache);
   }
 
@@ -25,8 +27,10 @@ export function renderGraph(host, step, ctx) {
     const node = cache.nodes[i];
     if (node) node.g.setAttribute('class', 'gnode s' + s);
   });
-  const q = step.queue || [];
-  cache.queue.textContent = 'queue  [ ' + q.join('   ') + ' ]';
+  // 보조 자료구조: DFS 는 stack, BFS 는 queue
+  const isStack = Array.isArray(step.stack);
+  const items = (isStack ? step.stack : step.queue) || [];
+  cache.queue.textContent = (isStack ? 'stack' : 'queue') + '  [ ' + items.join('   ') + ' ]';
 }
 
 function build(host, graph) {

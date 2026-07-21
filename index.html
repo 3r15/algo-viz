@@ -177,6 +177,51 @@
   .gnode.s3 text{fill:var(--sorted)}
   .graph-queue{font-family:var(--mono); font-size:12.5px; color:var(--muted); letter-spacing:.04em}
 
+  /* ===== 그래프 입력 편집기 ===== */
+  .geditor{border:1px solid var(--line); border-radius:8px; background:var(--panel); overflow:hidden}
+  .ge-bar{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; justify-content:space-between;
+    padding:10px 12px; border-bottom:1px solid var(--line); background:var(--panel2)}
+  .ge-modes{display:flex; gap:6px; flex-wrap:wrap}
+  .ge-mode{font-family:var(--mono); font-size:12px; color:var(--muted); cursor:pointer;
+    background:var(--panel); border:1px solid var(--line); padding:6px 11px; border-radius:6px;
+    transition:border-color .12s, color .12s, background .12s}
+  .ge-mode:hover{border-color:var(--dim); color:var(--ink)}
+  .ge-mode.on{color:#1a1a1a; background:var(--acc); border-color:var(--acc); font-weight:600}
+  .ge-right{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+  .ge-opts{display:flex; gap:12px; font-family:var(--mono); font-size:11.5px; color:var(--muted)}
+  .ge-opt{display:flex; align-items:center; gap:4px; cursor:pointer}
+  .ge-opt.ge-disabled{opacity:.55; cursor:not-allowed}
+  .ge-soon{font-size:10px; color:var(--warn); border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));
+    padding:0 5px; border-radius:4px}
+  .ge-clear{font-family:var(--mono); font-size:12px; color:var(--muted); cursor:pointer;
+    background:var(--panel); border:1px solid var(--line); padding:6px 11px; border-radius:6px}
+  .ge-clear:hover{border-color:var(--dim); color:var(--ink)}
+  .ge-run{font-size:12px; padding:6px 16px}
+  .ge-hint{font-family:var(--mono); font-size:11.5px; color:var(--muted); padding:8px 12px;
+    display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .ge-hint b{color:var(--ink)}
+  .ge-stat{color:var(--dim)}
+  .ge-canvas{width:100%; height:200px; display:block; background:
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0/100% 20px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/20px 100%;
+    background-color:var(--panel2); cursor:crosshair; border-top:1px solid var(--line)}
+  .ge-edge{stroke:#4a4a4a; stroke-width:.8}
+  .ge-node{cursor:pointer}
+  .ge-node circle{fill:#333; stroke:#5c5c5c; stroke-width:.9; transition:fill .12s, stroke .12s}
+  .ge-node text{fill:var(--ink); font-family:var(--mono); font-size:5px; font-weight:500; pointer-events:none}
+  .ge-node.start circle{fill:#2f3a2f; stroke:var(--sorted); stroke-width:1.4}
+  .ge-node.pending circle{fill:var(--acc); stroke:var(--acc)}
+  .ge-node.pending text{fill:#1a1a1a}
+  .ge-adj{border-top:1px solid var(--line)}
+  .ge-adj-head{display:flex; align-items:center; justify-content:space-between; padding:8px 12px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+  .ge-adj-toggle{font-family:var(--mono); font-size:10.5px; text-transform:none; letter-spacing:0;
+    color:var(--muted); cursor:pointer; background:var(--panel2); border:1px solid var(--line);
+    padding:3px 9px; border-radius:5px}
+  .ge-adj-toggle:hover{border-color:var(--dim); color:var(--ink)}
+  .ge-adj-body{margin:0; padding:0 12px 12px; font-family:var(--mono); font-size:12px;
+    color:#bdbdbd; line-height:1.6; white-space:pre; overflow-x:auto}
+
   /* readout — 높이 예약(설명 줄바꿈으로 아래 태그가 덜 밀리게) */
   .readout{font-family:var(--mono); font-size:11.5px; padding:11px 15px; display:flex;
     flex-wrap:wrap; gap:4px 16px; border-top:1px solid var(--line); color:var(--muted); min-height:42px}
