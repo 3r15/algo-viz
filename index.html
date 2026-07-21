@@ -6,157 +6,152 @@
 <title>algo-viz — 알고리즘 시각화</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0a0f14; --panel:#121a21; --panel2:#0e151b; --line:#233039;
-    --ink:#c9d6df; --muted:#63747f; --dim:#3a464f;
-    --ampA:#e9a94b; --cyanB:#46c7e6; --green:#6fbf73; --warn:#d9863f;
-    --mono:'IBM Plex Mono',ui-monospace,monospace;
-    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    /* 회색 단색 팔레트 — 그라데이션/네온 없음 */
+    --bg:#1a1a1a; --panel:#232323; --panel2:#1c1c1c; --line:#353535;
+    --ink:#ececec; --muted:#949494; --dim:#5e5e5e;
+    --acc:#d2d2d2;      /* 밝은 회색 — UI 강조 / 활성 라인 / swap */
+    --cmp:#767676;      /* 중간 회색 — compare */
+    --sorted:#829c82;   /* 절제된 무광 초록 — 정렬 확정(유일한 색 신호) */
+    --warn:#c89a5c;     /* 무광 앰버 — 오류 안내 문구 전용 */
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --sans:'Space Grotesk', system-ui, sans-serif;
   }
   *{box-sizing:border-box}
   html,body{margin:0}
   body{
     background:var(--bg); color:var(--ink); font-family:var(--sans);
-    font-size:14px; line-height:1.5;
-    background-image:radial-gradient(circle at 12% -5%, #10202a 0%, transparent 45%),
-                     radial-gradient(circle at 92% 0%, #1a1410 0%, transparent 42%);
-    background-attachment:fixed;
+    font-size:15px; line-height:1.55; letter-spacing:.1px;
   }
-  .wrap{max-width:1180px; margin:0 auto; padding:22px 18px 60px}
-  a{color:var(--cyanB); text-decoration:none}
-  a:hover{text-decoration:underline}
+  .wrap{max-width:1180px; margin:0 auto; padding:26px 20px 64px}
+  a{color:var(--ink); text-decoration:none}
+  a:hover{color:#fff; text-decoration:underline}
   code{font-family:var(--mono); background:var(--panel2); border:1px solid var(--line);
-    padding:1px 5px; border-radius:4px; font-size:11.5px; color:#aebac3}
+    padding:1px 5px; border-radius:4px; font-size:12px; color:#bdbdbd}
 
   /* ---- header (공용) ---- */
   header{display:flex; flex-wrap:wrap; gap:18px 26px; align-items:flex-end;
-    border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:20px}
-  .brand h1{font-family:var(--mono); font-weight:600; font-size:19px; letter-spacing:-0.3px;
-    margin:0 0 4px}
-  .brand .sub{color:var(--muted); font-size:12.5px; max-width:60ch}
+    border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:24px}
+  .brand h1{font-family:var(--sans); font-weight:600; font-size:30px; letter-spacing:-0.6px;
+    margin:0 0 6px; color:#f6f6f6}
+  .brand .sub{color:var(--muted); font-size:13px; max-width:62ch}
   .brand .back{font-family:var(--mono); font-size:12px; color:var(--muted); display:inline-block;
-    margin-bottom:8px}
-  .brand .back:hover{color:var(--cyanB)}
+    margin-bottom:10px; letter-spacing:.02em}
+  .brand .back:hover{color:var(--ink)}
 
   .controls{margin-left:auto; display:flex; flex-direction:column; gap:9px; align-items:flex-end}
   .inputrow{display:flex; gap:8px; align-items:center}
-  .inputrow label{font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+  .inputrow label{font-family:var(--mono); font-size:11px; letter-spacing:.09em;
     text-transform:uppercase; color:var(--muted)}
   #arr{font-family:var(--mono); background:var(--panel2); border:1px solid var(--line);
-    color:var(--ink); padding:7px 10px; border-radius:5px; width:200px; font-size:13px}
-  #arr:focus{outline:none; border-color:var(--cyanB)}
+    color:var(--ink); padding:8px 11px; border-radius:5px; width:200px; font-size:13px}
+  #arr:focus{outline:none; border-color:var(--acc)}
   .btn{font-family:var(--mono); font-size:12px; background:var(--panel); color:var(--ink);
-    border:1px solid var(--line); padding:7px 12px; border-radius:5px; cursor:pointer;
-    transition:border-color .15s, background .15s}
-  .btn:hover{border-color:var(--dim); background:#16202a}
-  .btn.primary{border-color:#3c5460; color:#dff4fb}
-  .btn.primary:hover{border-color:var(--cyanB)}
+    border:1px solid var(--line); padding:8px 13px; border-radius:5px; cursor:pointer;
+    transition:border-color .14s, background .14s}
+  .btn:hover{border-color:var(--dim); background:#2a2a2a}
+  .btn.primary{border-color:#5a5a5a; color:#fff}
+  .btn.primary:hover{border-color:var(--acc); background:#2e2e2e}
   .note{font-family:var(--mono); font-size:11px; color:var(--warn); min-height:14px}
 
   /* ================= 카탈로그(메인) ================= */
-  .search-row{display:flex; gap:10px; align-items:center; margin-bottom:16px}
-  #search{flex:1; font-family:var(--mono); font-size:14px; background:var(--panel2);
-    border:1px solid var(--line); color:var(--ink); padding:10px 13px; border-radius:7px}
-  #search:focus{outline:none; border-color:var(--cyanB)}
+  .search-row{display:flex; gap:12px; align-items:center; margin-bottom:18px}
+  #search{flex:1; font-family:var(--sans); font-size:15px; background:var(--panel2);
+    border:1px solid var(--line); color:var(--ink); padding:11px 14px; border-radius:7px}
+  #search::placeholder{color:var(--dim)}
+  #search:focus{outline:none; border-color:var(--acc)}
   .count{font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap}
 
-  .facets{display:flex; flex-wrap:wrap; gap:14px 22px; margin-bottom:20px;
-    padding-bottom:18px; border-bottom:1px solid var(--line)}
-  .facet-group{display:flex; flex-direction:column; gap:7px}
-  .facet-group .flabel{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+  .facets{display:flex; flex-wrap:wrap; gap:16px 24px; margin-bottom:22px;
+    padding-bottom:20px; border-bottom:1px solid var(--line)}
+  .facet-group{display:flex; flex-direction:column; gap:8px}
+  .facet-group .flabel{font-family:var(--mono); font-size:10.5px; letter-spacing:.11em;
     text-transform:uppercase; color:var(--muted)}
   .chips{display:flex; flex-wrap:wrap; gap:6px}
   .chip{font-family:var(--mono); font-size:11.5px; color:var(--muted); cursor:pointer;
-    background:var(--panel2); border:1px solid var(--line); padding:4px 10px; border-radius:20px;
-    transition:all .12s}
+    background:var(--panel2); border:1px solid var(--line); padding:5px 11px; border-radius:5px;
+    transition:border-color .12s, color .12s, background .12s}
   .chip:hover{border-color:var(--dim); color:var(--ink)}
-  .chip.on{color:#0a0f14; background:var(--cyanB); border-color:var(--cyanB); font-weight:500}
+  .chip.on{color:#1a1a1a; background:var(--acc); border-color:var(--acc); font-weight:600}
 
-  .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(268px,1fr)); gap:14px}
+  .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(276px,1fr)); gap:14px}
   .card{display:flex; flex-direction:column; gap:9px; text-align:left; cursor:pointer;
-    background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:15px 16px;
+    background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 17px;
     color:inherit; font:inherit; transition:border-color .14s, transform .14s, background .14s}
-  .card:hover{border-color:var(--cyanB); transform:translateY(-2px); background:#141d25}
-  .card:focus-visible{outline:2px solid var(--cyanB); outline-offset:2px}
-  .card h3{margin:0; font-family:var(--mono); font-size:15px; font-weight:600; color:#eaf2f7}
+  .card:hover{border-color:var(--acc); transform:translateY(-2px); background:#282828}
+  .card:focus-visible{outline:2px solid var(--acc); outline-offset:2px}
+  .card h3{margin:0; font-family:var(--sans); font-size:19px; font-weight:600; color:#f4f4f4;
+    letter-spacing:-.2px}
   .card .card-id{font-family:var(--mono); font-size:11px; color:var(--dim)}
-  .card .card-sum{font-size:12.5px; color:var(--muted); line-height:1.5}
+  .card .card-sum{font-size:13px; color:var(--muted); line-height:1.5}
   .card .card-meta{display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:4px}
   .badge{font-family:var(--mono); font-size:10.5px; padding:2px 7px; border-radius:4px;
     border:1px solid var(--line); color:var(--muted)}
-  .badge.cat{color:var(--cyanB); border-color:color-mix(in srgb,var(--cyanB) 35%,var(--line))}
-  .badge.diff{color:var(--ampA); border-color:color-mix(in srgb,var(--ampA) 35%,var(--line))}
-  .badge.cpx{color:#aebac3}
-  .badge.verified{color:var(--green); border-color:color-mix(in srgb,var(--green) 40%,var(--line))}
-  .empty{font-family:var(--mono); font-size:13px; color:var(--muted); padding:40px 0; text-align:center}
+  .badge.cat{color:var(--ink); border-color:#454545}
+  .badge.diff{color:var(--muted)}
+  .badge.cpx{color:#bdbdbd}
+  .badge.verified{color:var(--sorted); border-color:color-mix(in srgb,var(--sorted) 45%,var(--line))}
+  .empty{font-family:var(--mono); font-size:13px; color:var(--muted); padding:44px 0; text-align:center}
 
   /* ================= 알고리즘 플레이어 ================= */
-  .player{--acc:var(--ampA)}
-  .algo-sub{font-family:var(--mono); color:var(--cyanB); font-size:12.5px; margin-top:2px}
-  .algo-sub b{color:var(--ampA)}
-  .chan{border:1px solid var(--line); border-radius:9px; background:var(--panel);
+  .algo-sub{font-family:var(--mono); color:var(--muted); font-size:12.5px; margin-top:2px}
+  .algo-sub b{color:var(--ink)}
+  .chan{border:1px solid var(--line); border-radius:8px; background:var(--panel);
     overflow:hidden; display:flex; flex-direction:column}
 
   /* code panel */
-  .code{font-family:var(--mono); font-size:12.5px; padding:10px 0; background:var(--panel2);
+  .code{font-family:var(--mono); font-size:13px; padding:11px 0; background:var(--panel2);
     border-bottom:1px solid var(--line)}
-  .cl{display:flex; padding:1px 14px; white-space:pre; color:#9fb0bb; transition:background .1s}
-  .cl .ln{color:var(--dim); width:22px; text-align:right; margin-right:14px; user-select:none;
+  .cl{display:flex; padding:1.5px 15px; white-space:pre; color:#a6a6a6; transition:background .1s}
+  .cl .ln{color:var(--dim); width:24px; text-align:right; margin-right:15px; user-select:none;
     flex:none}
-  .cl.on{background:color-mix(in srgb, var(--acc) 14%, transparent);
-    box-shadow:inset 3px 0 0 var(--acc); color:#eaf2f7}
+  .cl.on{background:rgba(255,255,255,.05); box-shadow:inset 3px 0 0 var(--acc); color:#ffffff}
 
-  /* viz */
-  .viz{padding:16px 16px 10px; min-height:186px; display:flex; align-items:flex-end;
-    justify-content:center; gap:10px; position:relative;
-    background:
-      linear-gradient(var(--line) 1px, transparent 1px) 0 0/100% 44px,
-      var(--panel)}
+  /* viz — 단색 패널(그라데이션 그리드 제거) */
+  .viz{padding:18px 16px 12px; min-height:190px; display:flex; align-items:flex-end;
+    justify-content:center; gap:11px; background:var(--panel)}
   .bar-col{display:flex; flex-direction:column; align-items:center; gap:5px; width:40px}
-  .bar-val{font-family:var(--mono); font-size:12px; color:var(--muted); transition:color .15s}
-  .bar{width:30px; border-radius:3px 3px 0 0;
-    background:color-mix(in srgb, var(--acc) 26%, #1b2831);
-    border:1px solid color-mix(in srgb, var(--acc) 30%, var(--line));
-    transition:height .28s cubic-bezier(.4,0,.2,1), background .15s, border-color .15s}
+  .bar-val{font-family:var(--mono); font-size:12.5px; color:var(--muted); transition:color .14s}
+  .bar{width:30px; border-radius:3px 3px 0 0; background:#3a3a3a; border:1px solid #4a4a4a;
+    transition:height .28s cubic-bezier(.4,0,.2,1), background .14s, border-color .14s}
   .bar-ix{font-family:var(--mono); font-size:10px; color:var(--dim)}
-  .bar-col.cmp .bar{background:#2b3a44; border-color:#c9d6df; box-shadow:0 0 0 1px #c9d6df inset}
-  .bar-col.cmp .bar-val{color:#eaf2f7}
-  .bar-col.swp .bar{background:var(--acc); border-color:var(--acc);
-    box-shadow:0 0 12px 0 color-mix(in srgb,var(--acc) 60%, transparent)}
+  .bar-col.cmp .bar{background:#4e4e4e; border-color:var(--cmp)}
+  .bar-col.cmp .bar-val{color:var(--ink)}
+  .bar-col.swp .bar{background:var(--acc); border-color:var(--acc)}
   .bar-col.swp .bar-val{color:var(--acc)}
-  .bar-col.sorted .bar{background:color-mix(in srgb,var(--green) 22%, #16221a);
-    border-color:color-mix(in srgb,var(--green) 45%,var(--line))}
-  .bar-col.sorted .bar-val{color:var(--green)}
+  .bar-col.sorted .bar{background:#2f3a2f; border-color:var(--sorted)}
+  .bar-col.sorted .bar-val{color:var(--sorted)}
 
   /* readout */
-  .readout{font-family:var(--mono); font-size:11.5px; padding:10px 14px; display:flex;
+  .readout{font-family:var(--mono); font-size:11.5px; padding:11px 15px; display:flex;
     flex-wrap:wrap; gap:4px 16px; border-top:1px solid var(--line); color:var(--muted)}
   .readout b{color:var(--ink); font-weight:500}
-  .readout .op{color:var(--acc)}
-  .readout .exp{flex-basis:100%; color:#aebac3}
+  .readout .op{color:var(--ink)}
+  .readout .exp{flex-basis:100%; color:#bdbdbd}
 
   /* transport */
   .transport{display:flex; align-items:center; gap:14px; margin:16px 0 4px;
-    border:1px solid var(--line); border-radius:9px; background:var(--panel); padding:11px 14px}
+    border:1px solid var(--line); border-radius:8px; background:var(--panel); padding:12px 15px}
   .tbtns{display:flex; gap:6px}
   .tbtn{font-family:var(--mono); font-size:13px; width:38px; height:34px; display:grid;
     place-items:center; background:var(--panel2); border:1px solid var(--line); border-radius:6px;
-    color:var(--ink); cursor:pointer; transition:border-color .15s,background .15s}
-  .tbtn:hover{border-color:var(--dim); background:#16202a}
-  .tbtn.play{width:44px; color:#dff4fb; border-color:#3c5460}
-  #scrub{flex:1; accent-color:var(--cyanB); cursor:pointer}
+    color:var(--ink); cursor:pointer; transition:border-color .14s,background .14s}
+  .tbtn:hover{border-color:var(--dim); background:#2a2a2a}
+  .tbtn.play{width:44px; color:#fff; border-color:#5a5a5a}
+  .scrub{flex:1; accent-color:var(--acc); cursor:pointer}
   .counter{font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap;
-    min-width:78px; text-align:right}
+    min-width:80px; text-align:right}
   .speed{display:flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px;
     color:var(--muted)}
-  .speed input{width:78px; accent-color:var(--ampA)}
+  .speed input{width:80px; accent-color:var(--acc)}
 
   @media (max-width:820px){
     .controls{margin-left:0; align-items:stretch; width:100%}
     header{align-items:flex-start}
     #arr{width:100%}
+    .brand h1{font-size:25px}
   }
   @media (prefers-reduced-motion:reduce){ .bar,.card{transition:none} }
 </style>
