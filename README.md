@@ -38,8 +38,8 @@ npm run validate                # 검증
 Model 2(WASM) 활성화:
 
 ```bash
-npm run build:wasm              # bubble_sort.js + bubble_sort.wasm (emcc 필요)
-# 그다음 index.html 의 <script src="bubble_sort.js"> 주석 해제
+npm run build:wasm              # algorithms/bubble-sort/bubble_sort.js + .wasm (emcc 필요)
+# 그다음 meta.json 에 wasm 필드 추가 + 글루 스크립트 로드
 ```
 
 ## 구조

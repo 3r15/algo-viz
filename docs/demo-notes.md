@@ -12,10 +12,10 @@
 
 | 파일 | 역할 |
 |---|---|
-| `index.html` | 비교 페이지(자체 완결). 그대로 GitHub Pages에 올리면 동작 |
-| `bubble_sort.cpp` | **Model 2의 진실 원천.** 실제 계측된 C++ (네이티브 + Emscripten 겸용) |
-| `build.sh` | `bubble_sort.cpp` → WASM 컴파일 스크립트 |
-| `reference-trace.json` | `bubble_sort.cpp`를 g++로 네이티브 컴파일·실행해 뽑은 기본 입력 트레이스 |
+| `index.html` + `app/` | 비교 페이지(얇은 셸 + 공용 플레이어 모듈). 그대로 GitHub Pages에 올리면 동작 |
+| `algorithms/bubble-sort/code/bubble_sort.cpp` | **Model 2의 진실 원천.** 실제 계측된 C++ (네이티브 + Emscripten 겸용) |
+| `build.sh` | 위 C++ → WASM 컴파일 스크립트(산출물은 `algorithms/bubble-sort/` 아래) |
+| `algorithms/bubble-sort/reference-trace.json` | 그 C++을 g++로 네이티브 컴파일·실행해 뽑은 기본 입력 트레이스 |
 
 ---
 
@@ -43,13 +43,14 @@ cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_
 cd -
 
 # 2) 빌드
-./build.sh          # → bubble_sort.js + bubble_sort.wasm
+./build.sh          # → algorithms/bubble-sort/bubble_sort.js + .wasm
 
-# 3) index.html 하단의 이 줄 주석 해제:
-#    <script src="bubble_sort.js"></script>
+# 3) meta.json 에 wasm 필드 추가 + 글루 스크립트 로드:
+#    "wasm": { "export": "createBubbleSort", "run": "run_trace" }
+#    <script src="algorithms/bubble-sort/bubble_sort.js"></script>
 ```
 
-이제 페이지가 `createBubbleSort`를 자동 감지해 CH·2를 **LIVE**로 전환하고,
+이제 `app/main.js` 가 `createBubbleSort`를 자동 감지해 CH·2를 **LIVE**로 전환하고,
 아무 입력이나 브라우저에서 실제 C++ 로직으로 실행합니다.
 
 GitHub Actions에 이 빌드를 넣으면 커밋 때마다 `.wasm`이 자동 생성됩니다.

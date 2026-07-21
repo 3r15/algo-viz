@@ -9,6 +9,9 @@ a.out
 node_modules/
 npm-debug.log*
 
+# graphify code-navigation index (regenerate with `graphify build .`)
+graphify-out/
+
 # local Claude Code overrides (personal, not shared)
 .claude/settings.local.json
 

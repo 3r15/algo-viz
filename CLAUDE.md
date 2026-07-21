@@ -41,9 +41,16 @@ C++ 알고리즘을 **라인별 실행·되감기**하며 자료구조 변화를
 
 ```
 CLAUDE.md
-index.html                 # 현재: Model A vs Model 2 비교 데모(GH Pages 진입점)
-bubble_sort.cpp            # Model 2 진실 원천(계측 C++)
-build.sh                   # C++ → WASM (Emscripten)
+index.html                 # 얇은 셸(GH Pages 진입점). app/main.js 만 로드
+app/                       # 공용 플레이어 + 렌더러 (바닐라 ES 모듈)
+  main.js                  # 앱 셸: 해시 라우팅 → 알고리즘 로드 → store·렌더러 배선
+  store.js                 # 플레이어 상태 + 트랜스포트(DOM 무관). undo 없음
+  algorithm-loader.js      # 폴더 규약으로 generator.js/meta.json/reference-trace 로드
+  equivalence.js           # Model A↔2 동치 판정(LOCK 램프)
+  renderers/
+    registry.js            # registerRenderer('<type>', render)
+    array.js               # array 렌더러(요소 재사용, 인덱스 슬롯 기준)
+build.sh                   # 계측 C++ → WASM (Emscripten). 진실 원천은 algorithms/<id>/code/
 schemas/
   trace.schema.json        # 트레이스 계약
   meta.schema.json         # 카탈로그 레코드 계약
@@ -61,8 +68,9 @@ algorithms/
   skills/                  # add-algorithm, trace-format
 ```
 
-목표 구조는 `algorithms/<id>/`. 현재 루트의 평평한 데모(`index.html`, `bubble_sort.cpp`)는
-`algorithms/bubble-sort/` 로 이관·정리하는 것이 첫 리팩터링 과제다.
+목표 구조는 `algorithms/<id>/`. `index.html` 은 이제 `app/main.js` 만 로드하는 얇은 셸이고,
+알고리즘 자산(코드·트레이스)은 `#/algo/:id` 라우팅으로 `algorithms/<id>/` 에서 동적 로드한다.
+Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.cpp`) — 루트 평평한 데모 잔재는 정리 완료.
 
 ---
 
@@ -98,11 +106,11 @@ python3 -m http.server 8000        # → http://localhost:8000
 node scripts/validate-trace.mjs algorithms/<id>/generator.js
 node scripts/validate-trace.mjs algorithms/<id>/meta.json
 
-# Model 2 WASM 빌드(emcc 필요) — 이후 index.html 의 <script src="bubble_sort.js"> 주석 해제
+# Model 2 WASM 빌드(emcc 필요) — 이후 meta.json 에 "wasm":{export,run} 추가 + glue 스크립트 로드
 ./build.sh
 
 # Model 2 동치 대조(emcc 없이 네이티브로)
-g++ -std=c++17 -O2 bubble_sort.cpp -o /tmp/bs && /tmp/bs "5 2 9 1 5 6"
+g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tmp/bs "5 2 9 1 5 6"
 ```
 
 ---
@@ -112,9 +120,9 @@ g++ -std=c++17 -O2 bubble_sort.cpp -o /tmp/bs && /tmp/bs "5 2 9 1 5 6"
 - [x] 트레이스 포맷 확정 + 검증기 + 훅/에이전트/스킬 스캐폴딩
 - [x] 시드 알고리즘(bubble-sort): Model A generator + Model 2 C++ + 동치(LOCK) 확인
 - [x] Model A vs Model 2 비교 데모(`index.html`)
-- [ ] 평평한 데모를 `algorithms/bubble-sort/` 로 이관·정리
-- [ ] 공용 플레이어(store + 트랜스포트 + 스크러버) 모듈 분리
-- [ ] 렌더러 레지스트리 + array 렌더러 분리, 이후 stack/queue/tree/graph
+- [x] 앱 셸 + 해시 라우팅(`#/algo/:id`) — 인라인 데모를 `app/` 모듈로 추출, `algorithms/<id>/` 동적 로드
+- [x] 공용 플레이어(store + 트랜스포트 + 스크러버) 모듈 분리 → `app/store.js`
+- [x] 렌더러 레지스트리 + array 렌더러 분리 → `app/renderers/`. 이후 stack/queue/tree/graph
 - [ ] 카탈로그 뷰(`index.json` 필터: 카테고리/자료구조/복잡도/난이도/태그)
 - [ ] 알고리즘 확충: quick/merge/insertion sort → BFS/DFS → DP 테이블
 - [ ] (선택) GitHub Actions: `index.json` 생성 + Model 2 WASM 빌드 + 스키마 검증
