@@ -3,6 +3,8 @@
 C++ 알고리즘을 **라인별 실행·되감기**하며 자료구조 변화를 시각화하는 학습 웹사이트.
 정적 호스팅(GitHub Pages) 전용. 백엔드·실시간 컴파일 없음.
 
+메인은 **카탈로그**(검색 + 파셋 필터)이고, 카드/검색으로 알고리즘 페이지(`#/algo/:id`)로 이동한다.
+
 ---
 
 ## 아키텍처 한 문장
@@ -12,12 +14,15 @@ C++ 알고리즘을 **라인별 실행·되감기**하며 자료구조 변화를
 브라우저에서 C++ 을 인터프리트하지 않는다. 알고리즘마다 **실행 스텝 배열(trace)** 을 만들어 두고,
 플레이어는 `currentStep` 인덱스 하나만 오간다. 되감기 = `i-1`, 그래서 undo 로직이 없다.
 
-### 트레이스 생성 두 방식 (같은 포맷을 산출)
-- **Model A** — `generator.js`(JS 재구현). 빌드 불필요, 임의 입력 실시간 재생성. 기본값.
-- **Model 2** — 계측 C++ 을 Emscripten 으로 WASM 컴파일. 표시 코드 = 실행 코드. `build.sh` 필요.
+### 트레이스 생성: Model A (제품) + Model 2 (CI 검증 오라클)
+- **Model A** — `generator.js`(JS 재구현). 빌드 불필요, 임의 입력 실시간 재생성. **브라우저에 배포되는 유일한 방식.**
+- **Model 2** — 계측 C++(`algorithms/<id>/code/`). **런타임에서 제거됨** — 이제 브라우저는 Model A 만 재생한다.
+  대신 네이티브 g++ 컴파일로 `reference-trace.json` 을 뽑아 두고, **CI/훅이 Model A ↔ reference-trace 동치(LOCK)를 게이트**한다.
 
-두 방식은 **바이트 단위로 동일한 트레이스**를 내야 한다. 그 동일성이 이 프로젝트의 핵심 불변식이다.
-데모(`index.html`)의 LOCK 램프가 이 동일성을 실시간으로 보여준다.
+결정 근거: 정적 호스팅 + 다수 알고리즘 + 빠른 브라우징엔 Model A(제로 빌드·수 KB)가 적합.
+Model 2 의 "표시=실행" 강점은 **런타임 WASM 없이도** reference-trace 동치 검증으로 확보된다.
+그래서 `step.line`/`op`/`values` 계약과 LOCK 불변식은 그대로 살아 있고, Model 2 는 정확성 게이트로만 남는다.
+(`build.sh` 의 WASM 빌드 경로는 현재 소비처가 없어 사실상 휴면 상태.)
 
 ---
 
@@ -41,16 +46,19 @@ C++ 알고리즘을 **라인별 실행·되감기**하며 자료구조 변화를
 
 ```
 CLAUDE.md
-index.html                 # 얇은 셸(GH Pages 진입점). app/main.js 만 로드
-app/                       # 공용 플레이어 + 렌더러 (바닐라 ES 모듈)
-  main.js                  # 앱 셸: 해시 라우팅 → 알고리즘 로드 → store·렌더러 배선
+index.html                 # 얇은 셸(GH Pages 진입점). #app 마운트 + CSS, app/main.js 만 로드
+app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (바닐라 ES 모듈)
+  main.js                  # 라우터: 해시 → 뷰 디스패치(catalog | algo), teardown 관리
+  views/
+    catalog.js             # 메인: 검색 + 파셋 필터 + 카드 그리드 → #/algo/:id
+    algorithm.js           # 단일 채널 Model A 플레이어(#/algo/:id)
+  catalog-data.js          # index.json 로드 + 필터/검색(순수 함수, DOM 무관)
   store.js                 # 플레이어 상태 + 트랜스포트(DOM 무관). undo 없음
-  algorithm-loader.js      # 폴더 규약으로 generator.js/meta.json/reference-trace 로드
-  equivalence.js           # Model A↔2 동치 판정(LOCK 램프)
+  algorithm-loader.js      # 폴더 규약으로 generator.js/meta.json 로드
   renderers/
     registry.js            # registerRenderer('<type>', render)
     array.js               # array 렌더러(요소 재사용, 인덱스 슬롯 기준)
-build.sh                   # 계측 C++ → WASM (Emscripten). 진실 원천은 algorithms/<id>/code/
+build.sh                   # (휴면) 계측 C++ → WASM. 진실 원천 algorithms/<id>/code/. 현재 소비처 없음
 schemas/
   trace.schema.json        # 트레이스 계약
   meta.schema.json         # 카탈로그 레코드 계약
@@ -106,11 +114,10 @@ python3 -m http.server 8000        # → http://localhost:8000
 node scripts/validate-trace.mjs algorithms/<id>/generator.js
 node scripts/validate-trace.mjs algorithms/<id>/meta.json
 
-# Model 2 WASM 빌드(emcc 필요) — 이후 meta.json 에 "wasm":{export,run} 추가 + glue 스크립트 로드
-./build.sh
-
-# Model 2 동치 대조(emcc 없이 네이티브로)
+# Model 2 CI 오라클: 네이티브 컴파일로 reference-trace 재생성/대조(emcc 불필요)
 g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tmp/bs "5 2 9 1 5 6"
+# → 출력이 algorithms/bubble-sort/reference-trace.json 과 일치해야 하고,
+#   validate-trace 가 generator.js(Model A) ↔ reference-trace 동치를 게이트한다(LOCK).
 ```
 
 ---
@@ -119,12 +126,13 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 
 - [x] 트레이스 포맷 확정 + 검증기 + 훅/에이전트/스킬 스캐폴딩
 - [x] 시드 알고리즘(bubble-sort): Model A generator + Model 2 C++ + 동치(LOCK) 확인
-- [x] Model A vs Model 2 비교 데모(`index.html`)
-- [x] 앱 셸 + 해시 라우팅(`#/algo/:id`) — 인라인 데모를 `app/` 모듈로 추출, `algorithms/<id>/` 동적 로드
+- [x] 앱 셸 + 해시 라우팅 — 인라인 데모를 `app/` 모듈로 추출, `algorithms/<id>/` 동적 로드
 - [x] 공용 플레이어(store + 트랜스포트 + 스크러버) 모듈 분리 → `app/store.js`
 - [x] 렌더러 레지스트리 + array 렌더러 분리 → `app/renderers/`. 이후 stack/queue/tree/graph
-- [ ] 카탈로그 뷰(`index.json` 필터: 카테고리/자료구조/복잡도/난이도/태그)
-- [ ] 알고리즘 확충: quick/merge/insertion sort → BFS/DFS → DP 테이블
+- [x] **방식 결정: Model A(제품) 확정, Model 2 는 CI 검증 오라클로 강등** — 제품은 단일 채널
+- [x] 카탈로그 뷰(`#/catalog`): 검색(title/tags/aliases) + 파셋(분류/자료구조/난이도) → 카드 → `#/algo/:id`
+- [ ] 알고리즘 확충: quick/merge/insertion sort → BFS/DFS → DP 테이블 (카탈로그를 채워야 필터가 의미)
+- [ ] (선택) `build.sh` WASM 경로 정리 — 소비처 없으니 제거 또는 명시적 보존 결정
 - [ ] (선택) GitHub Actions: `index.json` 생성 + Model 2 WASM 빌드 + 스키마 검증
 
 ## 함정 메모
