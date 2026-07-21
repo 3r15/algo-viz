@@ -1,5 +1,45 @@
 [
   {
+    "id": "bfs",
+    "title": "너비 우선 탐색 (BFS)",
+    "summary": "시작점에서 가까운 정점부터 층별로 방문하는 그래프 탐색.",
+    "aliases": [
+      "너비우선탐색",
+      "breadth first search",
+      "bfs"
+    ],
+    "categories": [
+      "graph",
+      "search"
+    ],
+    "dataStructures": [
+      "graph",
+      "queue"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "avg": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "graph-traversal",
+      "shortest-path",
+      "queue"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "placeholder": true,
+    "path": "algorithms/bfs/"
+  },
+  {
     "id": "bubble-sort",
     "title": "버블 정렬",
     "summary": "인접한 두 원소를 비교·교환하며 큰 값을 뒤로 밀어내는 기본 정렬.",
@@ -37,5 +77,121 @@
       "model-2"
     ],
     "path": "algorithms/bubble-sort/"
+  },
+  {
+    "id": "insertion-sort",
+    "title": "삽입 정렬",
+    "summary": "앞쪽 정렬된 구간에 원소를 하나씩 알맞은 자리에 끼워 넣는 정렬.",
+    "aliases": [
+      "삽입정렬",
+      "insertion sort",
+      "insertionsort"
+    ],
+    "categories": [
+      "sorting"
+    ],
+    "dataStructures": [
+      "array"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n)",
+        "avg": "O(n^2)",
+        "worst": "O(n^2)"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "comparison-sort",
+      "in-place",
+      "stable",
+      "online"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "placeholder": true,
+    "path": "algorithms/insertion-sort/"
+  },
+  {
+    "id": "merge-sort",
+    "title": "병합 정렬",
+    "summary": "반으로 나눠 각각 정렬한 뒤 병합하는 안정적 분할정복 정렬.",
+    "aliases": [
+      "병합정렬",
+      "합병정렬",
+      "merge sort",
+      "mergesort"
+    ],
+    "categories": [
+      "sorting"
+    ],
+    "dataStructures": [
+      "array"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n log n)",
+        "avg": "O(n log n)",
+        "worst": "O(n log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "comparison-sort",
+      "stable",
+      "divide-and-conquer"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "placeholder": true,
+    "path": "algorithms/merge-sort/"
+  },
+  {
+    "id": "quick-sort",
+    "title": "퀵 정렬",
+    "summary": "피벗을 기준으로 분할하며 재귀적으로 정렬하는 분할정복 정렬.",
+    "aliases": [
+      "퀵정렬",
+      "quick sort",
+      "quicksort"
+    ],
+    "categories": [
+      "sorting"
+    ],
+    "dataStructures": [
+      "array"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n log n)",
+        "avg": "O(n log n)",
+        "worst": "O(n^2)"
+      },
+      "space": "O(log n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "comparison-sort",
+      "in-place",
+      "divide-and-conquer"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "placeholder": true,
+    "path": "algorithms/quick-sort/"
   }
 ]

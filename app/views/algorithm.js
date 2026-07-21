@@ -1,85 +1,129 @@
-// app/views/algorithm.js — 단일 채널 알고리즘 플레이어(Model A).
-// #/algo/:id 라우트가 렌더한다. Model 2(C++→WASM)는 제품에서 제거됐고
-// CI 검증 오라클(reference-trace)로만 남는다 → 여기선 traceA 하나만 재생한다.
+// app/views/algorithm.js — 단일 채널 Model A 플레이어(#/algo/:id).
 //
-// renderAlgorithm(container, id) → teardown 함수 반환(라우터가 이탈 시 호출).
+// 레이아웃: 상단 3정보(분류/시간/공간) → 툴바(입력 + 조작 패널) → 코드 → viz → 하단 태그.
+// 조작 패널을 코드 위에 두어, 아래쪽 viz 높이 변화가 조작 패널을 밀지 않게 한다.
+// 상단 분류·하단 태그는 클릭 시 카탈로그 검색(#/catalog?q=...)으로 연결된다.
+//
+// renderAlgorithm(container, id) → teardown 함수 반환.
 
 import { createStore } from '../store.js';
 import { loadAlgorithm } from '../algorithm-loader.js';
 import { getRenderer } from '../renderers/registry.js';
-import '../renderers/array.js'; // 기본 렌더러 등록(side-effect)
+import { highlightCpp } from '../highlight.js';
+import '../renderers/array.js';
 
-const TEMPLATE = `
-<div class="player">
-  <header>
-    <div class="brand">
-      <a class="back" href="#/catalog">← 목록</a>
-      <h1 class="algo-title"></h1>
-      <div class="algo-sub"></div>
-    </div>
-    <div class="controls">
-      <div class="inputrow">
-        <label for="arr">input[]</label>
-        <input id="arr" spellcheck="false" />
-        <button class="btn primary" data-act="run">Run</button>
-      </div>
-      <div class="inputrow">
-        <button class="btn" data-act="rand">Randomize</button>
-        <button class="btn" data-act="reset">Default</button>
-      </div>
-      <div class="note"></div>
-    </div>
-  </header>
+const CAT_LABEL = {
+  sorting: '정렬', graph: '그래프', dp: 'DP', search: '탐색', greedy: '그리디',
+  string: '문자열', tree: '트리', math: '수학', backtracking: '백트래킹', geometry: '기하',
+};
+const prettyO = s => String(s).replace(/\^2/g, '²').replace(/\^3/g, '³');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  <section class="chan">
-    <div class="code"></div>
-    <div class="viz"></div>
-    <div class="readout"></div>
-  </section>
+// 상단: 분류(클릭 가능) · 시간복잡도 · 공간복잡도 — 딱 3가지
+function topInfo(a) {
+  const cat = a.category
+    ? `<button class="badge cat" data-q="${esc(a.category)}" title="이 분류로 검색">${esc(CAT_LABEL[a.category] || a.category)}</button>`
+    : '';
+  const t = a.complexity?.time?.worst || a.complexity?.time?.avg;
+  const time = t ? `<span class="badge cpx">시간 ${esc(prettyO(t))}</span>` : '';
+  const space = a.complexity?.space ? `<span class="badge cpx">공간 ${esc(prettyO(a.complexity.space))}</span>` : '';
+  return cat + time + space;
+}
 
-  <div class="transport">
-    <div class="tbtns">
-      <button class="tbtn" data-act="first" title="처음">⏮</button>
-      <button class="tbtn" data-act="prev" title="이전 스텝">◀</button>
-      <button class="tbtn play" data-act="play" title="재생/정지">▶</button>
-      <button class="tbtn" data-act="next" title="다음 스텝">▶</button>
-      <button class="tbtn" data-act="last" title="끝">⏭</button>
-    </div>
-    <input type="range" class="scrub" min="0" max="0" value="0" />
-    <div class="speed">속도<input type="range" class="speed-range" min="1" max="10" value="5" /></div>
-    <div class="counter">0 / 0</div>
-  </div>
-</div>`;
+// 하단: 태그(클릭 → 해당 태그로 검색)
+function tagsBar(a) {
+  if (!a.tags?.length) return '';
+  return `<div class="tags"><span class="tags-label">태그</span>` +
+    a.tags.map(t => `<button class="tag" data-q="${esc(t)}">${esc(t)}</button>`).join('') +
+    `</div>`;
+}
+
+// [data-q] 요소 클릭 → 카탈로그 검색 결과로 이동
+function wireLinks(container) {
+  container.querySelectorAll('[data-q]').forEach(b =>
+    b.addEventListener('click', () => { location.hash = '#/catalog?q=' + encodeURIComponent(b.dataset.q); }));
+}
 
 export async function renderAlgorithm(container, id) {
-  container.innerHTML = TEMPLATE;
-  const q = sel => container.querySelector(sel);
-
-  const el = {
-    title: q('.algo-title'), sub: q('.algo-sub'), note: q('.note'), arr: q('#arr'),
-    code: q('.code'), viz: q('.viz'), readout: q('.readout'),
-    scrub: q('.scrub'), speed: q('.speed-range'), counter: q('.counter'),
-    play: q('[data-act=play]'),
-  };
-
   let current;
   try {
     current = await loadAlgorithm(id);
   } catch (e) {
     container.innerHTML =
-      `<header><div class="brand"><a class="back" href="#/catalog">← 목록</a>` +
-      `<h1>로드 실패</h1><div class="sub">알고리즘 <code>${id}</code> 를 불러오지 못했습니다 — ${e.message}</div>` +
-      `</div></header>`;
+      `<div class="algo-head"><a class="back" href="#/catalog">← 목록</a>` +
+      `<h1 class="algo-title">로드 실패</h1>` +
+      `<div class="cs-sum">알고리즘 <code>${esc(id)}</code> 를 불러오지 못했습니다 — ${esc(e.message)}</div></div>`;
     return () => {};
   }
 
-  el.title.textContent = current.title;
-  el.sub.innerHTML = subLine(current);
+  // 준비 중(placeholder) — 플레이어 없이 정보/태그만
+  if (current.placeholder) {
+    container.innerHTML = `
+      <div class="algo-head">
+        <a class="back" href="#/catalog">← 목록</a>
+        <h1 class="algo-title">${esc(current.title)}</h1>
+        <div class="topinfo">${topInfo(current)}</div>
+      </div>
+      <div class="coming-soon">
+        <div class="cs-badge">준비 중</div>
+        ${current.summary ? `<p class="cs-sum">${esc(current.summary)}</p>` : ''}
+        <p class="cs-note">이 알고리즘의 시각화는 아직 구현되지 않았습니다.</p>
+      </div>
+      ${tagsBar(current)}`;
+    wireLinks(container);
+    return () => {};
+  }
+
+  container.innerHTML = `
+    <div class="player">
+      <div class="algo-head">
+        <a class="back" href="#/catalog">← 목록</a>
+        <h1 class="algo-title">${esc(current.title)}</h1>
+        <div class="topinfo">${topInfo(current)}</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="inputrow">
+          <label for="arr">input[]</label>
+          <input id="arr" spellcheck="false" />
+          <button class="btn primary" data-act="run">Run</button>
+          <button class="btn" data-act="rand">Randomize</button>
+          <button class="btn" data-act="reset">Default</button>
+        </div>
+        <div class="transport">
+          <div class="tbtns">
+            <button class="tbtn" data-act="first" title="처음">⏮</button>
+            <button class="tbtn" data-act="prev" title="이전 스텝">◀</button>
+            <button class="tbtn play" data-act="play" title="재생/정지">▶</button>
+            <button class="tbtn" data-act="next" title="다음 스텝">▶</button>
+            <button class="tbtn" data-act="last" title="끝">⏭</button>
+          </div>
+          <input type="range" class="scrub" min="0" max="0" value="0" />
+          <div class="speed">속도<input type="range" class="speed-range" min="1" max="10" value="5" /></div>
+          <div class="counter">0 / 0</div>
+        </div>
+        <div class="note"></div>
+      </div>
+
+      <section class="chan">
+        <div class="code"></div>
+        <div class="viz"></div>
+        <div class="readout"></div>
+      </section>
+
+      ${tagsBar(current)}
+    </div>`;
+
+  const q = sel => container.querySelector(sel);
+  const el = {
+    note: q('.note'), arr: q('#arr'),
+    code: q('.code'), viz: q('.viz'), readout: q('.readout'),
+    scrub: q('.scrub'), speed: q('.speed-range'), counter: q('.counter'), play: q('[data-act=play]'),
+  };
   el.arr.value = current.defaultInput.join(' ');
 
   const store = createStore();
 
-  /* ── 렌더 ── */
   function renderCode(step) {
     const code = current.code;
     if (el.code.childElementCount !== code.length) {
@@ -88,7 +132,7 @@ export async function renderAlgorithm(container, id) {
         const row = document.createElement('div');
         row.className = 'cl'; row.dataset.line = idx + 1;
         const ln = document.createElement('span'); ln.className = 'ln'; ln.textContent = idx + 1;
-        const c = document.createElement('span'); c.textContent = txt;
+        const c = document.createElement('span'); c.className = 'ct'; c.innerHTML = highlightCpp(txt);
         row.append(ln, c); el.code.append(row);
       });
     }
@@ -111,7 +155,7 @@ export async function renderAlgorithm(container, id) {
       (step.i != null ? `<span>i <b>${step.i}</b></span>` : '') +
       (step.j != null ? `<span>j <b>${step.j}</b></span>` : '') +
       `<span>op <span class="op">${opLabel}</span></span>` +
-      `<span class="exp">${step.explain}</span>`;
+      `<span class="exp">${esc(step.explain)}</span>`;
   }
 
   store.subscribe(state => {
@@ -123,7 +167,6 @@ export async function renderAlgorithm(container, id) {
     el.play.textContent = state.playing ? '⏸' : '▶';
   });
 
-  /* ── 입력 / 실행 ── */
   function run() {
     const parsed = parseInput(el.arr.value);
     el.note.textContent = '';
@@ -132,7 +175,6 @@ export async function renderAlgorithm(container, id) {
     store.setTraces({ traceA: current.generate(parsed.nums), trace2Valid: false });
   }
 
-  /* ── 이벤트 배선 ── */
   const actions = {
     run,
     reset: () => { el.arr.value = current.defaultInput.join(' '); run(); },
@@ -151,6 +193,7 @@ export async function renderAlgorithm(container, id) {
     btn.addEventListener('click', () => actions[btn.dataset.act]()));
   el.scrub.addEventListener('input', e => { store.stopPlay(); store.setStep(Number(e.target.value)); });
   el.speed.addEventListener('input', e => store.setSpeed(e.target.value));
+  wireLinks(container);
 
   const onKey = e => {
     if (e.target.tagName === 'INPUT' && e.target.id === 'arr') return;
@@ -162,20 +205,10 @@ export async function renderAlgorithm(container, id) {
 
   run();
 
-  // teardown: 재생 타이머 정지 + 키보드 리스너 해제
   return () => {
     store.stopPlay();
     document.removeEventListener('keydown', onKey);
   };
-}
-
-function subLine(a) {
-  const parts = [];
-  if (a.category) parts.push(a.category);
-  if (a.complexity?.time?.avg) parts.push(`시간 <b>${a.complexity.time.avg}</b> (avg)`);
-  if (a.complexity?.space) parts.push(`공간 ${a.complexity.space}`);
-  if (a.difficulty) parts.push(a.difficulty);
-  return parts.join(' · ') + ' · step-back enabled';
 }
 
 function parseInput(str) {

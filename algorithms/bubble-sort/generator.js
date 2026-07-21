@@ -9,16 +9,17 @@
 export const category = 'sorting';
 export const defaultInput = [5, 2, 9, 1, 5, 6];
 
+// 표시 코드 스타일 규약: 들여쓰기는 스페이스 4칸.
 export const code = [
   'void bubbleSort(vector<int>& a) {',
-  '  int n = a.size();',
-  '  for (int i = 0; i < n - 1; i++) {',
-  '    for (int j = 0; j < n - 1 - i; j++) {',
-  '      if (a[j] > a[j + 1]) {',
-  '        swap(a[j], a[j + 1]);',
-  '      }',
+  '    int n = a.size();',
+  '    for (int i = 0; i < n - 1; i++) {',
+  '        for (int j = 0; j < n - 1 - i; j++) {',
+  '            if (a[j] > a[j + 1]) {',
+  '                swap(a[j], a[j + 1]);',
+  '            }',
+  '        }',
   '    }',
-  '  }',
   '}',
 ];
 

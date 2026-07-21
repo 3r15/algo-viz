@@ -1,0 +1,18 @@
+{
+  "id": "quick-sort",
+  "title": "퀵 정렬",
+  "summary": "피벗을 기준으로 분할하며 재귀적으로 정렬하는 분할정복 정렬.",
+  "aliases": ["퀵정렬", "quick sort", "quicksort"],
+  "categories": ["sorting"],
+  "dataStructures": ["array"],
+  "complexity": {
+    "time": { "best": "O(n log n)", "avg": "O(n log n)", "worst": "O(n^2)" },
+    "space": "O(log n)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["comparison-sort", "in-place", "divide-and-conquer"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "placeholder": true,
+  "path": "algorithms/quick-sort/"
+}

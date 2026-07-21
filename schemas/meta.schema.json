@@ -39,6 +39,8 @@
     "generation": { "type": "array",
       "items": { "enum": ["model-a", "model-2"] },
       "description": "이 알고리즘이 지원하는 트레이스 생성 방식" },
+    "placeholder": { "type": "boolean",
+      "description": "true 면 아직 generator.js 없이 카탈로그에만 노출되는 '준비 중' 항목" },
     "path": { "type": "string", "description": "algorithms/<id>/ 형태의 상대 경로" }
   },
   "additionalProperties": false

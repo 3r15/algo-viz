@@ -96,10 +96,13 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 
 - **바닐라 ES 모듈**(빌드리스가 기본). 프레임워크·번들러 도입은 사전 합의.
 - **해시 라우팅 필수** — GH Pages 는 서버 리라이트가 없다. `#/catalog`, `#/algo/:id`.
-  `/algo/quick-sort` 같은 경로는 404 난다.
+  태그·분류 링크는 `#/catalog?q=<term>` (검색어 프리필). `/algo/quick-sort` 같은 경로는 404 난다.
 - **상대 경로** — 프로젝트 페이지는 `user.github.io/<repo>/` 하위. base 경로 주의.
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
 - **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/stack/tree/graph…)로 위임.
+- **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
+- **알고리즘 페이지 레이아웃**: 상단 3정보(분류·시간·공간) → 툴바(입력+조작 패널, 코드 위) → 코드 → viz(고정 높이) → 하단 태그. 태그/분류 클릭 → 검색.
+- **placeholder 알고리즘**: `meta.json` 에 `"placeholder": true` 면 generator 없이 카탈로그·"준비 중" 페이지에만 노출.
 - `prefers-reduced-motion` 존중, 키보드 포커스 가시화, 모바일 반응형.
 
 ---

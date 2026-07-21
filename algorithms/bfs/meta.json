@@ -1,0 +1,18 @@
+{
+  "id": "bfs",
+  "title": "너비 우선 탐색 (BFS)",
+  "summary": "시작점에서 가까운 정점부터 층별로 방문하는 그래프 탐색.",
+  "aliases": ["너비우선탐색", "breadth first search", "bfs"],
+  "categories": ["graph", "search"],
+  "dataStructures": ["graph", "queue"],
+  "complexity": {
+    "time": { "best": "O(V+E)", "avg": "O(V+E)", "worst": "O(V+E)" },
+    "space": "O(V)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["graph-traversal", "shortest-path", "queue"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "placeholder": true,
+  "path": "algorithms/bfs/"
+}

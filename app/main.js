@@ -18,10 +18,16 @@ async function route() {
   if (teardown) { teardown(); teardown = null; }
   app.innerHTML = '';
 
-  const m = location.hash.match(/^#\/algo\/([\w-]+)/);
+  // 해시에서 경로와 쿼리 분리: "#/catalog?q=in-place" → path, query
+  const raw = location.hash || '';
+  const qi = raw.indexOf('?');
+  const path = qi >= 0 ? raw.slice(0, qi) : raw;
+  const query = qi >= 0 ? raw.slice(qi + 1) : '';
+
+  const m = path.match(/^#\/algo\/([\w-]+)/);
   const next = m
     ? await renderAlgorithm(app, m[1])
-    : await renderCatalog(app);
+    : await renderCatalog(app, { q: new URLSearchParams(query).get('q') || '' });
 
   if (mine !== token) { next && next(); return; } // 그새 다른 라우팅 발생 → 폐기
   teardown = next;

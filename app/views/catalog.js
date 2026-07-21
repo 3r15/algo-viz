@@ -14,7 +14,7 @@ const FACETS = [
 
 const DIFF_ORDER = { beginner: 0, intermediate: 1, advanced: 2 };
 
-export async function renderCatalog(container) {
+export async function renderCatalog(container, { q = '' } = {}) {
   let records;
   try {
     records = await loadCatalog();
@@ -25,7 +25,7 @@ export async function renderCatalog(container) {
     return () => {};
   }
 
-  const state = { q: '', facets: {} };           // facets: { key: Set }
+  const state = { q, facets: {} };               // q: 초기 검색어(태그/분류 클릭으로 진입)
   for (const f of FACETS) state.facets[f.key] = new Set();
 
   container.innerHTML = `
@@ -46,6 +46,8 @@ export async function renderCatalog(container) {
   const facetsEl = container.querySelector('.facets');
   const cardsEl  = container.querySelector('.cards');
   const countEl  = container.querySelector('.count');
+
+  if (state.q) searchEl.value = state.q;         // 태그/분류 클릭으로 진입 시 검색어 채움
 
   // ── 파셋 칩 렌더(1회) ──
   for (const f of FACETS) {
@@ -98,11 +100,12 @@ export async function renderCatalog(container) {
 
 function card(rec) {
   const el = document.createElement('button');
-  el.className = 'card'; el.type = 'button';
+  el.className = 'card' + (rec.placeholder ? ' placeholder' : '');
+  el.type = 'button';
   el.addEventListener('click', () => { location.hash = `#/algo/${rec.id}`; });
 
   const verified = Array.isArray(rec.generation) && rec.generation.includes('model-2');
-  const avg = rec.complexity?.time?.avg;
+  const worst = rec.complexity?.time?.worst || rec.complexity?.time?.avg;
 
   el.innerHTML = `
     <h3>${esc(rec.title || rec.id)}</h3>
@@ -110,8 +113,8 @@ function card(rec) {
     ${rec.summary ? `<div class="card-sum">${esc(rec.summary)}</div>` : ''}
     <div class="card-meta">
       ${(rec.categories || []).map(c => `<span class="badge cat">${esc(c)}</span>`).join('')}
-      ${avg ? `<span class="badge cpx">${esc(avg)}</span>` : ''}
-      ${rec.difficulty ? `<span class="badge diff">${esc(rec.difficulty)}</span>` : ''}
+      ${worst ? `<span class="badge cpx">${esc(worst)}</span>` : ''}
+      ${rec.placeholder ? `<span class="badge soon">준비 중</span>` : ''}
       ${verified ? `<span class="badge verified" title="네이티브 C++ 트레이스와 CI 대조됨">C++ 검증됨</span>` : ''}
     </div>`;
   return el;

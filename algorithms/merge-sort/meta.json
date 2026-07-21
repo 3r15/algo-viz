@@ -1,0 +1,18 @@
+{
+  "id": "merge-sort",
+  "title": "병합 정렬",
+  "summary": "반으로 나눠 각각 정렬한 뒤 병합하는 안정적 분할정복 정렬.",
+  "aliases": ["병합정렬", "합병정렬", "merge sort", "mergesort"],
+  "categories": ["sorting"],
+  "dataStructures": ["array"],
+  "complexity": {
+    "time": { "best": "O(n log n)", "avg": "O(n log n)", "worst": "O(n log n)" },
+    "space": "O(n)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["comparison-sort", "stable", "divide-and-conquer"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "placeholder": true,
+  "path": "algorithms/merge-sort/"
+}
