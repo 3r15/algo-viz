@@ -160,6 +160,23 @@
   .bar-col.sorted .bar{background:#2f3a2f; border-color:var(--sorted)}
   .bar-col.sorted .bar-val{color:var(--sorted)}
 
+  /* graph 렌더러(정점 상태: 0 미방문·1 큐대기·2 방문중·3 완료) */
+  .viz.graph{align-items:center}
+  .graphviz{display:flex; flex-direction:column; align-items:center; gap:12px; width:100%}
+  .graph-svg{width:100%; max-width:460px; height:150px}
+  .gedge{stroke:#3a3a3a; stroke-width:.7}
+  .gnode circle{fill:#2a2a2a; stroke:#4a4a4a; stroke-width:.8;
+    transition:fill .2s, stroke .2s, stroke-width .2s}
+  .gnode text{fill:var(--muted); font-family:var(--mono); font-size:5px;
+    font-weight:500; transition:fill .2s}
+  .gnode.s1 circle{stroke:var(--acc); stroke-width:1.4}     /* 큐 대기 */
+  .gnode.s1 text{fill:var(--ink)}
+  .gnode.s2 circle{fill:var(--acc); stroke:var(--acc)}      /* 방문 중 */
+  .gnode.s2 text{fill:#1a1a1a}
+  .gnode.s3 circle{fill:#2f3a2f; stroke:var(--sorted)}      /* 완료 */
+  .gnode.s3 text{fill:var(--sorted)}
+  .graph-queue{font-family:var(--mono); font-size:12.5px; color:var(--muted); letter-spacing:.04em}
+
   /* readout — 높이 예약(설명 줄바꿈으로 아래 태그가 덜 밀리게) */
   .readout{font-family:var(--mono); font-size:11.5px; padding:11px 15px; display:flex;
     flex-wrap:wrap; gap:4px 16px; border-top:1px solid var(--line); color:var(--muted); min-height:42px}

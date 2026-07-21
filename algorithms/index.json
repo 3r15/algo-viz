@@ -36,7 +36,6 @@
     "generation": [
       "model-a"
     ],
-    "placeholder": true,
     "path": "algorithms/bfs/"
   },
   {
