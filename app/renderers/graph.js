@@ -8,74 +8,79 @@
 
 import { registerRenderer } from './registry.js';
 
-const NS = 'http://www.w3.org/2000/svg';
-const caches = new WeakMap();
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const VIEW_W = 100, VIEW_H = 60;                  // viewBox 좌표계. 정점 x,y 는 0..1 비율
+const graphCaches = new WeakMap();                // host 요소 → { wrap, nodes, queueLabel, graph }
 
 export function renderGraph(host, step, ctx) {
   const graph = ctx?.graph;
   if (!graph || !Array.isArray(step?.values)) return;
 
-  let cache = caches.get(host);
+  let cache = graphCaches.get(host);
   // 그래프 객체가 바뀌면(사용자가 새로 그려 실행) 정점 수가 같아도 재구성
-  if (!cache || cache.graph !== graph || !host.contains(cache.root)) {
-    cache = build(host, graph);
+  if (!cache || cache.graph !== graph || !host.contains(cache.wrap)) {
+    cache = buildSvg(host, graph);
     cache.graph = graph;
-    caches.set(host, cache);
+    graphCaches.set(host, cache);
   }
 
-  step.values.forEach((s, i) => {
-    const node = cache.nodes[i];
-    if (node) node.g.setAttribute('class', 'gnode s' + s);
+  step.values.forEach((state, nodeId) => {
+    const node = cache.nodes[nodeId];
+    if (node) node.group.setAttribute('class', 'gnode s' + state);
   });
+
   // 보조 자료구조: DFS 는 stack, BFS 는 queue
-  const isStack = Array.isArray(step.stack);
-  const items = (isStack ? step.stack : step.queue) || [];
-  cache.queue.textContent = (isStack ? 'stack' : 'queue') + '  [ ' + items.join('   ') + ' ]';
+  const usesStack = Array.isArray(step.stack);
+  const items = (usesStack ? step.stack : step.queue) || [];
+  cache.queueLabel.textContent = (usesStack ? 'stack' : 'queue') + '  [ ' + items.join('   ') + ' ]';
 }
 
-function build(host, graph) {
+function buildSvg(host, graph) {
   host.innerHTML = '';
   host.classList.add('graph');
 
   const wrap = document.createElement('div');
   wrap.className = 'graphviz';
 
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 100 60');
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${VIEW_W} ${VIEW_H}`);
   svg.setAttribute('class', 'graph-svg');
 
-  for (const [u, v] of graph.edges) {
-    const a = graph.nodes[u], b = graph.nodes[v];
-    const ln = document.createElementNS(NS, 'line');
-    ln.setAttribute('x1', a.x * 100); ln.setAttribute('y1', a.y * 60);
-    ln.setAttribute('x2', b.x * 100); ln.setAttribute('y2', b.y * 60);
-    ln.setAttribute('class', 'gedge');
-    svg.appendChild(ln);
+  for (const [from, to] of graph.edges) {
+    const a = graph.nodes[from], b = graph.nodes[to];
+    const edge = document.createElementNS(SVG_NS, 'line');
+    edge.setAttribute('x1', a.x * VIEW_W); edge.setAttribute('y1', a.y * VIEW_H);
+    edge.setAttribute('x2', b.x * VIEW_W); edge.setAttribute('y2', b.y * VIEW_H);
+    edge.setAttribute('class', 'gedge');
+    svg.appendChild(edge);
   }
 
-  const nodes = graph.nodes.map((nd, i) => {
-    const g = document.createElementNS(NS, 'g');
-    g.setAttribute('class', 'gnode s0');
-    const cx = nd.x * 100, cy = nd.y * 60;
-    const c = document.createElementNS(NS, 'circle');
-    c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', '5.4');
-    const t = document.createElementNS(NS, 'text');
-    t.setAttribute('x', cx); t.setAttribute('y', cy);
-    t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
-    t.textContent = nd.label ?? i;
-    g.append(c, t);
-    svg.appendChild(g);
-    return { g, c, t };
+  const nodes = graph.nodes.map((node, nodeId) => {
+    const group = document.createElementNS(SVG_NS, 'g');
+    group.setAttribute('class', 'gnode s0');
+    const cx = node.x * VIEW_W, cy = node.y * VIEW_H;
+
+    const circle = document.createElementNS(SVG_NS, 'circle');
+    circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', '5.4');
+
+    const label = document.createElementNS(SVG_NS, 'text');
+    label.setAttribute('x', cx); label.setAttribute('y', cy);
+    label.setAttribute('text-anchor', 'middle'); label.setAttribute('dominant-baseline', 'central');
+    label.textContent = node.label ?? nodeId;
+
+    group.append(circle, label);
+    svg.appendChild(group);
+    return { group, circle, label };
   });
 
   wrap.appendChild(svg);
-  const queue = document.createElement('div');
-  queue.className = 'graph-queue';
-  queue.textContent = 'queue  [ ]';
-  wrap.appendChild(queue);
+  const queueLabel = document.createElement('div');
+  queueLabel.className = 'graph-queue';
+  queueLabel.textContent = 'queue  [ ]';
+  wrap.appendChild(queueLabel);
   host.appendChild(wrap);
 
-  return { root: wrap, nodes, queue, n: graph.nodes.length };
+  return { wrap, nodes, queueLabel };
 }
 
 registerRenderer('graph', renderGraph);

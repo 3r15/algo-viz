@@ -28,7 +28,7 @@ export function createGraphEditor(initial, { onRun, capabilities } = {}) {
   const caps = { directed: false, weighted: false, ...(capabilities || {}) };
 
   const state = {
-    nodes: (initial?.nodes || []).map(n => ({ x: n.x, y: n.y })),
+    nodes: (initial?.nodes || []).map(node => ({ x: node.x, y: node.y })),
     edges: (initial?.edges || []).map(([u, v, w]) => [u, v, w ?? 1]),
     start: initial?.start ?? 0,
     directed: false,   // 옵션이 설정 가능해질 때만 바뀐다(현재 항상 false)
@@ -39,21 +39,21 @@ export function createGraphEditor(initial, { onRun, capabilities } = {}) {
   };
 
   // 옵션 상태: enabled(설정 가능) + note(비활성 사유)
-  const optState = opt => {
+  const optionState = opt => {
     if (!caps[opt]) return { enabled: false, note: '미지원' };
     if (!IMPLEMENTED[opt]) return { enabled: false, note: '준비 중' };
     return { enabled: true, note: '' };
   };
   const optRow = (opt, label) => {
-    const s = optState(opt);
-    return `<label class="ge-opt${s.enabled ? '' : ' ge-disabled'}">` +
-      `<input type="checkbox" data-opt="${opt}" ${s.enabled ? '' : 'disabled'}> ${label}` +
-      `${s.note ? `<span class="ge-soon">${s.note}</span>` : ''}</label>`;
+    const status = optionState(opt);
+    return `<label class="ge-opt${status.enabled ? '' : ' ge-disabled'}">` +
+      `<input type="checkbox" data-opt="${opt}" ${status.enabled ? '' : 'disabled'}> ${label}` +
+      `${status.note ? `<span class="ge-soon">${status.note}</span>` : ''}</label>`;
   };
 
-  const el = document.createElement('div');
-  el.className = 'geditor';
-  el.innerHTML = `
+  const root = document.createElement('div');
+  root.className = 'geditor';
+  root.innerHTML = `
     <div class="ge-bar">
       <div class="ge-modes">
         ${MODES.map(o => `<button type="button" class="ge-mode${o.m === 'node' ? ' on' : ''}" data-mode="${o.m}">${o.label}</button>`).join('')}
@@ -75,54 +75,57 @@ export function createGraphEditor(initial, { onRun, capabilities } = {}) {
       <pre class="ge-adj-body"></pre>
     </div>`;
 
-  const svg = el.querySelector('.ge-canvas');
-  const hintEl = el.querySelector('.ge-hint');
-  const adjBody = el.querySelector('.ge-adj-body');
+  const svg = root.querySelector('.ge-canvas');
+  const hintEl = root.querySelector('.ge-hint');
+  const adjBody = root.querySelector('.ge-adj-body');
 
-  el.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
-    state.mode = b.dataset.mode; state.pending = -1;
-    el.querySelectorAll('[data-mode]').forEach(x => x.classList.toggle('on', x === b));
+  root.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => {
+    state.mode = button.dataset.mode; state.pending = -1;
+    root.querySelectorAll('[data-mode]').forEach(other => other.classList.toggle('on', other === button));
     draw();
   }));
   // 설정 가능한 옵션만 반응(현재는 전부 비활성)
-  el.querySelectorAll('[data-opt]').forEach(cb => cb.addEventListener('change', () => {
-    state[cb.dataset.opt] = cb.checked; draw();
+  root.querySelectorAll('[data-opt]').forEach(checkbox => checkbox.addEventListener('change', () => {
+    state[checkbox.dataset.opt] = checkbox.checked; draw();
   }));
-  el.querySelector('.ge-clear').addEventListener('click', () => {
+  root.querySelector('.ge-clear').addEventListener('click', () => {
     state.nodes = []; state.edges = []; state.start = 0; state.pending = -1; draw();
   });
-  el.querySelector('.ge-run').addEventListener('click', () => onRun && onRun(getGraph()));
-  el.querySelector('.ge-adj-toggle').addEventListener('click', () => {
+  root.querySelector('.ge-run').addEventListener('click', () => onRun && onRun(getGraph()));
+  root.querySelector('.ge-adj-toggle').addEventListener('click', () => {
     state.adjView = state.adjView === 'list' ? 'matrix' : 'list';
-    el.querySelector('.ge-adj-title').textContent = state.adjView === 'list' ? '인접 리스트' : '인접 행렬';
-    el.querySelector('.ge-adj-toggle').textContent = state.adjView === 'list' ? '행렬로' : '리스트로';
+    root.querySelector('.ge-adj-title').textContent = state.adjView === 'list' ? '인접 리스트' : '인접 행렬';
+    root.querySelector('.ge-adj-toggle').textContent = state.adjView === 'list' ? '행렬로' : '리스트로';
     drawAdj();
   });
   svg.addEventListener('click', onCanvasClick);
 
   /* ── 좌표 / 히트 ── */
-  function toViewbox(e) {
-    const m = svg.getScreenCTM();
-    if (!m) return null;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX; pt.y = e.clientY;
-    const p = pt.matrixTransform(m.inverse());
-    return { x: p.x, y: p.y };
+  // 화면 좌표(클릭) → viewBox 좌표(0..100 × 0..60)
+  function toViewbox(event) {
+    const screenMatrix = svg.getScreenCTM();
+    if (!screenMatrix) return null;
+    const screenPoint = svg.createSVGPoint();
+    screenPoint.x = event.clientX; screenPoint.y = event.clientY;
+    const viewPoint = screenPoint.matrixTransform(screenMatrix.inverse());
+    return { x: viewPoint.x, y: viewPoint.y };
   }
+  // 클릭 지점에서 가장 가까운 정점(반경 7 이내). 없으면 -1.
   function findNode(x, y) {
-    let best = -1, bd = 49;
-    state.nodes.forEach((n, i) => {
-      const dx = n.x * 100 - x, dy = n.y * 60 - y, d = dx * dx + dy * dy;
-      if (d < bd) { bd = d; best = i; }
+    const HIT_RADIUS_SQ = 49;
+    let nearest = -1, nearestDistSq = HIT_RADIUS_SQ;
+    state.nodes.forEach((node, index) => {
+      const dx = node.x * 100 - x, dy = node.y * 60 - y, distSq = dx * dx + dy * dy;
+      if (distSq < nearestDistSq) { nearestDistSq = distSq; nearest = index; }
     });
-    return best;
+    return nearest;
   }
-  function onCanvasClick(e) {
-    const p = toViewbox(e);
-    if (!p || p.x < 0 || p.x > 100 || p.y < 0 || p.y > 60) return;
-    const hit = findNode(p.x, p.y);
+  function onCanvasClick(event) {
+    const point = toViewbox(event);
+    if (!point || point.x < 0 || point.x > 100 || point.y < 0 || point.y > 60) return;
+    const hit = findNode(point.x, point.y);
     if (state.mode === 'node') {
-      if (hit < 0) state.nodes.push({ x: clamp01(p.x / 100), y: clamp01(p.y / 60) });
+      if (hit < 0) state.nodes.push({ x: clamp01(point.x / 100), y: clamp01(point.y / 60) });
     } else if (state.mode === 'edge') {
       if (hit >= 0) {
         if (state.pending < 0) state.pending = hit;
@@ -140,12 +143,14 @@ export function createGraphEditor(initial, { onRun, capabilities } = {}) {
     if (!state.edges.some(([a, b]) => (a === u && b === v) || (a === v && b === u)))
       state.edges.push([u, v, 1]);   // 기본 가중치 1
   }
-  function deleteNode(k) {
-    state.nodes.splice(k, 1);
+  // 정점 하나를 지우면 뒤쪽 정점들의 번호가 한 칸씩 당겨지므로 간선도 함께 재번호한다
+  function deleteNode(removed) {
+    state.nodes.splice(removed, 1);
     state.edges = state.edges
-      .filter(([a, b]) => a !== k && b !== k)
-      .map(([a, b, w]) => [a > k ? a - 1 : a, b > k ? b - 1 : b, w]);
-    if (state.start === k) state.start = 0; else if (state.start > k) state.start--;
+      .filter(([u, v]) => u !== removed && v !== removed)
+      .map(([u, v, w]) => [u > removed ? u - 1 : u, v > removed ? v - 1 : v, w]);
+    if (state.start === removed) state.start = 0;
+    else if (state.start > removed) state.start--;
     if (state.start >= state.nodes.length) state.start = Math.max(0, state.nodes.length - 1);
     state.pending = -1;
   }
@@ -154,7 +159,7 @@ export function createGraphEditor(initial, { onRun, capabilities } = {}) {
   function draw() { drawHint(); drawCanvas(); drawAdj(); }
 
   function drawHint() {
-    const info = MODES.find(o => o.m === state.mode);
+    const info = MODES.find(mode => mode.m === state.mode);
     const extra = state.mode === 'edge' && state.pending >= 0 ? ` — ${state.pending} 선택됨, 두 번째 정점 클릭` : '';
     hintEl.innerHTML = `<b>${info.label.replace(/^\S+\s/, '')}</b> 모드: ${info.hint}${extra}` +
       `<span class="ge-stat">정점 ${state.nodes.length} · 간선 ${state.edges.length} · 시작 ${state.nodes.length ? state.start : '—'}</span>`;
@@ -165,26 +170,26 @@ export function createGraphEditor(initial, { onRun, capabilities } = {}) {
     for (const [u, v] of state.edges) {
       const a = state.nodes[u], b = state.nodes[v];
       if (!a || !b) continue;
-      const ln = document.createElementNS(NS, 'line');
-      ln.setAttribute('x1', a.x * 100); ln.setAttribute('y1', a.y * 60);
-      ln.setAttribute('x2', b.x * 100); ln.setAttribute('y2', b.y * 60);
-      ln.setAttribute('class', 'ge-edge');
-      svg.appendChild(ln);
+      const line = document.createElementNS(NS, 'line');
+      line.setAttribute('x1', a.x * 100); line.setAttribute('y1', a.y * 60);
+      line.setAttribute('x2', b.x * 100); line.setAttribute('y2', b.y * 60);
+      line.setAttribute('class', 'ge-edge');
+      svg.appendChild(line);
     }
-    state.nodes.forEach((n, i) => {
-      const g = document.createElementNS(NS, 'g');
-      let cls = 'ge-node';
-      if (i === state.start) cls += ' start';
-      if (i === state.pending) cls += ' pending';
-      g.setAttribute('class', cls);
-      const cx = n.x * 100, cy = n.y * 60;
-      const c = document.createElementNS(NS, 'circle');
-      c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', '5.2');
-      const t = document.createElementNS(NS, 'text');
-      t.setAttribute('x', cx); t.setAttribute('y', cy);
-      t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
-      t.textContent = i;
-      g.append(c, t); svg.appendChild(g);
+    state.nodes.forEach((node, index) => {
+      const group = document.createElementNS(NS, 'g');
+      let className = 'ge-node';
+      if (index === state.start) className += ' start';
+      if (index === state.pending) className += ' pending';
+      group.setAttribute('class', className);
+      const cx = node.x * 100, cy = node.y * 60;
+      const circle = document.createElementNS(NS, 'circle');
+      circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', '5.2');
+      const label = document.createElementNS(NS, 'text');
+      label.setAttribute('x', cx); label.setAttribute('y', cy);
+      label.setAttribute('text-anchor', 'middle'); label.setAttribute('dominant-baseline', 'central');
+      label.textContent = index;
+      group.append(circle, label); svg.appendChild(group);
     });
   }
 
@@ -196,15 +201,16 @@ export function createGraphEditor(initial, { onRun, capabilities } = {}) {
       if (u >= N || v >= N) continue;
       adj[u].set(v, w); if (!state.directed) adj[v].set(u, w);
     }
-    const nbrs = adj.map(m => [...m.keys()].sort((a, b) => a - b));
+    const neighbors = adj.map(byNode => [...byNode.keys()].sort((a, b) => a - b));
     if (state.adjView === 'list') {
-      adjBody.textContent = nbrs.map((l, i) =>
-        `${i}: ${l.map(v => state.weighted ? `${v}(${adj[i].get(v)})` : v).join(', ') || '∅'}`).join('\n');
+      adjBody.textContent = neighbors.map((row, u) =>
+        `${u}: ${row.map(v => state.weighted ? `${v}(${adj[u].get(v)})` : v).join(', ') || '∅'}`).join('\n');
     } else {
-      const header = '   ' + nbrs.map((_, i) => String(i).padStart(2)).join('');
-      const rows = nbrs.map((l, i) => {
-        const set = new Set(l);
-        return String(i).padStart(2) + ' ' + Array.from({ length: N }, (_, j) => (set.has(j) ? ' 1' : ' 0')).join('');
+      const header = '   ' + neighbors.map((_, v) => String(v).padStart(2)).join('');
+      const rows = neighbors.map((row, u) => {
+        const connected = new Set(row);
+        return String(u).padStart(2) + ' ' +
+          Array.from({ length: N }, (_, v) => (connected.has(v) ? ' 1' : ' 0')).join('');
       });
       adjBody.textContent = [header, ...rows].join('\n');
     }
@@ -216,18 +222,18 @@ export function createGraphEditor(initial, { onRun, capabilities } = {}) {
       directed: state.directed,
       weighted: state.weighted,
       start: state.nodes.length ? state.start : 0,
-      nodes: state.nodes.map((n, i) => ({ id: i, x: n.x, y: n.y, label: String(i) })),
+      nodes: state.nodes.map((node, index) => ({ id: index, x: node.x, y: node.y, label: String(index) })),
       edges: state.edges.map(([u, v, w]) => [u, v, w ?? 1]),
     };
   }
-  function setGraph(g) {
-    state.nodes = (g?.nodes || []).map(n => ({ x: n.x, y: n.y }));
-    state.edges = (g?.edges || []).map(([u, v, w]) => [u, v, w ?? 1]);
-    state.start = g?.start ?? 0;
+  function setGraph(graph) {
+    state.nodes = (graph?.nodes || []).map(node => ({ x: node.x, y: node.y }));
+    state.edges = (graph?.edges || []).map(([u, v, w]) => [u, v, w ?? 1]);
+    state.start = graph?.start ?? 0;
     state.pending = -1;
     draw();
   }
 
   draw();
-  return { el, getGraph, setGraph };
+  return { el: root, getGraph, setGraph };
 }

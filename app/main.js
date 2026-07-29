@@ -20,13 +20,13 @@ async function route() {
 
   // 해시에서 경로와 쿼리 분리: "#/catalog?q=in-place" → path, query
   const raw = location.hash || '';
-  const qi = raw.indexOf('?');
-  const path = qi >= 0 ? raw.slice(0, qi) : raw;
-  const query = qi >= 0 ? raw.slice(qi + 1) : '';
+  const queryStart = raw.indexOf('?');
+  const path = queryStart >= 0 ? raw.slice(0, queryStart) : raw;
+  const query = queryStart >= 0 ? raw.slice(queryStart + 1) : '';
 
-  const m = path.match(/^#\/algo\/([\w-]+)/);
-  const next = m
-    ? await renderAlgorithm(app, m[1])
+  const algoRoute = path.match(/^#\/algo\/([\w-]+)/);
+  const next = algoRoute
+    ? await renderAlgorithm(app, algoRoute[1])
     : await renderCatalog(app, { q: new URLSearchParams(query).get('q') || '' });
 
   if (mine !== token) { next && next(); return; } // 그새 다른 라우팅 발생 → 폐기

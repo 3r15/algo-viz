@@ -44,8 +44,8 @@ export function generate(input) {
   const n = raw.length;
   const parent = new Array(n).fill(0);
   for (let i = 1; i < n; i++) {
-    const p = Number.isInteger(raw[i]) ? raw[i] : 0;
-    parent[i] = Math.min(Math.max(p, 0), i - 1);
+    const given = Number.isInteger(raw[i]) ? raw[i] : 0;
+    parent[i] = Math.min(Math.max(given, 0), i - 1);
   }
 
   if (n <= 1) {
@@ -58,8 +58,8 @@ export function generate(input) {
 
   const LOG = Math.floor(Math.log2(n)) + 1;                   // 2^LOG > 최대 깊이(n-1)
   const up = Array.from({ length: LOG }, () => new Array(n).fill(null));
-  const cell = Array.from({ length: LOG }, () => new Array(n).fill(0));  // 표 셀 상태
-  const node = new Array(n).fill(0);                                     // 트리 노드 상태
+  const cellState = Array.from({ length: LOG }, () => new Array(n).fill(0));  // 표 셀 상태
+  const nodeState = new Array(n).fill(0);                                // 트리 노드 상태
 
   const rowLabels = Array.from({ length: LOG }, (_, k) => `k=${k}  ↑${1 << k}`);
   const colLabels = Array.from({ length: n }, (_, v) => String(v));
@@ -67,30 +67,34 @@ export function generate(input) {
   let caption = 'up[k][v] = 정점 v 의 2^k 번째 조상';
 
   const steps = [];
-  const push = (line, op, explain, ex = {}) => steps.push({
+  const pushStep = (line, op, explain, extra = {}) => steps.push({
     line, op,
-    a: ex.a ?? -1, b: ex.b ?? -1,
+    a: extra.a ?? -1, b: extra.b ?? -1,
     values: depth.slice(),
     sortedFrom: n,
     explain,
     tree: { kind: 'rooted', parent, root: 0, values: Array.from({ length: n }, (_, v) => v),
-      states: node.slice(), titles, marks: ex.marks },
-    matrix: { rows: LOG, cols: n, values: up.flat(), states: cell.flat(), rowLabels, colLabels, caption },
+      states: nodeState.slice(), titles, marks: extra.marks },
+    matrix: { rows: LOG, cols: n, values: up.flat(), states: cellState.flat(), rowLabels, colLabels, caption },
   });
 
-  const clearCells = () => { for (let k = 0; k < LOG; k++) for (let v = 0; v < n; v++) if (cell[k][v]) cell[k][v] = 1; };
-  const clearNodes = () => node.fill(0);
+  // 강조(2·3·4)를 모두 "채워짐"으로 되돌린다. 다음 스텝의 강조가 깨끗하게 시작되도록.
+  const clearCells = () => {
+    for (let k = 0; k < LOG; k++)
+      for (let v = 0; v < n; v++) if (cellState[k][v]) cellState[k][v] = 1;
+  };
+  const clearNodes = () => nodeState.fill(0);
 
   // ---------- build: k = 0 ----------
-  push(3, 'start', `정점 ${n}개, 최대 깊이 ${Math.max(...depth)} → LOG = ${LOG} (2^${LOG} = ${1 << LOG} > 깊이)`);
+  pushStep(3, 'start', `정점 ${n}개, 최대 깊이 ${Math.max(...depth)} → LOG = ${LOG} (2^${LOG} = ${1 << LOG} > 깊이)`);
 
   for (let v = 0; v < n; v++) {
     up[0][v] = parent[v];
-    cell[0][v] = 3;
+    cellState[0][v] = 3;
     clearNodes();
-    node[v] = 2; node[parent[v]] = 3;
-    push(5, 'write', `up[0][${v}] = parent[${v}] = ${parent[v]}`, { a: v, marks: { [v]: 'v' } });
-    cell[0][v] = 1;
+    nodeState[v] = 2; nodeState[parent[v]] = 3;
+    pushStep(5, 'write', `up[0][${v}] = parent[${v}] = ${parent[v]}`, { a: v, marks: { [v]: 'v' } });
+    cellState[0][v] = 1;
   }
 
   // ---------- build: k ≥ 1 — 한 칸에 두 번의 점프를 합성 ----------
@@ -99,99 +103,104 @@ export function generate(input) {
     for (let v = 0; v < n; v++) {
       const mid = up[k - 1][v];
       up[k][v] = up[k - 1][mid];
-      cell[k - 1][v] = 2; cell[k - 1][mid] = 2; cell[k][v] = 3;
+      cellState[k - 1][v] = 2; cellState[k - 1][mid] = 2; cellState[k][v] = 3;
       clearNodes();
-      node[v] = 2; node[mid] = 1; node[up[k][v]] = 3;
-      push(8, 'write',
+      nodeState[v] = 2; nodeState[mid] = 1; nodeState[up[k][v]] = 3;
+      pushStep(8, 'write',
         `up[${k}][${v}] = up[${k - 1}][ up[${k - 1}][${v}] ] = up[${k - 1}][${mid}] = ${up[k][v]}   (${v} → ${mid} → ${up[k][v]})`,
         { a: v, b: mid, marks: { [v]: 'v', [mid]: `↑${1 << (k - 1)}`, [up[k][v]]: `↑${1 << k}` } });
       clearCells();
     }
   }
 
-  // ---------- 질의할 두 정점: 거리가 가장 먼 쌍(두 단계 모두 보이게) ----------
-  const anc = (x, steps2) => { for (let k = 0; k < LOG; k++) if (steps2 >> k & 1) x = up[k][x]; return x; };
+  // ---------- 질의할 두 정점: 거리가 가장 먼 쌍(LCA 의 두 단계가 모두 보이도록) ----------
+  // 아래 두 헬퍼는 시각화용이 아니라 "어느 쌍을 보여줄지" 고르기 위한 조용한 계산이다.
+  const ancestorOf = (node, stepsUp) => {
+    for (let k = 0; k < LOG; k++) if (stepsUp >> k & 1) node = up[k][node];
+    return node;
+  };
   const lcaOf = (x, y) => {
     if (depth[x] < depth[y]) [x, y] = [y, x];
-    x = anc(x, depth[x] - depth[y]);
+    x = ancestorOf(x, depth[x] - depth[y]);
     if (x === y) return x;
     for (let k = LOG - 1; k >= 0; k--) if (up[k][x] !== up[k][y]) { x = up[k][x]; y = up[k][y]; }
     return up[0][x];
   };
-  let qu = 0, qv = n - 1, best = -1;
+
+  let queryU = 0, queryV = n - 1, bestDistance = -1;
   for (let x = 0; x < n; x++) for (let y = x + 1; y < n; y++) {
-    const d = depth[x] + depth[y] - 2 * depth[lcaOf(x, y)];
-    if (d > best) { best = d; qu = x; qv = y; }
+    const distance = depth[x] + depth[y] - 2 * depth[lcaOf(x, y)];
+    if (distance > bestDistance) { bestDistance = distance; queryU = x; queryV = y; }
   }
 
-  // ---------- lca(u, v) ----------
-  let u = qu, v = qv;
+  // ---------- lca(u, v) — u, v 는 표시 코드와 같은 이름을 쓴다 ----------
+  let u = queryU, v = queryV;
   caption = `LCA(${u}, ${v}) 질의 중`;
   clearCells(); clearNodes();
-  node[u] = 2; node[v] = 2;
-  push(11, 'start', `LCA(${u}, ${v}) — depth[${u}] = ${depth[u]}, depth[${v}] = ${depth[v]}`,
+  nodeState[u] = 2; nodeState[v] = 2;
+  pushStep(11, 'start', `LCA(${u}, ${v}) — depth[${u}] = ${depth[u]}, depth[${v}] = ${depth[v]}`,
     { a: u, b: v, marks: { [u]: 'u', [v]: 'v' } });
 
   if (depth[u] < depth[v]) {
     [u, v] = [v, u];
-    push(12, 'set', `u 가 더 깊도록 교환 → u = ${u}, v = ${v}`, { a: u, b: v, marks: { [u]: 'u', [v]: 'v' } });
+    pushStep(12, 'set', `u 가 더 깊도록 교환 → u = ${u}, v = ${v}`, { a: u, b: v, marks: { [u]: 'u', [v]: 'v' } });
   }
 
   const diff = depth[u] - depth[v];
-  push(13, 'set',
+  pushStep(13, 'set',
     `깊이 차 = ${diff} = 2진수 ${diff.toString(2)} — 1인 비트마다 그 크기만큼 한 번에 올린다`,
     { a: u, b: v, marks: { [u]: 'u', [v]: 'v' } });
 
   // 1단계: 깊이 맞추기 (diff 의 이진 분해)
   for (let k = 0; k < LOG; k++) {
     if (!(diff >> k & 1)) continue;
-    const nu = up[k][u];
+    const liftedU = up[k][u];
     clearCells(); clearNodes();
-    cell[k][u] = 2;
-    node[u] = 1; node[nu] = 2; node[v] = 2;
-    push(16, 'read',
-      `diff 의 ${k}번 비트가 1 → u 를 2^${k} = ${1 << k} 칸 위로: ${u} → ${nu}`,
-      { a: u, b: nu, marks: { [u]: 'u', [nu]: `u+${1 << k}`, [v]: 'v' } });
-    u = nu;
+    cellState[k][u] = 2;
+    nodeState[u] = 1; nodeState[liftedU] = 2; nodeState[v] = 2;
+    pushStep(16, 'read',
+      `diff 의 ${k}번 비트가 1 → u 를 2^${k} = ${1 << k} 칸 위로: ${u} → ${liftedU}`,
+      { a: u, b: liftedU, marks: { [u]: 'u', [liftedU]: `u+${1 << k}`, [v]: 'v' } });
+    u = liftedU;
   }
 
   clearCells(); clearNodes();
-  node[u] = 2; node[v] = 2;
-  push(17, 'read',
+  nodeState[u] = 2; nodeState[v] = 2;
+  pushStep(17, 'read',
     u === v ? `u == v == ${u} — 한쪽이 다른 쪽의 조상이었다. 여기가 LCA` : `u = ${u}, v = ${v} — 깊이는 같지만 아직 다른 정점이다`,
     { a: u, b: v, marks: { [u]: 'u', [v]: 'v' } });
 
   if (u !== v) {
     // 2단계: "갈라진 상태를 유지하며" 큰 점프부터 시도 → 마지막에 부모가 LCA
     for (let k = LOG - 1; k >= 0; k--) {
-      const au = up[k][u], av = up[k][v];
+      const upU = up[k][u], upV = up[k][v];
       clearCells(); clearNodes();
-      cell[k][u] = 2; cell[k][v] = 2;
-      node[u] = 2; node[v] = 2; node[au] = 1; node[av] = 1;
-      if (au !== av) {
-        push(19, 'read',
-          `up[${k}][${u}] = ${au} ≠ up[${k}][${v}] = ${av} → 아직 LCA 아래다. 둘 다 2^${k} 칸 올린다`,
+      cellState[k][u] = 2; cellState[k][v] = 2;
+      nodeState[u] = 2; nodeState[v] = 2; nodeState[upU] = 1; nodeState[upV] = 1;
+      if (upU !== upV) {
+        pushStep(19, 'read',
+          `up[${k}][${u}] = ${upU} ≠ up[${k}][${v}] = ${upV} → 아직 LCA 아래다. 둘 다 2^${k} 칸 올린다`,
           { a: u, b: v, marks: { [u]: 'u', [v]: 'v' } });
-        u = au; v = av;
+        u = upU; v = upV;
         clearNodes();
-        node[u] = 2; node[v] = 2;
-        push(20, 'set', `u = ${u}, v = ${v}`, { a: u, b: v, marks: { [u]: 'u', [v]: 'v' } });
+        nodeState[u] = 2; nodeState[v] = 2;
+        pushStep(20, 'set', `u = ${u}, v = ${v}`, { a: u, b: v, marks: { [u]: 'u', [v]: 'v' } });
       } else {
-        push(19, 'read',
-          `up[${k}][${u}] = up[${k}][${v}] = ${au} → 같다. 여기서 올리면 LCA 를 지나친다. 건너뜀`,
+        pushStep(19, 'read',
+          `up[${k}][${u}] = up[${k}][${v}] = ${upU} → 같다. 여기서 올리면 LCA 를 지나친다. 건너뜀`,
           { a: u, b: v, marks: { [u]: 'u', [v]: 'v' } });
       }
     }
   }
 
-  const ans = u === v ? u : up[0][u];
+  const lcaResult = u === v ? u : up[0][u];
   clearCells(); clearNodes();
-  if (u !== v) cell[0][u] = 4;
-  node[ans] = 3;
-  caption = `LCA(${qu}, ${qv}) = ${ans}`;
-  push(u === v ? 17 : 21, 'done',
-    u === v ? `LCA(${qu}, ${qv}) = ${ans}` : `u = ${u}, v = ${v} 가 LCA 바로 아래에서 멈췄다 → LCA = up[0][${u}] = ${ans}`,
-    { a: ans, b: -1, marks: { [ans]: 'LCA' } });
+  if (u !== v) cellState[0][u] = 4;
+  nodeState[lcaResult] = 3;
+  caption = `LCA(${queryU}, ${queryV}) = ${lcaResult}`;
+  pushStep(u === v ? 17 : 21, 'done',
+    u === v ? `LCA(${queryU}, ${queryV}) = ${lcaResult}` : `u = ${u}, v = ${v} 가 LCA 바로 아래에서 멈췄다 → LCA = up[0][${u}] = ${lcaResult}`,
+    { a: lcaResult, b: -1, marks: { [lcaResult]: 'LCA' } });
 
   return steps;
 }

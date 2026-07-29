@@ -31,23 +31,23 @@ export function generate(input) {
   const a = input.slice();
   const n = a.length;
   const steps = [];
-  const push = (line, op, ai, bi, explain) =>
-    steps.push({ line, op, a: ai, b: bi, sortedFrom: n, values: a.slice(), explain });
+  const pushStep = (line, op, aIndex, bIndex, explain) =>
+    steps.push({ line, op, a: aIndex, b: bIndex, sortedFrom: n, values: a.slice(), explain });
 
-  push(3, 'start', -1, -1, '병합 정렬 시작 — 구간을 절반씩 나눈다');
+  pushStep(3, 'start', -1, -1, '병합 정렬 시작 — 구간을 절반씩 나눈다');
 
   const merge = (lo, mid, hi) => {
     const tmp = [];
     let i = lo, j = mid + 1;
     while (i <= mid && j <= hi) {
-      push(12, 'compare', i, j, `왼쪽 a[${i}]=${a[i]} 와 오른쪽 a[${j}]=${a[j]} 비교`);
+      pushStep(12, 'compare', i, j, `왼쪽 a[${i}]=${a[i]} 와 오른쪽 a[${j}]=${a[j]} 비교`);
       if (a[i] <= a[j]) { tmp.push(a[i]); i++; } else { tmp.push(a[j]); j++; }
     }
     while (i <= mid) { tmp.push(a[i]); i++; }
     while (j <= hi) { tmp.push(a[j]); j++; }
     for (let k = 0; k < tmp.length; k++) {
       a[lo + k] = tmp[k];
-      push(16, 'write', lo + k, -1, `병합 결과 ${tmp[k]} 을 a[${lo + k}] 에 기록`);
+      pushStep(16, 'write', lo + k, -1, `병합 결과 ${tmp[k]} 을 a[${lo + k}] 에 기록`);
     }
   };
   const msort = (lo, hi) => {

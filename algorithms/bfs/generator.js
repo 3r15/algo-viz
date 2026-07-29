@@ -46,54 +46,55 @@ export const code = [
 ];
 
 // 간선 목록 → 인접 리스트(무방향이면 양방향, 자기루프·중복 제거). 가중치는 BFS 에서 무시.
-function buildAdj(g) {
-  const N = g.nodes.length;
+function buildAdj(graph) {
+  const N = graph.nodes.length;
   const adj = Array.from({ length: N }, () => new Set());
-  for (const e of g.edges) {
-    const u = e[0], v = e[1];
+  for (const edge of graph.edges) {
+    const u = edge[0], v = edge[1];
     if (!Number.isInteger(u) || !Number.isInteger(v)) continue;
     if (u < 0 || v < 0 || u >= N || v >= N || u === v) continue;
     adj[u].add(v);
-    if (!g.directed) adj[v].add(u);
+    if (!graph.directed) adj[v].add(u);
   }
   return adj.map(s => [...s].sort((a, b) => a - b));
 }
 
 export function generate(arg) {
-  const g = (arg && Array.isArray(arg.nodes)) ? arg : defaultGraph;
-  const N = g.nodes.length;
+  const graph = (arg && Array.isArray(arg.nodes)) ? arg : defaultGraph;
+  const N = graph.nodes.length;
   const steps = [];
   const state = new Array(N).fill(0);
-  const push = (line, op, ai, bi, q, explain) =>
-    steps.push({ line, op, a: ai, b: bi, sortedFrom: N, values: state.slice(), queue: q.slice(), explain });
+  const pushStep = (line, op, aIndex, bIndex, queueSnapshot, explain) =>
+    steps.push({ line, op, a: aIndex, b: bIndex, sortedFrom: N,
+      values: state.slice(), queue: queueSnapshot.slice(), explain });
 
   if (N === 0) {
     steps.push({ line: 1, op: 'done', a: -1, b: -1, sortedFrom: 0, values: [], queue: [], explain: '빈 그래프' });
     return steps;
   }
 
-  const adj = buildAdj(g);
-  const start = (Number.isInteger(g.start) && g.start >= 0 && g.start < N) ? g.start : 0;
+  const adj = buildAdj(graph);
+  const start = (Number.isInteger(graph.start) && graph.start >= 0 && graph.start < N) ? graph.start : 0;
 
   const q = [start];
   state[start] = 1;
-  push(4, 'enqueue', start, -1, q, `시작 정점 ${start}: visited=true, 큐에 넣음`);
+  pushStep(4, 'enqueue', start, -1, q, `시작 정점 ${start}: visited=true, 큐에 넣음`);
 
   while (q.length) {
     const u = q.shift();
     state[u] = 2;
-    push(6, 'dequeue', u, -1, q, `큐에서 ${u} 을(를) 꺼냄`);
-    push(7, 'visit', u, -1, q, `정점 ${u} 처리`);
+    pushStep(6, 'dequeue', u, -1, q, `큐에서 ${u} 을(를) 꺼냄`);
+    pushStep(7, 'visit', u, -1, q, `정점 ${u} 처리`);
     for (const v of adj[u]) {
-      push(9, 'read', v, u, q, `이웃 ${v} 의 visited 확인`);
+      pushStep(9, 'read', v, u, q, `이웃 ${v} 의 visited 확인`);
       if (state[v] === 0) {
         state[v] = 1;
         q.push(v);
-        push(10, 'enqueue', v, u, q, `${v}: visited=true, 큐에 넣음`);
+        pushStep(10, 'enqueue', v, u, q, `${v}: visited=true, 큐에 넣음`);
       }
     }
     state[u] = 3;
-    push(13, 'mark', u, -1, q, `정점 ${u} 처리 완료`);
+    pushStep(13, 'mark', u, -1, q, `정점 ${u} 처리 완료`);
   }
 
   steps.push({ line: 15, op: 'done', a: -1, b: -1, sortedFrom: N, values: state.slice(), queue: [], explain: 'BFS 완료 — 도달 가능한 모든 정점 방문' });

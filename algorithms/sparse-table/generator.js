@@ -52,9 +52,9 @@ export function generate(input) {
   const colLabels = Array.from({ length: n }, (_, i) => String(i));
   let caption = 'st[k][i] = a[i .. i+2^k-1] 의 최솟값';
 
-  const push = (line, op, explain, ex = {}) => steps.push({
+  const pushStep = (line, op, explain, extra = {}) => steps.push({
     line, op,
-    a: ex.a ?? -1, b: ex.b ?? -1,
+    a: extra.a ?? -1, b: extra.b ?? -1,
     values: a.slice(),
     sortedFrom: n,
     explain,
@@ -65,13 +65,13 @@ export function generate(input) {
     },
   });
 
-  push(4, 'start', `n = ${n} → 레벨 ${K}개(k = 0..${K - 1}). 표 크기는 ${K}×${n}`);
+  pushStep(4, 'start', `n = ${n} → 레벨 ${K}개(k = 0..${K - 1}). 표 크기는 ${K}×${n}`);
 
   // k = 0: 길이 1 구간 = 원소 그 자체
   for (let i = 0; i < n; i++) {
     st[0][i] = a[i];
     states[0][i] = 3;
-    push(6, 'write', `st[0][${i}] = a[${i}] = ${a[i]}  (길이 1 구간)`, { a: i });
+    pushStep(6, 'write', `st[0][${i}] = a[${i}] = ${a[i]}  (길이 1 구간)`, { a: i });
     states[0][i] = 1;
   }
 
@@ -82,14 +82,14 @@ export function generate(input) {
       const j = i + half;
       states[k - 1][i] = 2; states[k - 1][j] = 2;
       caption = `k=${k}: 길이 ${half} 구간 두 개를 이어 붙여 길이 ${len} 구간을 만든다`;
-      push(9, 'read',
+      pushStep(9, 'read',
         `st[${k - 1}][${i}]=${st[k - 1][i]} 와 st[${k - 1}][${j}]=${st[k - 1][j]} 를 비교`,
         { a: i, b: j });
       states[k - 1][i] = 1; states[k - 1][j] = 1;
 
       st[k][i] = Math.min(st[k - 1][i], st[k - 1][j]);
       states[k][i] = 3;
-      push(9, 'write',
+      pushStep(9, 'write',
         `st[${k}][${i}] = ${st[k][i]}  →  a[${i}..${i + len - 1}] 의 최솟값`,
         { a: i });
       states[k][i] = 1;
@@ -104,18 +104,18 @@ export function generate(input) {
   const j = r - (1 << k) + 1;
 
   caption = `질의 [${l}, ${r}]`;
-  push(12, 'start', `질의: a[${l}..${r}] 의 최솟값 (길이 ${len})`, { a: l, b: r });
-  push(13, 'set', `k = ⌊log2(${len})⌋ = ${k}  →  2^${k} = ${1 << k} ≤ ${len} < ${1 << (k + 1)}`, { a: l, b: r });
+  pushStep(12, 'start', `질의: a[${l}..${r}] 의 최솟값 (길이 ${len})`, { a: l, b: r });
+  pushStep(13, 'set', `k = ⌊log2(${len})⌋ = ${k}  →  2^${k} = ${1 << k} ≤ ${len} < ${1 << (k + 1)}`, { a: l, b: r });
 
   states[k][l] = 2; states[k][j] = 2;
-  push(14, 'read',
+  pushStep(14, 'read',
     `st[${k}][${l}] = a[${l}..${l + (1 << k) - 1}] , st[${k}][${j}] = a[${j}..${r}] — 두 구간이 겹치면서 [${l}, ${r}] 를 정확히 덮는다`,
     { a: l, b: j });
 
   const res = Math.min(st[k][l], st[k][j]);
   states[k][l] = 4; states[k][j] = 4;
   caption = `질의 [${l}, ${r}] = ${res}`;
-  push(14, 'done',
+  pushStep(14, 'done',
     `min(${st[k][l]}, ${st[k][j]}) = ${res}. min 은 멱등(중복 계산 무해)이라 겹쳐도 정답 — 표 조회 2번, O(1)`,
     { a: l, b: j });
 
