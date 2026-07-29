@@ -1,0 +1,17 @@
+{
+  "id": "bellman-ford",
+  "title": "벨만-포드 최단 경로",
+  "summary": "모든 간선을 V-1번 완화해 음수 간선이 있어도 최단 거리를 구하고, 음수 사이클까지 탐지한다.",
+  "aliases": ["벨만포드", "bellman ford", "bellman-ford", "음수 간선", "음수 사이클", "negative cycle"],
+  "categories": ["graph", "dp"],
+  "dataStructures": ["graph"],
+  "complexity": {
+    "time": { "best": "O(E)", "avg": "O(VE)", "worst": "O(VE)" },
+    "space": "O(V)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["shortest-path", "relaxation", "negative-edges", "dynamic-programming", "weighted"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/bellman-ford/"
+}

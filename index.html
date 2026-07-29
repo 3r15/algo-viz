@@ -299,6 +299,39 @@
   .tag::before{content:'#'; color:var(--dim); margin-right:2px}
   .tag:hover{border-color:var(--acc); color:var(--ink); background:#282828}
 
+  /* ===== 알고리즘 유형(패러다임) ===== */
+  .para-link{display:inline-flex; flex-direction:column; gap:2px; margin-top:12px;
+    font-family:var(--mono); font-size:12.5px; color:var(--ink); text-decoration:none;
+    border:1px solid var(--line); background:var(--panel); border-radius:7px; padding:9px 13px;
+    transition:border-color .14s, background .14s}
+  .para-link:hover{border-color:var(--acc); background:#282828; text-decoration:none}
+  .para-link-sub{font-size:11px; color:var(--muted)}
+
+  .pcards{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px}
+  .pcard{display:flex; flex-direction:column; gap:8px; background:var(--panel);
+    border:1px solid var(--line); border-radius:8px; padding:17px 18px; color:inherit;
+    text-decoration:none; transition:border-color .14s, transform .14s, background .14s}
+  .pcard:hover{border-color:var(--acc); transform:translateY(-2px); background:#282828; text-decoration:none}
+  .pcard h3{margin:0; font-size:19px; font-weight:600; color:#f4f4f4; letter-spacing:-.2px}
+  .pcard-tagline{font-family:var(--mono); font-size:11.5px; color:var(--acc)}
+  .pcard-sum{margin:0; font-size:13px; color:var(--muted); line-height:1.55}
+  .pcard-meta{margin-top:auto; padding-top:4px}
+
+  .para-tagline{font-family:var(--mono); font-size:13px; color:var(--acc); margin-bottom:10px}
+  .para-members{margin-bottom:8px}
+  .para-note{margin:0 0 12px; font-size:13px; color:var(--muted)}
+  .para-members .tags{margin-top:0; padding-top:0; border-top:0; margin-bottom:14px}
+  .pa-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(238px,1fr)); gap:10px}
+  .pa-card{display:flex; flex-direction:column; gap:5px; background:var(--panel2);
+    border:1px solid var(--line); border-radius:7px; padding:12px 14px; text-decoration:none;
+    transition:border-color .14s, background .14s}
+  .pa-card:hover{border-color:var(--acc); background:#262626; text-decoration:none}
+  .pa-card-title{font-size:14.5px; font-weight:600; color:#eee}
+  .pa-card-sum{font-size:12px; color:var(--muted); line-height:1.5}
+  a.badge.para{color:var(--acc); border-color:color-mix(in srgb,var(--acc) 40%,var(--line));
+    text-decoration:none; font-family:var(--mono)}
+  a.badge.para:hover{border-color:var(--acc); background:var(--panel2); text-decoration:none}
+
   /* 입력란 아래 한 줄 안내(입력이 배열이 아닌 의미일 때 — 예: parent[]) */
   .inputhint{font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:-4px}
 

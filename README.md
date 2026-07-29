@@ -47,6 +47,8 @@ npm run build:wasm              # algorithms/bubble-sort/bubble_sort.js + .wasm 
 ```
 index.html              데모(GH Pages 진입점) — Model A vs Model 2 비교
 CLAUDE.md               Claude Code 프로젝트 메모리(아키텍처·계약·규약)
+paradigms/              알고리즘 유형 문서(그리디·DP·분할정복…) — 알고리즘과 구별되는 층
+  <id>/                 meta.json(match 규칙) · notes.md
 algorithms/
   index.json            카탈로그(meta 레코드 배열, 자동 생성)
   <id>/                 meta.json · code/ · generator.js · reference-trace.json · notes.md
@@ -82,6 +84,16 @@ node scripts/validate-notes.mjs algorithms/bfs/notes.md
 수식 라이브러리는 싣지 않는다(빌드리스 원칙). `O(n log n)`, `2^k`, `⌊log₂ n⌋` 처럼
 유니코드로 쓰고, 여러 줄 식·다이어그램은 코드 펜스에 넣는다.
 작성 규약 전체는 `.claude/skills/algorithm-notes/SKILL.md`.
+
+## 알고리즘 유형 문서
+
+개별 알고리즘과 별개로, **문제를 푸는 방식**을 정리한 문서를 `paradigms/<id>/` 에 둔다.
+그리디가 언제 성립하는지, DP 의 상태를 어떻게 잡는지처럼 알고리즘 하나에 매이지 않는 내용이다.
+
+`#/paradigms` 에서 목록을, `#/paradigm/:id` 에서 본문을 본다. 각 유형 페이지의
+**"이 유형의 알고리즘"** 목록은 `meta.match` 의 분류·태그로 카탈로그를 걸러 자동 생성되므로,
+새 알고리즘을 추가하면 별도 등록 없이 바로 나타난다. 그 검색어들은 기존 태그 검색
+(`#/catalog?q=<term>`)과 같은 어휘를 쓴다.
 
 ## 기여
 

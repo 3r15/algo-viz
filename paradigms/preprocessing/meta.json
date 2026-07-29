@@ -1,0 +1,7 @@
+{
+  "id": "preprocessing",
+  "title": "전처리와 질의",
+  "summary": "미리 표를 만들어 두고 질의마다 조금씩만 계산한다. 질의가 많을수록 이득이 커진다.",
+  "tagline": "한 번 고생하고 여러 번 편해진다",
+  "match": { "categories": [], "tags": ["preprocessing", "range-query", "doubling"] }
+}

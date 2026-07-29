@@ -46,6 +46,49 @@
     "path": "algorithms/a-star/"
   },
   {
+    "id": "bellman-ford",
+    "title": "벨만-포드 최단 경로",
+    "summary": "모든 간선을 V-1번 완화해 음수 간선이 있어도 최단 거리를 구하고, 음수 사이클까지 탐지한다.",
+    "aliases": [
+      "벨만포드",
+      "bellman ford",
+      "bellman-ford",
+      "음수 간선",
+      "음수 사이클",
+      "negative cycle"
+    ],
+    "categories": [
+      "graph",
+      "dp"
+    ],
+    "dataStructures": [
+      "graph"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(E)",
+        "avg": "O(VE)",
+        "worst": "O(VE)"
+      },
+      "space": "O(V)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "shortest-path",
+      "relaxation",
+      "negative-edges",
+      "dynamic-programming",
+      "weighted"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/bellman-ford/"
+  },
+  {
     "id": "bfs",
     "title": "너비 우선 탐색 (BFS)",
     "summary": "시작점에서 가까운 정점부터 층별로 방문하는 그래프 탐색.",
@@ -117,7 +160,8 @@
       "lca",
       "ancestor",
       "preprocessing",
-      "binary-decomposition"
+      "binary-decomposition",
+      "doubling"
     ],
     "languages": [
       "cpp"
@@ -155,7 +199,8 @@
     "tags": [
       "comparison-sort",
       "in-place",
-      "stable"
+      "stable",
+      "incremental"
     ],
     "languages": [
       "cpp"
@@ -321,7 +366,8 @@
       "comparison-sort",
       "in-place",
       "stable",
-      "online"
+      "online",
+      "incremental"
     ],
     "languages": [
       "cpp"
@@ -403,7 +449,8 @@
     "tags": [
       "comparison-sort",
       "stable",
-      "divide-and-conquer"
+      "divide-and-conquer",
+      "recursion"
     ],
     "languages": [
       "cpp"
@@ -440,7 +487,8 @@
     "tags": [
       "comparison-sort",
       "in-place",
-      "divide-and-conquer"
+      "divide-and-conquer",
+      "recursion"
     ],
     "languages": [
       "cpp"
@@ -481,7 +529,8 @@
       "range-query",
       "point-update",
       "divide-and-conquer",
-      "monoid"
+      "monoid",
+      "recursion"
     ],
     "languages": [
       "cpp"
@@ -522,7 +571,8 @@
       "range-query",
       "idempotent",
       "preprocessing",
-      "static-array"
+      "static-array",
+      "doubling"
     ],
     "languages": [
       "cpp"
@@ -531,5 +581,96 @@
       "model-a"
     ],
     "path": "algorithms/sparse-table/"
+  },
+  {
+    "id": "tarjan-scc",
+    "title": "타잔 강한 연결 요소 (SCC)",
+    "summary": "DFS 한 번으로 서로 오갈 수 있는 정점 묶음을 모두 찾는다. low-link 값이 핵심.",
+    "aliases": [
+      "타잔",
+      "tarjan",
+      "SCC",
+      "강한연결요소",
+      "strongly connected components",
+      "low-link"
+    ],
+    "categories": [
+      "graph",
+      "search"
+    ],
+    "dataStructures": [
+      "graph",
+      "stack"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "avg": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "scc",
+      "low-link",
+      "dfs",
+      "condensation",
+      "recursion",
+      "graph-traversal"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/tarjan-scc/"
+  },
+  {
+    "id": "topological-sort",
+    "title": "위상 정렬 (칸 알고리즘)",
+    "summary": "방향 비순환 그래프의 정점을 모든 간선이 앞에서 뒤로 향하도록 줄 세운다. 사이클도 함께 탐지한다.",
+    "aliases": [
+      "위상정렬",
+      "topological sort",
+      "topsort",
+      "kahn",
+      "칸 알고리즘",
+      "선수과목",
+      "DAG"
+    ],
+    "categories": [
+      "graph",
+      "search"
+    ],
+    "dataStructures": [
+      "graph",
+      "queue"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "avg": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "dag",
+      "ordering",
+      "cycle-detection",
+      "in-degree",
+      "queue",
+      "graph-traversal"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/topological-sort/"
   }
 ]

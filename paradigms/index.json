@@ -1,0 +1,100 @@
+[
+  {
+    "id": "divide-and-conquer",
+    "title": "분할 정복",
+    "summary": "문제를 같은 모양의 작은 문제로 쪼개고, 부분해를 합쳐 전체 해를 만든다.",
+    "tagline": "쪼개고 · 풀고 · 합친다",
+    "match": {
+      "categories": [],
+      "tags": [
+        "divide-and-conquer"
+      ]
+    }
+  },
+  {
+    "id": "dynamic-programming",
+    "title": "동적 계획법 (DP)",
+    "summary": "겹치는 부분 문제를 한 번만 풀고 표에 저장해 재사용한다.",
+    "tagline": "같은 걸 두 번 계산하지 않는다",
+    "match": {
+      "categories": [
+        "dp"
+      ],
+      "tags": [
+        "dynamic-programming"
+      ]
+    }
+  },
+  {
+    "id": "graph-search",
+    "title": "그래프 탐색",
+    "summary": "정점과 간선으로 모델링한 뒤, 어디를 먼저 볼지 정하는 규칙만 바꿔 문제를 푼다.",
+    "tagline": "무엇을 먼저 꺼내는가로 알고리즘이 갈린다",
+    "match": {
+      "categories": [
+        "graph"
+      ],
+      "tags": [
+        "graph-traversal",
+        "shortest-path"
+      ]
+    }
+  },
+  {
+    "id": "greedy",
+    "title": "그리디 (탐욕법)",
+    "summary": "매 순간 가장 좋아 보이는 선택을 하고 되돌아보지 않는다. 되는 이유를 증명해야 쓸 수 있다.",
+    "tagline": "지금 최선 = 전체 최선, 임을 증명했을 때만",
+    "match": {
+      "categories": [
+        "greedy"
+      ],
+      "tags": [
+        "greedy",
+        "cut-property"
+      ]
+    }
+  },
+  {
+    "id": "incremental",
+    "title": "증분법 (Incremental)",
+    "summary": "이미 해결한 부분을 불변식으로 유지하면서 원소를 하나씩 편입시켜 범위를 넓힌다.",
+    "tagline": "푼 만큼을 지키며 한 칸씩 넓힌다",
+    "match": {
+      "categories": [],
+      "tags": [
+        "incremental",
+        "online"
+      ]
+    }
+  },
+  {
+    "id": "preprocessing",
+    "title": "전처리와 질의",
+    "summary": "미리 표를 만들어 두고 질의마다 조금씩만 계산한다. 질의가 많을수록 이득이 커진다.",
+    "tagline": "한 번 고생하고 여러 번 편해진다",
+    "match": {
+      "categories": [],
+      "tags": [
+        "preprocessing",
+        "range-query",
+        "doubling"
+      ]
+    }
+  },
+  {
+    "id": "recursion",
+    "title": "재귀와 백트래킹",
+    "summary": "자기 자신을 부르는 함수로 문제를 정의하고, 막히면 되돌아와 다른 가지를 시도한다.",
+    "tagline": "정의가 곧 구현이 된다",
+    "match": {
+      "categories": [
+        "backtracking"
+      ],
+      "tags": [
+        "recursion",
+        "backtracking"
+      ]
+    }
+  }
+]

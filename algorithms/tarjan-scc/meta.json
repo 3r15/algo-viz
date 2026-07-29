@@ -1,0 +1,17 @@
+{
+  "id": "tarjan-scc",
+  "title": "타잔 강한 연결 요소 (SCC)",
+  "summary": "DFS 한 번으로 서로 오갈 수 있는 정점 묶음을 모두 찾는다. low-link 값이 핵심.",
+  "aliases": ["타잔", "tarjan", "SCC", "강한연결요소", "strongly connected components", "low-link"],
+  "categories": ["graph", "search"],
+  "dataStructures": ["graph", "stack"],
+  "complexity": {
+    "time": { "best": "O(V+E)", "avg": "O(V+E)", "worst": "O(V+E)" },
+    "space": "O(V)"
+  },
+  "difficulty": "advanced",
+  "tags": ["scc", "low-link", "dfs", "condensation", "recursion", "graph-traversal"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/tarjan-scc/"
+}

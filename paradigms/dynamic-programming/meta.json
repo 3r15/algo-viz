@@ -1,0 +1,7 @@
+{
+  "id": "dynamic-programming",
+  "title": "동적 계획법 (DP)",
+  "summary": "겹치는 부분 문제를 한 번만 풀고 표에 저장해 재사용한다.",
+  "tagline": "같은 걸 두 번 계산하지 않는다",
+  "match": { "categories": ["dp"], "tags": ["dynamic-programming"] }
+}

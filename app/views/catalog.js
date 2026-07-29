@@ -33,6 +33,8 @@ export async function renderCatalog(container, { q = '' } = {}) {
       <div class="brand">
         <h1>algo-viz // 알고리즘 시각화</h1>
         <div class="sub">C++ 알고리즘을 라인별로 실행·되감기하며 자료구조 변화를 본다. 검색하거나 카드를 눌러 알고리즘을 여세요.</div>
+        <a class="para-link" href="#/paradigms">알고리즘 유형 문서 →
+          <span class="para-link-sub">그리디·DP·분할정복… 어떤 방식이 언제 성립하는가</span></a>
       </div>
     </header>
     <div class="search-row">

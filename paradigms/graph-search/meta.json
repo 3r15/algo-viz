@@ -1,0 +1,7 @@
+{
+  "id": "graph-search",
+  "title": "그래프 탐색",
+  "summary": "정점과 간선으로 모델링한 뒤, 어디를 먼저 볼지 정하는 규칙만 바꿔 문제를 푼다.",
+  "tagline": "무엇을 먼저 꺼내는가로 알고리즘이 갈린다",
+  "match": { "categories": ["graph"], "tags": ["graph-traversal", "shortest-path"] }
+}

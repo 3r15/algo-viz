@@ -2,16 +2,39 @@
   "id": "bubble-sort",
   "title": "버블 정렬",
   "summary": "인접한 두 원소를 비교·교환하며 큰 값을 뒤로 밀어내는 기본 정렬.",
-  "aliases": ["버블정렬", "거품정렬", "bubble sort", "bubblesort"],
-  "categories": ["sorting"],
-  "dataStructures": ["array"],
+  "aliases": [
+    "버블정렬",
+    "거품정렬",
+    "bubble sort",
+    "bubblesort"
+  ],
+  "categories": [
+    "sorting"
+  ],
+  "dataStructures": [
+    "array"
+  ],
   "complexity": {
-    "time": { "best": "O(n)", "avg": "O(n^2)", "worst": "O(n^2)" },
+    "time": {
+      "best": "O(n)",
+      "avg": "O(n^2)",
+      "worst": "O(n^2)"
+    },
     "space": "O(1)"
   },
   "difficulty": "beginner",
-  "tags": ["comparison-sort", "in-place", "stable"],
-  "languages": ["cpp"],
-  "generation": ["model-a", "model-2"],
+  "tags": [
+    "comparison-sort",
+    "in-place",
+    "stable",
+    "incremental"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a",
+    "model-2"
+  ],
   "path": "algorithms/bubble-sort/"
 }
