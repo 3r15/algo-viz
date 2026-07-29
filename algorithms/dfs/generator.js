@@ -34,53 +34,54 @@ export const code = [
   '}',
 ];
 
-function buildAdj(g) {
-  const N = g.nodes.length;
+function buildAdj(graph) {
+  const N = graph.nodes.length;
   const adj = Array.from({ length: N }, () => new Set());
-  for (const e of g.edges) {
-    const u = e[0], v = e[1];
+  for (const edge of graph.edges) {
+    const u = edge[0], v = edge[1];
     if (!Number.isInteger(u) || !Number.isInteger(v)) continue;
     if (u < 0 || v < 0 || u >= N || v >= N || u === v) continue;
     adj[u].add(v);
-    if (!g.directed) adj[v].add(u);
+    if (!graph.directed) adj[v].add(u);
   }
   return adj.map(s => [...s].sort((a, b) => a - b));
 }
 
 export function generate(arg) {
-  const g = (arg && Array.isArray(arg.nodes)) ? arg : defaultGraph;
-  const N = g.nodes.length;
+  const graph = (arg && Array.isArray(arg.nodes)) ? arg : defaultGraph;
+  const N = graph.nodes.length;
   const steps = [];
   const state = new Array(N).fill(0);
   const stack = [];
-  const push = (line, op, ai, bi, ex) =>
-    steps.push({ line, op, a: ai, b: bi, sortedFrom: N, values: state.slice(), stack: stack.slice(), explain: ex });
+  const pushStep = (line, op, aIndex, bIndex, explain) =>
+    steps.push({ line, op, a: aIndex, b: bIndex, sortedFrom: N,
+      values: state.slice(), stack: stack.slice(), explain });
 
   if (N === 0) {
     steps.push({ line: 1, op: 'done', a: -1, b: -1, sortedFrom: 0, values: [], stack: [], explain: '빈 그래프' });
     return steps;
   }
 
-  const adj = buildAdj(g);
-  const start = (Number.isInteger(g.start) && g.start >= 0 && g.start < N) ? g.start : 0;
+  const adj = buildAdj(graph);
+  const start = (Number.isInteger(graph.start) && graph.start >= 0 && graph.start < N) ? graph.start : 0;
 
   const dfs = (u) => {
     state[u] = 2;
     stack.push(u);
-    push(3, 'visit', u, -1, `정점 ${u}: visited=true`);
+    pushStep(3, 'visit', u, -1, `정점 ${u}: visited=true`);
     for (const v of adj[u]) {
-      push(5, 'read', v, u, `이웃 ${v} 의 visited 확인`);
+      pushStep(5, 'read', v, u, `이웃 ${v} 의 visited 확인`);
       if (state[v] === 0) {
         state[u] = 1;                       // u 는 스택에서 대기
-        push(6, 'read', v, u, `미방문 ${v} 로 재귀 진입`);
+        pushStep(6, 'read', v, u, `미방문 ${v} 로 재귀 진입`);
         dfs(v);
         state[u] = 2;                       // 재귀 반환 → u 로 복귀
-        push(4, 'visit', u, -1, `정점 ${u} 로 복귀`);
+        pushStep(4, 'visit', u, -1, `정점 ${u} 로 복귀`);
       }
     }
     state[u] = 3;
     stack.pop();
-    push(9, 'mark', u, -1, `정점 ${u} 처리 완료(반환)`);
+    pushStep(9, 'mark', u, -1, `정점 ${u} 처리 완료(반환)`);
   };
   dfs(start);
 

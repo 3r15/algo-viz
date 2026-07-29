@@ -71,13 +71,13 @@ export function generate(input) {
     v[0] = null;                      // 0번 칸은 쓰지 않는다
     return v;
   };
-  const push = (line, op, explain, ex = {}) => steps.push({
+  const pushStep = (line, op, explain, extra = {}) => steps.push({
     line, op,
-    a: ex.a ?? -1, b: ex.b ?? -1,
+    a: extra.a ?? -1, b: extra.b ?? -1,
     values: a.slice(),
     sortedFrom: n,
     explain,
-    tree: { kind: 'perfect', sz, values: nodeValues(), states: states.slice(), titles, marks: ex.marks },
+    tree: { kind: 'perfect', sz, values: nodeValues(), states: states.slice(), titles, marks: extra.marks },
   });
 
   // 활성(2) 표시는 한 스텝만 유지한다. 질의에서 채택된 노드는 adopted 에 남아,
@@ -93,23 +93,23 @@ export function generate(input) {
   };
 
   // ---------- build ----------
-  push(6, 'set', `n = ${n} → sz = ${sz} (2의 거듭제곱으로 올림). 트리 배열 크기 2·sz = ${2 * sz}, 높이 ${levels}`);
+  pushStep(6, 'set', `n = ${n} → sz = ${sz} (2의 거듭제곱으로 올림). 트리 배열 크기 2·sz = ${2 * sz}, 높이 ${levels}`);
 
   for (let i = n; i < sz; i++) states[sz + i] = 1;   // 남는 리프: 합의 항등원 0
-  push(7, 'set', `t 를 0 으로 초기화. 남는 리프 ${sz - n}칸은 합의 항등원 0 이라 그대로 둬도 안전하다`);
+  pushStep(7, 'set', `t 를 0 으로 초기화. 남는 리프 ${sz - n}칸은 합의 항등원 0 이라 그대로 둬도 안전하다`);
 
   for (let i = 0; i < n; i++) {
     t[sz + i] = a[i];
     states[sz + i] = 1;
     focus(sz + i);
-    push(9, 'write', `t[${sz + i}] = a[${i}] = ${a[i]}  (리프)`, { a: i });
+    pushStep(9, 'write', `t[${sz + i}] = a[${i}] = ${a[i]}  (리프)`, { a: i });
   }
 
   for (let i = sz - 1; i >= 1; i--) {
     t[i] = t[2 * i] + t[2 * i + 1];
     states[i] = 1;
     focus(i);
-    push(11, 'write',
+    pushStep(11, 'write',
       `t[${i}] = t[${2 * i}](${t[2 * i]}) + t[${2 * i + 1}](${t[2 * i + 1]}) = ${t[i]}   ${titles[i].split('· ')[1]}`,
       { a: 2 * i, b: 2 * i + 1 });
   }
@@ -120,21 +120,21 @@ export function generate(input) {
   runQuery(ql, qr, '첫 질의');
 
   // ---------- update ----------
-  const ui = n >> 1;
-  const uv = a[ui] === 1 ? 9 : 1;
+  const updateIndex = n >> 1;
+  const updateValue = a[updateIndex] === 1 ? 9 : 1;
   clearResults();
   focus();
-  push(24, 'set', `a[${ui}] 를 ${a[ui]} → ${uv} 로 바꾼다. 대응 리프는 t[${sz + ui}]`, { a: ui });
+  pushStep(24, 'set', `a[${updateIndex}] 를 ${a[updateIndex]} → ${updateValue} 로 바꾼다. 대응 리프는 t[${sz + updateIndex}]`, { a: updateIndex });
 
-  a[ui] = uv;
-  t[sz + ui] = uv;
-  focus(sz + ui);
-  push(25, 'write', `t[${sz + ui}] = ${uv}`, { a: ui });
+  a[updateIndex] = updateValue;
+  t[sz + updateIndex] = updateValue;
+  focus(sz + updateIndex);
+  pushStep(25, 'write', `t[${sz + updateIndex}] = ${updateValue}`, { a: updateIndex });
 
-  for (let i = (sz + ui) >> 1; i >= 1; i >>= 1) {
+  for (let i = (sz + updateIndex) >> 1; i >= 1; i >>= 1) {
     t[i] = t[2 * i] + t[2 * i + 1];
     focus(i);
-    push(27, 'write',
+    pushStep(27, 'write',
       `t[${i}] = ${t[2 * i]} + ${t[2 * i + 1]} = ${t[i]}   — 루트까지 경로 위 노드만 다시 계산한다`,
       { a: 2 * i, b: 2 * i + 1 });
   }
@@ -150,29 +150,29 @@ export function generate(input) {
     clearResults();
     focus();
     let res = 0;
-    push(15, 'set', `${label}: [${lo}, ${hi}) 구간 합. res = 0`, { a: lo, b: hi });
+    pushStep(15, 'set', `${label}: [${lo}, ${hi}) 구간 합. res = 0`, { a: lo, b: hi });
 
     let L = lo + sz, R = hi + sz;
-    push(16, 'set', `리프 인덱스로 옮기면 l = ${L}, r = ${R}`, { a: lo, b: hi });
+    pushStep(16, 'set', `리프 인덱스로 옮기면 l = ${L}, r = ${R}`, { a: lo, b: hi });
 
     while (L < R) {
       if (L & 1) {
         res += t[L];
         adopted.add(L); focus(L);
-        push(17, 'read', `l = ${L} 이 홀수 = 오른쪽 자식 → t[${L}] = ${t[L]} 채택. res = ${res}`, { a: L });
+        pushStep(17, 'read', `l = ${L} 이 홀수 = 오른쪽 자식 → t[${L}] = ${t[L]} 채택. res = ${res}`, { a: L });
         L++;
       }
       if (R & 1) {
         R--;
         res += t[R];
         adopted.add(R); focus(R);
-        push(18, 'read', `r 을 ${R} 로 줄이니 홀수 = 오른쪽 자식 → t[${R}] = ${t[R]} 채택. res = ${res}`, { a: R });
+        pushStep(18, 'read', `r 을 ${R} 로 줄이니 홀수 = 오른쪽 자식 → t[${R}] = ${t[R]} 채택. res = ${res}`, { a: R });
       }
       L >>= 1; R >>= 1;
-      if (L < R) push(16, 'set', `한 레벨 위로: l = ${L}, r = ${R}`, { a: L, b: R });
+      if (L < R) pushStep(16, 'set', `한 레벨 위로: l = ${L}, r = ${R}`, { a: L, b: R });
     }
 
     focus();
-    push(20, 'mark', `${label} 결과 = ${res}  (초록 노드 ${adopted.size}개의 합 — 구간 크기와 무관하게 O(log n)개)`);
+    pushStep(20, 'mark', `${label} 결과 = ${res}  (초록 노드 ${adopted.size}개의 합 — 구간 크기와 무관하게 O(log n)개)`);
   }
 }

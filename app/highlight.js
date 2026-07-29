@@ -14,51 +14,87 @@ const TYPES = new Set([
   'queue','stack','deque','priority_queue','array','list','tuple','ostream','istream',
 ]);
 
-function esc(s) { return s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
-function span(cls, text) { return `<span class="tok-${cls}">${esc(text)}</span>`; }
+const HTML_ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
+const escapeHtml = text => text.replace(/[&<>]/g, ch => HTML_ENTITIES[ch]);
+const token = (className, text) => `<span class="tok-${className}">${escapeHtml(text)}</span>`;
 
 export function highlightCpp(line) {
-  let out = '', i = 0;
-  const n = line.length;
-  while (i < n) {
-    const c = line[i];
+  let html = '';
+  let pos = 0;                       // 지금 읽고 있는 위치
+  const length = line.length;
 
-    if (/\s/.test(c)) { let j = i + 1; while (j < n && /\s/.test(line[j])) j++; out += esc(line.slice(i, j)); i = j; continue; }
+  // 각 분기는 [pos, end) 를 한 토큰으로 소비하고 pos 를 end 로 옮긴다
+  while (pos < length) {
+    const ch = line[pos];
 
-    // 줄 주석
-    if (c === '/' && line[i + 1] === '/') { out += span('com', line.slice(i)); break; }
-
-    // 문자열 / 문자
-    if (c === '"' || c === "'") {
-      let j = i + 1;
-      while (j < n && !(line[j] === c && line[j - 1] !== '\\')) j++;
-      j = Math.min(j + 1, n);
-      out += span('str', line.slice(i, j)); i = j; continue;
+    // 공백
+    if (/\s/.test(ch)) {
+      let end = pos + 1;
+      while (end < length && /\s/.test(line[end])) end++;
+      html += escapeHtml(line.slice(pos, end));
+      pos = end;
+      continue;
     }
 
-    // 숫자
-    if (/[0-9]/.test(c)) { let j = i + 1; while (j < n && /[0-9.xXa-fA-F]/.test(line[j])) j++; out += span('num', line.slice(i, j)); i = j; continue; }
+    // 줄 주석 — 줄 끝까지
+    if (ch === '/' && line[pos + 1] === '/') { html += token('com', line.slice(pos)); break; }
+
+    // 문자열 / 문자 리터럴
+    if (ch === '"' || ch === "'") {
+      let end = pos + 1;
+      while (end < length && !(line[end] === ch && line[end - 1] !== '\\')) end++;
+      end = Math.min(end + 1, length);          // 닫는 따옴표까지 포함
+      html += token('str', line.slice(pos, end));
+      pos = end;
+      continue;
+    }
+
+    // 숫자(16진수·소수점 포함)
+    if (/[0-9]/.test(ch)) {
+      let end = pos + 1;
+      while (end < length && /[0-9.xXa-fA-F]/.test(line[end])) end++;
+      html += token('num', line.slice(pos, end));
+      pos = end;
+      continue;
+    }
 
     // 전처리기 #include, #define …
-    if (c === '#') { let j = i + 1; while (j < n && /[A-Za-z]/.test(line[j])) j++; out += span('kw', line.slice(i, j)); i = j; continue; }
-
-    // 식별자 / 키워드 / 타입 / 함수
-    if (/[A-Za-z_]/.test(c)) {
-      let j = i + 1; while (j < n && /[A-Za-z0-9_]/.test(line[j])) j++;
-      const w = line.slice(i, j);
-      let k = j; while (k < n && line[k] === ' ') k++;
-      let cls;
-      if (KEYWORDS.has(w)) cls = 'kw';
-      else if (TYPES.has(w)) cls = 'type';
-      else if (line[k] === '(') cls = 'fn';
-      else cls = 'id';
-      out += cls === 'id' ? esc(w) : span(cls, w);
-      i = j; continue;
+    if (ch === '#') {
+      let end = pos + 1;
+      while (end < length && /[A-Za-z]/.test(line[end])) end++;
+      html += token('kw', line.slice(pos, end));
+      pos = end;
+      continue;
     }
 
-    // 구두점 / 연산자(연속 묶음, 단 // 주석 시작은 멈춤)
-    { let j = i + 1; while (j < n && /[^\sA-Za-z0-9_"']/.test(line[j]) && !(line[j] === '/' && line[j + 1] === '/')) j++;
-      out += span('punct', line.slice(i, j)); i = j; continue; }
+    // 식별자 / 키워드 / 타입 / 함수
+    if (/[A-Za-z_]/.test(ch)) {
+      let end = pos + 1;
+      while (end < length && /[A-Za-z0-9_]/.test(line[end])) end++;
+      const word = line.slice(pos, end);
+
+      // 이름 뒤에 '(' 가 오면 함수 호출로 본다(사이의 공백은 건너뛴다)
+      let lookahead = end;
+      while (lookahead < length && line[lookahead] === ' ') lookahead++;
+
+      let className;
+      if (KEYWORDS.has(word)) className = 'kw';
+      else if (TYPES.has(word)) className = 'type';
+      else if (line[lookahead] === '(') className = 'fn';
+      else className = 'id';
+
+      html += className === 'id' ? escapeHtml(word) : token(className, word);
+      pos = end;
+      continue;
+    }
+
+    // 구두점 / 연산자(연속 묶음, 단 // 주석 시작에서 멈춤)
+    let end = pos + 1;
+    while (end < length && /[^\sA-Za-z0-9_"']/.test(line[end])
+           && !(line[end] === '/' && line[end + 1] === '/')) end++;
+    html += token('punct', line.slice(pos, end));
+    pos = end;
   }
-  return out;
+
+  return html;
 }

@@ -37,80 +37,82 @@ const ALGO_DIR = existsSync('algorithms')
   ? 'algorithms'
   : resolve(dirname(fileURLToPath(import.meta.url)), '..', 'algorithms');
 
-let failed = 0;
-const fail = (f, msg) => { console.error(`  ✗ ${msg}`); failed++; };
+let failureCount = 0;
+const fail = message => { console.error(`  ✗ ${message}`); failureCount++; };
 
+// meta.json 을 가진 폴더 = 등록된 알고리즘. 내부 링크 검사의 기준이 된다.
 function algorithmIds() {
-  return new Set(readdirSync(ALGO_DIR).filter(n => {
-    const d = join(ALGO_DIR, n);
-    return statSync(d).isDirectory() && existsSync(join(d, 'meta.json'));
+  return new Set(readdirSync(ALGO_DIR).filter(name => {
+    const dir = join(ALGO_DIR, name);
+    return statSync(dir).isDirectory() && existsSync(join(dir, 'meta.json'));
   }));
 }
 
-function validate(path, ids) {
-  console.log(`검증: ${path}`);
-  const src = readFileSync(path, 'utf8');
-  const lines = src.split(/\r?\n/);
-  const before = failed;
+function validate(notesPath, knownIds) {
+  console.log(`검증: ${notesPath}`);
+  const source = readFileSync(notesPath, 'utf8');
+  const lines = source.split(/\r?\n/);
+  const failuresBefore = failureCount;
 
-  // 코드 펜스 밖의 줄만 헤딩으로 인정한다
+  // 코드 펜스 밖의 줄만 헤딩으로 인정한다(펜스 안의 '# 주석'이 섹션으로 오인되지 않게)
   const headings = [];
-  let inFence = false;
-  lines.forEach((line, k) => {
-    if (/^\s*```/.test(line)) { inFence = !inFence; return; }
-    if (inFence) return;
-    const m = line.match(/^(#{1,4})\s+(.*?)\s*$/);
-    if (m) headings.push({ level: m[1].length, text: m[2], line: k + 1 });
+  let insideFence = false;
+  lines.forEach((line, index) => {
+    if (/^\s*```/.test(line)) { insideFence = !insideFence; return; }
+    if (insideFence) return;
+    const heading = line.match(/^(#{1,4})\s+(.*?)\s*$/);
+    if (heading) headings.push({ level: heading[1].length, text: heading[2], lineNo: index + 1 });
   });
 
-  if (inFence) fail(path, '코드 펜스(```)가 닫히지 않았습니다');
+  if (insideFence) fail('코드 펜스(```)가 닫히지 않았습니다');
 
-  if (headings.some(h => h.level === 1))
-    fail(path, 'h1(#)을 쓰지 마세요 — 페이지 제목이 이미 h1 입니다. h2(##)부터 시작하세요');
+  if (headings.some(heading => heading.level === 1))
+    fail('h1(#)을 쓰지 마세요 — 페이지 제목이 이미 h1 입니다. h2(##)부터 시작하세요');
 
-  const h2 = headings.filter(h => h.level === 2).map(h => h.text);
+  const sections = headings.filter(heading => heading.level === 2).map(heading => heading.text);
 
-  for (const t of h2)
-    if (!ORDER.includes(t))
-      fail(path, `표준 섹션이 아닌 h2: "${t}"  (허용: ${ORDER.join(' · ')})`);
+  for (const section of sections)
+    if (!ORDER.includes(section))
+      fail(`표준 섹션이 아닌 h2: "${section}"  (허용: ${ORDER.join(' · ')})`);
 
-  for (const r of REQUIRED)
-    if (!h2.includes(r)) fail(path, `필수 섹션 누락: "## ${r}"`);
+  for (const required of REQUIRED)
+    if (!sections.includes(required)) fail(`필수 섹션 누락: "## ${required}"`);
 
-  const known = h2.filter(t => ORDER.includes(t));
-  const sorted = [...known].sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b));
-  if (known.join('|') !== sorted.join('|'))
-    fail(path, `섹션 순서가 표준과 다릅니다.\n      현재: ${known.join(' → ')}\n      표준: ${sorted.join(' → ')}`);
+  const knownSections = sections.filter(section => ORDER.includes(section));
+  const expectedOrder = [...knownSections].sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b));
+  if (knownSections.join('|') !== expectedOrder.join('|'))
+    fail('섹션 순서가 표준과 다릅니다.' +
+      `\n      현재: ${knownSections.join(' → ')}` +
+      `\n      표준: ${expectedOrder.join(' → ')}`);
 
-  const dupes = known.filter((t, i) => known.indexOf(t) !== i);
-  if (dupes.length) fail(path, `중복된 섹션: ${[...new Set(dupes)].join(', ')}`);
+  const duplicates = knownSections.filter((section, i) => knownSections.indexOf(section) !== i);
+  if (duplicates.length) fail(`중복된 섹션: ${[...new Set(duplicates)].join(', ')}`);
 
-  // 내부 링크가 실제 알고리즘을 가리키는지
-  for (const m of src.matchAll(/\]\(#\/algo\/([\w-]+)\)/g))
-    if (!ids.has(m[1])) fail(path, `없는 알고리즘으로 링크: #/algo/${m[1]}`);
+  // 내부 링크: 존재하는 알고리즘이어야 하고, 자기 자신이면 안 된다
+  const selfId = basename(dirname(notesPath));
+  for (const link of source.matchAll(/\]\(#\/algo\/([\w-]+)\)/g)) {
+    const linkedId = link[1];
+    if (!knownIds.has(linkedId)) fail(`없는 알고리즘으로 링크: #/algo/${linkedId}`);
+    else if (linkedId === selfId) fail(`자기 자신(#/algo/${selfId})으로 링크하고 있습니다`);
+  }
 
-  // 자기 자신으로 링크하고 있지는 않은지
-  const self = basename(dirname(path));
-  for (const m of src.matchAll(/\]\(#\/algo\/([\w-]+)\)/g))
-    if (m[1] === self) fail(path, `자기 자신(#/algo/${self})으로 링크하고 있습니다`);
-
-  if (failed === before) console.log(`  ✓ 통과 — 섹션 ${h2.length}개`);
+  if (failureCount === failuresBefore) console.log(`  ✓ 통과 — 섹션 ${sections.length}개`);
 }
 
-const ids = algorithmIds();
-const arg = process.argv[2];
-const targets = arg
-  ? [arg]
-  : [...ids].sort().map(id => join(ALGO_DIR, id, 'notes.md')).filter(existsSync);
+const knownIds = algorithmIds();
+const pathArg = process.argv[2];
+const targets = pathArg
+  ? [pathArg]
+  : [...knownIds].sort().map(id => join(ALGO_DIR, id, 'notes.md')).filter(existsSync);
 
 if (!targets.length) {
   console.log('검증할 notes.md 가 없습니다.');
   process.exit(0);
 }
-for (const t of targets) {
-  if (!existsSync(t)) { console.error(`✗ 파일 없음: ${t}`); failed++; continue; }
-  validate(t, ids);
+for (const notesPath of targets) {
+  if (!existsSync(notesPath)) { console.error(`✗ 파일 없음: ${notesPath}`); failureCount++; continue; }
+  validate(notesPath, knownIds);
 }
 
-console.log(failed ? `\n❌ ${failed}건 실패` : `\n✅ ${targets.length}개 문서 통과`);
-process.exit(failed ? 1 : 0);
+console.log(failureCount ? `\n❌ ${failureCount}건 실패` : `\n✅ ${targets.length}개 문서 통과`);
+process.exit(failureCount ? 1 : 0);

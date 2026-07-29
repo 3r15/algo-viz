@@ -18,148 +18,163 @@
 
 import { registerRenderer } from './registry.js';
 
-const NS = 'http://www.w3.org/2000/svg';
-const W = 100, H = 60, PAD_Y = 7;
-const caches = new WeakMap();
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const VIEW_W = 100, VIEW_H = 60, MARGIN_Y = 7;   // viewBox 좌표계(픽셀 아님)
+const treeCaches = new WeakMap();                 // host 요소 → { svg, nodes, structureKey }
 
 export function renderTree(host, step) {
-  const t = step?.tree;
-  if (!t) return;
+  const tree = step?.tree;
+  if (!tree) return;
 
-  const sig = t.kind === 'perfect' ? `p:${t.sz}` : `r:${t.root}:${(t.parent || []).join(',')}`;
-  let cache = caches.get(host);
-  if (!cache || cache.sig !== sig || !host.contains(cache.root)) {
-    cache = build(host, t, sig);
-    caches.set(host, cache);
+  // 트리 모양이 그대로면 SVG 를 재사용한다(요소 재사용 = transition 유지)
+  const structureKey = tree.kind === 'perfect'
+    ? `perfect:${tree.sz}`
+    : `rooted:${tree.root}:${(tree.parent || []).join(',')}`;
+
+  let cache = treeCaches.get(host);
+  if (!cache || cache.structureKey !== structureKey || !host.contains(cache.svg)) {
+    cache = buildSvg(host, tree, structureKey);
+    treeCaches.set(host, cache);
   }
 
-  for (const [id, node] of cache.nodes) {
-    const v = t.values?.[id];
-    node.text.textContent = (v === null || v === undefined) ? '' : v;
-    node.g.setAttribute('class', 'tnode s' + (t.states?.[id] ?? 0));
-    node.title.textContent = t.titles?.[id] ?? '';
-    const mark = t.marks?.[id];
-    node.mark.textContent = mark ?? '';
+  for (const [nodeId, node] of cache.nodes) {
+    const value = tree.values?.[nodeId];
+    node.valueText.textContent = (value === null || value === undefined) ? '' : value;
+    node.group.setAttribute('class', 'tnode s' + (tree.states?.[nodeId] ?? 0));
+    node.tooltip.textContent = tree.titles?.[nodeId] ?? '';
+    node.markText.textContent = tree.marks?.[nodeId] ?? '';
   }
 }
 
-// ---- 레이아웃: 노드 id → {x, y, depth} ----
+// ---- 레이아웃: 노드 id → { x, y, depth } ----
 
-function layoutPerfect(sz) {
-  const levels = Math.log2(sz) + 1;               // 루트 포함 레벨 수
-  const pos = new Map();
-  for (let d = 0; d < levels; d++) {
-    const count = 1 << d;
-    for (let p = 0; p < count; p++) {
-      const id = count + p;
-      pos.set(id, { x: ((p + 0.5) / count) * W, y: yAt(d, levels), depth: d });
+// 완전 이진 트리: 깊이 d 의 노드는 2^d 개이고, 그 안의 순번으로 x 가 정해진다.
+function layoutPerfect(leafCount) {
+  const levelCount = Math.log2(leafCount) + 1;      // 루트 포함 레벨 수
+  const positions = new Map();
+  for (let depth = 0; depth < levelCount; depth++) {
+    const nodesAtDepth = 1 << depth;
+    for (let slot = 0; slot < nodesAtDepth; slot++) {
+      const nodeId = nodesAtDepth + slot;
+      positions.set(nodeId, {
+        x: ((slot + 0.5) / nodesAtDepth) * VIEW_W,
+        y: yForDepth(depth, levelCount),
+        depth,
+      });
     }
   }
-  return { pos, levels, widest: sz, edges: edgesPerfect(sz) };
+
+  const edges = [];
+  for (let parentId = 1; parentId < leafCount; parentId++)
+    edges.push([parentId, 2 * parentId], [parentId, 2 * parentId + 1]);
+
+  return { positions, widestLevel: leafCount, edges };
 }
 
-function edgesPerfect(sz) {
-  const out = [];
-  for (let i = 1; i < sz; i++) { out.push([i, 2 * i], [i, 2 * i + 1]); }
-  return out;
-}
-
+// 일반 루트 트리: 리프를 DFS 순서대로 가로로 늘어놓고, 내부 노드는 자식들의 x 평균에 둔다.
 function layoutRooted(parent, root) {
-  const n = parent.length;
-  const children = Array.from({ length: n }, () => []);
-  for (let v = 0; v < n; v++) if (v !== root) children[parent[v]].push(v);
+  const nodeCount = parent.length;
+  const children = Array.from({ length: nodeCount }, () => []);
+  for (let node = 0; node < nodeCount; node++)
+    if (node !== root) children[parent[node]].push(node);
 
-  const depth = new Array(n).fill(0);
-  const order = [];                                // DFS 선행 순서(리프 x 배정용)
-  (function dfs(v, d) {
-    depth[v] = d;
-    if (!children[v].length) order.push(v);
-    for (const c of children[v]) dfs(c, d + 1);
+  const depths = new Array(nodeCount).fill(0);
+  const leavesInOrder = [];
+  (function walk(node, depth) {
+    depths[node] = depth;
+    if (!children[node].length) leavesInOrder.push(node);
+    for (const child of children[node]) walk(child, depth + 1);
   })(root, 0);
 
-  const levels = Math.max(...depth) + 1;
-  const pos = new Map();
-  const leafX = new Map(order.map((v, k) => [v, ((k + 0.5) / order.length) * W]));
+  const levelCount = Math.max(...depths) + 1;
+  const leafX = new Map(leavesInOrder.map((leaf, order) =>
+    [leaf, ((order + 0.5) / leavesInOrder.length) * VIEW_W]));
 
-  // 리프는 순서대로, 내부 노드는 자식 x 의 평균 — 아래에서 위로 계산
-  (function place(v) {
-    for (const c of children[v]) place(c);
-    const x = children[v].length
-      ? children[v].reduce((s, c) => s + pos.get(c).x, 0) / children[v].length
-      : leafX.get(v);
-    pos.set(v, { x, y: yAt(depth[v], levels), depth: depth[v] });
+  // 자식을 먼저 배치해야 평균을 낼 수 있으므로 후위 순회로 내려갔다 올라온다
+  const positions = new Map();
+  (function place(node) {
+    for (const child of children[node]) place(child);
+    const x = children[node].length
+      ? children[node].reduce((sum, child) => sum + positions.get(child).x, 0) / children[node].length
+      : leafX.get(node);
+    positions.set(node, { x, y: yForDepth(depths[node], levelCount), depth: depths[node] });
   })(root);
 
   const edges = [];
-  for (let v = 0; v < n; v++) for (const c of children[v]) edges.push([v, c]);
-  return { pos, levels, widest: order.length, edges };
+  for (let node = 0; node < nodeCount; node++)
+    for (const child of children[node]) edges.push([node, child]);
+
+  return { positions, widestLevel: leavesInOrder.length, edges };
 }
 
-function yAt(d, levels) {
-  return levels <= 1 ? H / 2 : PAD_Y + (d * (H - 2 * PAD_Y)) / (levels - 1);
+function yForDepth(depth, levelCount) {
+  return levelCount <= 1
+    ? VIEW_H / 2
+    : MARGIN_Y + (depth * (VIEW_H - 2 * MARGIN_Y)) / (levelCount - 1);
 }
 
 // ---- SVG 구성 ----
 
-function build(host, t, sig) {
+function buildSvg(host, tree, structureKey) {
   host.innerHTML = '';
   host.classList.add('tree');
 
-  const { pos, widest, edges } = t.kind === 'perfect'
-    ? layoutPerfect(t.sz)
-    : layoutRooted(t.parent, t.root ?? 0);
+  const { positions, widestLevel, edges } = tree.kind === 'perfect'
+    ? layoutPerfect(tree.sz)
+    : layoutRooted(tree.parent, tree.root ?? 0);
 
-  const bw = Math.max(5, Math.min((W / widest) * 0.82, 15));   // 노드 상자 너비
-  const bh = Math.max(4.6, Math.min(bw * 0.7, 7));
-  const fs = Math.min(3.6, bw * 0.42);                         // 상자 폭에 맞춘 글자 크기
+  // 가장 넓은 레벨에 맞춰 상자 크기를 정한다 — 노드가 많을수록 작고 촘촘하게
+  const boxW = Math.max(5, Math.min((VIEW_W / widestLevel) * 0.82, 15));
+  const boxH = Math.max(4.6, Math.min(boxW * 0.7, 7));
+  const fontSize = Math.min(3.6, boxW * 0.42);
 
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${VIEW_W} ${VIEW_H}`);
   svg.setAttribute('class', 'tree-svg');
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', '트리 구조 시각화');
 
-  for (const [p, c] of edges) {
-    const a = pos.get(p), b = pos.get(c);
-    if (!a || !b) continue;
-    const ln = document.createElementNS(NS, 'line');
-    ln.setAttribute('x1', a.x); ln.setAttribute('y1', a.y + bh / 2);
-    ln.setAttribute('x2', b.x); ln.setAttribute('y2', b.y - bh / 2);
-    ln.setAttribute('class', 'tedge');
-    svg.append(ln);
+  for (const [parentId, childId] of edges) {
+    const from = positions.get(parentId), to = positions.get(childId);
+    if (!from || !to) continue;
+    const edge = document.createElementNS(SVG_NS, 'line');
+    edge.setAttribute('x1', from.x); edge.setAttribute('y1', from.y + boxH / 2);
+    edge.setAttribute('x2', to.x);   edge.setAttribute('y2', to.y - boxH / 2);
+    edge.setAttribute('class', 'tedge');
+    svg.append(edge);
   }
 
   const nodes = new Map();
-  for (const [id, p] of pos) {
-    const g = document.createElementNS(NS, 'g');
-    g.setAttribute('class', 'tnode s0');
+  for (const [nodeId, pos] of positions) {
+    const group = document.createElementNS(SVG_NS, 'g');
+    group.setAttribute('class', 'tnode s0');
 
-    const rect = document.createElementNS(NS, 'rect');
-    rect.setAttribute('x', p.x - bw / 2); rect.setAttribute('y', p.y - bh / 2);
-    rect.setAttribute('width', bw); rect.setAttribute('height', bh);
-    rect.setAttribute('rx', 1.4);
+    const box = document.createElementNS(SVG_NS, 'rect');
+    box.setAttribute('x', pos.x - boxW / 2); box.setAttribute('y', pos.y - boxH / 2);
+    box.setAttribute('width', boxW); box.setAttribute('height', boxH);
+    box.setAttribute('rx', 1.4);
 
-    const text = document.createElementNS(NS, 'text');
-    text.setAttribute('x', p.x); text.setAttribute('y', p.y);
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('dominant-baseline', 'central');
-    text.setAttribute('font-size', fs);
+    const valueText = document.createElementNS(SVG_NS, 'text');
+    valueText.setAttribute('x', pos.x); valueText.setAttribute('y', pos.y);
+    valueText.setAttribute('text-anchor', 'middle');
+    valueText.setAttribute('dominant-baseline', 'central');
+    valueText.setAttribute('font-size', fontSize);
 
-    const mark = document.createElementNS(NS, 'text');   // 포인터 배지(u / v)
-    mark.setAttribute('x', p.x); mark.setAttribute('y', p.y - bh / 2 - 1.4);
-    mark.setAttribute('text-anchor', 'middle');
-    mark.setAttribute('font-size', fs * 0.95);
-    mark.setAttribute('class', 'tmark');
+    const markText = document.createElementNS(SVG_NS, 'text');   // 포인터 배지(u / v)
+    markText.setAttribute('x', pos.x); markText.setAttribute('y', pos.y - boxH / 2 - 1.4);
+    markText.setAttribute('text-anchor', 'middle');
+    markText.setAttribute('font-size', fontSize * 0.95);
+    markText.setAttribute('class', 'tmark');
 
-    const title = document.createElementNS(NS, 'title');
+    const tooltip = document.createElementNS(SVG_NS, 'title');
 
-    g.append(title, rect, text, mark);
-    svg.append(g);
-    nodes.set(id, { g, text, mark, title });
+    group.append(tooltip, box, valueText, markText);
+    svg.append(group);
+    nodes.set(nodeId, { group, valueText, markText, tooltip });
   }
 
   host.append(svg);
-  return { root: svg, nodes, sig };
+  return { svg, nodes, structureKey };
 }
 
 registerRenderer('tree', renderTree);

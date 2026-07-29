@@ -121,9 +121,10 @@ T(n) = T(k) + T(n-1-k) + Θ(n)
 
 ```cpp
 while (lo < hi) {
-    int p = partition(a, lo, hi);
-    if (p - lo < hi - p) { quickSort(a, lo, p-1); lo = p+1; }
-    else                 { quickSort(a, p+1, hi); hi = p-1; }
+    int pivotIdx = partition(a, lo, hi);
+    // 짧은 쪽만 재귀하고 긴 쪽은 루프로 — 스택 깊이가 O(log n) 으로 묶인다
+    if (pivotIdx - lo < hi - pivotIdx) { quickSort(a, lo, pivotIdx - 1); lo = pivotIdx + 1; }
+    else                               { quickSort(a, pivotIdx + 1, hi); hi = pivotIdx - 1; }
 }
 ```
 

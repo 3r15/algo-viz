@@ -16,28 +16,27 @@
 
 import { registerRenderer } from './registry.js';
 
-const caches = new WeakMap(); // host → { root, cells, rows, cols, caption }
+const matrixCaches = new WeakMap(); // host 요소 → { wrap, cells, caption, rows, cols }
 
 export function renderMatrix(host, step) {
-  const m = step?.matrix;
-  if (!m) return;
+  const matrix = step?.matrix;
+  if (!matrix) return;
 
-  let cache = caches.get(host);
-  if (!cache || cache.rows !== m.rows || cache.cols !== m.cols || !host.contains(cache.root)) {
-    cache = build(host, m);
-    caches.set(host, cache);
+  let cache = matrixCaches.get(host);
+  if (!cache || cache.rows !== matrix.rows || cache.cols !== matrix.cols || !host.contains(cache.wrap)) {
+    cache = buildGrid(host, matrix);
+    matrixCaches.set(host, cache);
   }
 
-  cache.caption.textContent = m.caption || '';
-  for (let k = 0; k < cache.cells.length; k++) {
-    const cell = cache.cells[k];
-    const v = m.values[k];
-    cell.textContent = (v === null || v === undefined) ? '' : v;
-    cell.className = 'mcell c' + (m.states?.[k] ?? 0);
-  }
+  cache.caption.textContent = matrix.caption || '';
+  cache.cells.forEach((cell, flatIndex) => {
+    const value = matrix.values[flatIndex];
+    cell.textContent = (value === null || value === undefined) ? '' : value;
+    cell.className = 'mcell c' + (matrix.states?.[flatIndex] ?? 0);
+  });
 }
 
-function build(host, m) {
+function buildGrid(host, matrix) {
   host.innerHTML = '';
   host.classList.add('matrix');
 
@@ -50,31 +49,32 @@ function build(host, m) {
   const grid = document.createElement('div');
   grid.className = 'mgrid';
   // 좌측 행 라벨 열 1개 + 데이터 열 cols 개
-  grid.style.gridTemplateColumns = `auto repeat(${m.cols}, minmax(30px, 1fr))`;
+  grid.style.gridTemplateColumns = `auto repeat(${matrix.cols}, minmax(30px, 1fr))`;
 
-  // 헤더 행: 빈 칸 + 열 라벨
-  grid.append(labelEl('mcorner', ''));
-  for (let c = 0; c < m.cols; c++) grid.append(labelEl('mcol', m.colLabels?.[c] ?? c));
+  // 헤더 행: 빈 모서리 칸 + 열 라벨
+  grid.append(labelCell('mcorner', ''));
+  for (let col = 0; col < matrix.cols; col++)
+    grid.append(labelCell('mcol', matrix.colLabels?.[col] ?? col));
 
   const cells = [];
-  for (let r = 0; r < m.rows; r++) {
-    grid.append(labelEl('mrow', m.rowLabels?.[r] ?? r));
-    for (let c = 0; c < m.cols; c++) {
+  for (let row = 0; row < matrix.rows; row++) {
+    grid.append(labelCell('mrow', matrix.rowLabels?.[row] ?? row));
+    for (let col = 0; col < matrix.cols; col++) {
       const cell = document.createElement('div');
       cell.className = 'mcell c0';
       grid.append(cell);
-      cells.push(cell);
+      cells.push(cell);              // 행 우선 순서라 flatIndex = row * cols + col
     }
   }
 
   wrap.append(caption, grid);
   host.append(wrap);
-  return { root: wrap, cells, caption, rows: m.rows, cols: m.cols };
+  return { wrap, cells, caption, rows: matrix.rows, cols: matrix.cols };
 }
 
-function labelEl(cls, text) {
+function labelCell(className, text) {
   const el = document.createElement('div');
-  el.className = cls;
+  el.className = className;
   el.textContent = text;
   return el;
 }

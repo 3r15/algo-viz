@@ -16,7 +16,7 @@ export function createStore() {
   };
 
   const listeners = new Set();
-  const emit = () => { for (const fn of listeners) fn(state); };
+  const emit = () => { for (const listener of listeners) listener(state); };
 
   const maxSteps = () =>
     Math.max(state.traceA.length, state.trace2Valid ? state.trace2.length : 0, 1);
@@ -30,8 +30,8 @@ export function createStore() {
     emit();
   }
 
-  function setStep(i) {
-    state.step = Math.max(0, Math.min(i, maxSteps() - 1));
+  function setStep(index) {
+    state.step = Math.max(0, Math.min(index, maxSteps() - 1));
     emit();
   }
   const next  = () => setStep(state.step + 1);
@@ -57,12 +57,12 @@ export function createStore() {
     emit();
   }
 
-  function setSpeed(v) {
-    state.speed = Math.max(1, Math.min(10, Number(v) || 5));
+  function setSpeed(value) {
+    state.speed = Math.max(1, Math.min(10, Number(value) || 5));
     if (state.playing) { stopPlay(); togglePlay(); }  // 새 속도로 재시작
   }
 
-  function subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }
+  function subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); }
 
   // 특정 트레이스에서 현재 스텝의 스냅샷(트레이스가 더 짧으면 마지막에 고정)
   function stepFor(trace) {

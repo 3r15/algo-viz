@@ -27,25 +27,25 @@ export function generate(input) {
   const a = input.slice();
   const n = a.length;
   const steps = [];
-  const push = (line, op, ai, bi, explain) =>
-    steps.push({ line, op, a: ai, b: bi, sortedFrom: n, values: a.slice(), explain });
+  const pushStep = (line, op, aIndex, bIndex, explain) =>
+    steps.push({ line, op, a: aIndex, b: bIndex, sortedFrom: n, values: a.slice(), explain });
 
-  push(3, 'start', -1, -1, '퀵 정렬 시작 — 각 구간의 마지막 원소를 피벗으로');
+  pushStep(3, 'start', -1, -1, '퀵 정렬 시작 — 각 구간의 마지막 원소를 피벗으로');
 
   const qsort = (lo, hi) => {
     if (lo >= hi) return;
     const pivot = a[hi];
     let i = lo;
     for (let j = lo; j < hi; j++) {
-      push(6, 'compare', j, hi, `a[${j}] 와 피벗 a[${hi}](=${pivot}) 비교`);
+      pushStep(6, 'compare', j, hi, `a[${j}] 와 피벗 a[${hi}](=${pivot}) 비교`);
       if (a[j] < pivot) {
         [a[i], a[j]] = [a[j], a[i]];
-        push(7, 'swap', i, j, `a[${j}] < 피벗 → a[${i}] 와 교환`);
+        pushStep(7, 'swap', i, j, `a[${j}] < 피벗 → a[${i}] 와 교환`);
         i++;
       }
     }
     [a[i], a[hi]] = [a[hi], a[i]];
-    push(11, 'swap', i, hi, `피벗을 제자리 a[${i}] 로 이동`);
+    pushStep(11, 'swap', i, hi, `피벗을 제자리 a[${i}] 로 이동`);
     qsort(lo, i - 1);
     qsort(i + 1, hi);
   };

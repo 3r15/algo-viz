@@ -23,23 +23,23 @@ export function generate(input) {
   const a = input.slice();
   const n = a.length;
   const steps = [];
-  const push = (line, op, ai, bi, sortedTo, explain) =>
-    steps.push({ line, op, a: ai, b: bi, sortedFrom: n, sortedTo, values: a.slice(), explain });
+  const pushStep = (line, op, aIndex, bIndex, sortedTo, explain) =>
+    steps.push({ line, op, a: aIndex, b: bIndex, sortedFrom: n, sortedTo, values: a.slice(), explain });
 
-  push(2, 'start', -1, -1, Math.min(1, n), '정렬 시작 — a[0] 은 이미 정렬된 것으로 본다');
+  pushStep(2, 'start', -1, -1, Math.min(1, n), '정렬 시작 — a[0] 은 이미 정렬된 것으로 본다');
   for (let i = 1; i < n; i++) {
     let j = i;
     while (j > 0) {
-      push(5, 'compare', j - 1, j, i, `a[${j - 1}] 와 a[${j}] 비교`);
+      pushStep(5, 'compare', j - 1, j, i, `a[${j - 1}] 와 a[${j}] 비교`);
       if (a[j - 1] > a[j]) {
         [a[j - 1], a[j]] = [a[j], a[j - 1]];
-        push(6, 'swap', j - 1, j, i, `a[${j - 1}] > a[${j}] 이므로 교환(왼쪽으로 이동)`);
+        pushStep(6, 'swap', j - 1, j, i, `a[${j - 1}] > a[${j}] 이므로 교환(왼쪽으로 이동)`);
         j--;
       } else {
         break; // 제자리 찾음
       }
     }
   }
-  push(10, 'done', -1, -1, n, '정렬 완료');
+  pushStep(10, 'done', -1, -1, n, '정렬 완료');
   return steps;
 }

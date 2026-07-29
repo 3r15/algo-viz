@@ -130,12 +130,13 @@ build가 `O(n log n)` 이 아니라 **`O(n)`** 인 점을 자주 놓친다. 노�
 lazy가 필요할 게 뻔하면 처음부터 재귀형으로 쓰자.
 
 ```cpp
-// 재귀형 뼈대 — node 가 [nl, nr] 을 담당
-long long query(int node, int nl, int nr, int l, int r) {
-    if (r < nl || nr < l) return 0;              // 완전히 벗어남 → 항등원
-    if (l <= nl && nr <= r) return t[node];      // 완전히 포함 → 그대로
-    int mid = (nl + nr) / 2;
-    return query(2*node, nl, mid, l, r) + query(2*node+1, mid+1, nr, l, r);
+// 재귀형 뼈대 — node 가 담당하는 구간은 [nodeLo, nodeHi], 질의 구간은 [l, r]
+long long query(int node, int nodeLo, int nodeHi, int l, int r) {
+    if (r < nodeLo || nodeHi < l) return 0;               // 완전히 벗어남 → 항등원
+    if (l <= nodeLo && nodeHi <= r) return t[node];       // 완전히 포함 → 그대로
+    int mid = (nodeLo + nodeHi) / 2;
+    return query(2*node,     nodeLo,  mid,    l, r)
+         + query(2*node + 1, mid + 1, nodeHi, l, r);
 }
 ```
 
