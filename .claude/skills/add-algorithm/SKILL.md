@@ -16,7 +16,7 @@ algorithms/<id>/
   code/<id>.cpp          # 표시용 소스(언어별). 최소 1개
   generator.js           # Model A 생성기 (필수)
   reference-trace.json   # Model 2 참조 트레이스(선택, 있으면 동치 대조)
-  notes.md               # 이론/설명(선택)
+  notes.md               # 해설 문서 — 원리·증명·복잡도. `algorithm-notes` 스킬의 섹션 규약을 따른다
 ```
 
 `<id>` 는 kebab-case, 폴더명 == `meta.id`.
@@ -72,6 +72,7 @@ export function generate(input) {
 ```bash
 node scripts/validate-trace.mjs algorithms/<id>/generator.js
 node scripts/validate-trace.mjs algorithms/<id>/meta.json
+node scripts/validate-notes.mjs algorithms/<id>/notes.md
 ```
 
 - 코드 편집 시 PostToolUse 훅이 같은 검증을 자동 실행한다(실패하면 피드백).
@@ -82,7 +83,28 @@ node scripts/validate-trace.mjs algorithms/<id>/meta.json
 `algorithms/index.json` 에 `meta.json` 레코드를 추가(파일이 있으면).
 없으면 이 알고리즘이 첫 케이스이니 배열로 새로 만든다.
 
-## 6. Model 2 (선택)
+## 6. 해설 문서
+
+`notes.md` 를 작성한다. 섹션 뼈대·마크다운 범위·링크 규칙은 **`algorithm-notes` 스킬**에 있다.
+필수 섹션은 `## 한눈에` · `## 동작 원리` · `## 정확성` · `## 복잡도` 네 개이고,
+순서가 고정이라 검증기가 어긋남을 잡아 준다.
+
+## 7. 새 자료구조가 필요하면
+
+`meta.dataStructures` 의 각 타입 중 **렌더러가 등록된 것들이 모두** viz 에 세로로 쌓인다
+(예: 이진 상승 = `["tree", "matrix"]` → 트리 그림 + up 표).
+렌더러는 자기 데이터를 스텝의 전용 슬롯에서 읽는다.
+
+| type | 읽는 슬롯 |
+|---|---|
+| `array` | `step.values` |
+| `graph` | `step.values` + `ctx.graph` |
+| `tree` | `step.tree` = `{ kind:'perfect'\|'rooted', ... }` |
+| `matrix` | `step.matrix` = `{ rows, cols, values, states, ... }` |
+
+슬롯이 없는 스텝에서는 해당 viz 가 자동으로 숨는다. 새 자료구조는 `renderer-builder` 서브에이전트에 맡긴다.
+
+## 8. Model 2 (선택)
 
 C++ 정확도가 필요하면 `code/<id>.cpp` 를 계측해 작성하고, **표시 알고리즘 줄이 generator.js 의
 `code` 와 정확히 같도록** 맞춘다. 그 뒤 동치 확인은 `trace-validator` 서브에이전트에 맡긴다

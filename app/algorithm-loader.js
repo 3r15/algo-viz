@@ -10,7 +10,8 @@
 
 export async function loadAlgorithm(id) {
   const metaURL = new URL(`../algorithms/${id}/meta.json`, import.meta.url);
-  const meta = await fetchJSON(metaURL);
+  const notesURL = new URL(`../algorithms/${id}/notes.md`, import.meta.url);
+  const [meta, notes] = await Promise.all([fetchJSON(metaURL), fetchText(notesURL)]);
 
   const base = {
     id,
@@ -19,9 +20,11 @@ export async function loadAlgorithm(id) {
     category: meta?.categories?.[0] ?? '',
     categories: meta?.categories ?? [],
     dataStructure: meta?.dataStructures?.[0] ?? 'array',
+    dataStructures: meta?.dataStructures?.length ? meta.dataStructures : ['array'],
     complexity: meta?.complexity ?? null,
     difficulty: meta?.difficulty ?? null,
     tags: meta?.tags ?? [],
+    notes,                                  // notes.md 원문(없으면 null)
   };
 
   if (meta?.placeholder) return { ...base, placeholder: true };
@@ -37,6 +40,8 @@ export async function loadAlgorithm(id) {
     generate: mod.generate,
     code: Array.isArray(mod.code) ? mod.code : [],
     defaultInput: mod.defaultInput ?? [5, 2, 9, 1, 5, 6],
+    inputLabel: mod.inputLabel ?? 'input[]',   // 입력이 배열이 아닌 의미일 때(예: parent[])
+    inputHint: mod.inputHint ?? '',            // 입력란 아래 한 줄 안내(선택)
     category: mod.category ?? base.category,
     defaultGraph: mod.defaultGraph ?? mod.graph ?? null,  // 그래프 알고리즘의 초기 구조(편집기 시작값)
     capabilities: mod.capabilities ?? { directed: false, weighted: false }, // 지원 옵션(편집기 게이팅)
@@ -47,6 +52,15 @@ async function fetchJSON(url) {
   try {
     const r = await fetch(url);
     return r.ok ? await r.json() : null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchText(url) {
+  try {
+    const r = await fetch(url);
+    return r.ok ? await r.text() : null;
   } catch {
     return null;
   }

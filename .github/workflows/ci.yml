@@ -18,6 +18,8 @@ jobs:
         run: node scripts/build-index.mjs --check
       - name: 모든 트레이스/메타 검증
         run: node scripts/validate-all.mjs
+      - name: 해설 문서(notes.md) 구조 검증
+        run: node scripts/validate-notes.mjs
 
   cpp-build:
     name: C++ 소스 컴파일 확인 (네이티브)

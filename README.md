@@ -23,7 +23,7 @@ C++ 알고리즘을 **라인별로 실행·되감기**하며 메모리·자료�
 ```bash
 nvm use                         # Node 22 (.nvmrc)
 npm run serve                   # http://localhost:8000 에서 데모 확인
-npm run check                   # index.json 최신성 + 모든 트레이스 검증
+npm run check                   # index.json 최신성 + 트레이스 + 해설 문서 검증
 ```
 
 알고리즘 추가:
@@ -49,9 +49,9 @@ index.html              데모(GH Pages 진입점) — Model A vs Model 2 비교
 CLAUDE.md               Claude Code 프로젝트 메모리(아키텍처·계약·규약)
 algorithms/
   index.json            카탈로그(meta 레코드 배열, 자동 생성)
-  <id>/                 meta.json · code/ · generator.js · reference-trace.json
+  <id>/                 meta.json · code/ · generator.js · reference-trace.json · notes.md
 schemas/                trace.schema.json · meta.schema.json (계약)
-scripts/                validate-trace · validate-all · build-index (의존성 없는 Node)
+scripts/                validate-trace · validate-notes · validate-all · build-index (의존성 없는 Node)
 docs/design.md          전체 설계 문서
 .claude/                서브에이전트 · 스킬 · 훅 · 설정
 .github/workflows/      CI(검증) + GitHub Pages 배포
@@ -65,7 +65,25 @@ docs/design.md          전체 설계 문서
 라우팅은 **해시 라우팅**을 쓴다(`#/catalog`, `#/algo/:id`) — GH Pages 는 서버 리라이트가 없어
 `/algo/...` 경로는 404 나기 때문이다.
 
+## 해설 문서
+
+알고리즘마다 `algorithms/<id>/notes.md` 에 **원리·정확성 증명·복잡도** 해설을 둔다.
+알고리즘 페이지 맨 아래 "해설" 섹션으로 자동 렌더되며(등록 불필요), 우측에 목차가 붙는다.
+
+섹션 뼈대는 고정이다 — `## 한눈에` · `## 동작 원리` · `## 정확성` · `## 복잡도` 가 필수이고,
+`## 구현 노트` · `## 변형과 확장` · `## 함께 보기` 가 선택이다. 순서까지 검증기가 강제하므로
+9개 문서가 같은 뼈대를 유지한다.
+
+```bash
+node scripts/validate-notes.mjs                        # 전체
+node scripts/validate-notes.mjs algorithms/bfs/notes.md
+```
+
+수식 라이브러리는 싣지 않는다(빌드리스 원칙). `O(n log n)`, `2^k`, `⌊log₂ n⌋` 처럼
+유니코드로 쓰고, 여러 줄 식·다이어그램은 코드 펜스에 넣는다.
+작성 규약 전체는 `.claude/skills/algorithm-notes/SKILL.md`.
+
 ## 기여
 
-새 알고리즘 PR 은 `.claude/skills/add-algorithm/SKILL.md` 절차를 따른다. CI 가 트레이스 계약과
-카탈로그 최신성을 자동 검사한다. 라이선스: MIT.
+새 알고리즘 PR 은 `.claude/skills/add-algorithm/SKILL.md` 절차를 따른다. CI 가 트레이스 계약,
+해설 문서 구조, 카탈로그 최신성을 자동 검사한다. 라이선스: MIT.

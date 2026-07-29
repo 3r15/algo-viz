@@ -10,7 +10,8 @@
     "index": "node scripts/build-index.mjs",
     "index:check": "node scripts/build-index.mjs --check",
     "build:wasm": "bash build.sh",
-    "check": "npm run index:check && npm run validate"
+    "check": "npm run index:check && npm run validate && npm run validate:notes",
+    "validate:notes": "node scripts/validate-notes.mjs"
   },
   "engines": {
     "node": ">=18"

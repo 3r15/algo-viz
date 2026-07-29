@@ -39,6 +39,49 @@
     "path": "algorithms/bfs/"
   },
   {
+    "id": "binary-lifting",
+    "title": "이진 상승 (Binary Lifting)",
+    "summary": "2의 거듭제곱 칸씩 미리 저장한 조상 표로 k번째 조상과 LCA 를 O(log n) 에 구한다.",
+    "aliases": [
+      "이진상승",
+      "희소 조상",
+      "binary lifting",
+      "LCA",
+      "최소 공통 조상",
+      "kth ancestor"
+    ],
+    "categories": [
+      "tree",
+      "graph"
+    ],
+    "dataStructures": [
+      "tree",
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(log n)",
+        "avg": "O(log n)",
+        "worst": "O(log n)"
+      },
+      "space": "O(n log n)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "lca",
+      "ancestor",
+      "preprocessing",
+      "binary-decomposition"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/binary-lifting/"
+  },
+  {
     "id": "bubble-sort",
     "title": "버블 정렬",
     "summary": "인접한 두 원소를 비교·교환하며 큰 값을 뒤로 밀어내는 기본 정렬.",
@@ -228,5 +271,87 @@
       "model-a"
     ],
     "path": "algorithms/quick-sort/"
+  },
+  {
+    "id": "segment-tree",
+    "title": "세그먼트 트리",
+    "summary": "구간 질의와 점 갱신을 둘 다 O(log n) 에 처리하는 이진 트리 자료구조.",
+    "aliases": [
+      "세그트리",
+      "구간 트리",
+      "segment tree",
+      "segtree",
+      "구간합"
+    ],
+    "categories": [
+      "tree",
+      "search"
+    ],
+    "dataStructures": [
+      "tree"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(log n)",
+        "avg": "O(log n)",
+        "worst": "O(log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "range-query",
+      "point-update",
+      "divide-and-conquer",
+      "monoid"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/segment-tree/"
+  },
+  {
+    "id": "sparse-table",
+    "title": "희소 배열 (Sparse Table)",
+    "summary": "변하지 않는 배열의 구간 최솟값을 전처리 O(n log n) 후 질의 O(1) 로 답하는 표.",
+    "aliases": [
+      "희소배열",
+      "스파스 테이블",
+      "sparse table",
+      "RMQ",
+      "구간 최솟값"
+    ],
+    "categories": [
+      "dp",
+      "search"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n log n)",
+        "avg": "O(n log n)",
+        "worst": "O(n log n)"
+      },
+      "space": "O(n log n)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "range-query",
+      "idempotent",
+      "preprocessing",
+      "static-array"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/sparse-table/"
   }
 ]
