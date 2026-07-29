@@ -52,12 +52,14 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
   views/
     catalog.js             # 메인: 검색 + 파셋 필터 + 카드 그리드 → #/algo/:id
     algorithm.js           # 단일 채널 Model A 플레이어(#/algo/:id)
+    paradigm.js            # 유형 목록(#/paradigms) + 유형 문서(#/paradigm/:id)
   catalog-data.js          # index.json 로드 + 필터/검색(순수 함수, DOM 무관)
   store.js                 # 플레이어 상태 + 트랜스포트(DOM 무관). undo 없음
   algorithm-loader.js      # 폴더 규약으로 generator.js/meta.json 로드
   highlight.js             # 경량 C++ 신택스 하이라이터(표시 코드용)
   graph-editor.js          # 그래프 직접 그리기 입력 편집기(정점/간선/시작점, 인접 리스트·행렬)
   markdown.js              # 의존성 없는 초소형 마크다운 렌더러(notes.md 표시용)
+  paradigm-data.js         # 유형(패러다임) 로드 + match 규칙으로 알고리즘 역참조
   renderers/
     registry.js            # registerRenderer('<type>', render). render(host, step, ctx)
     array.js               # array 렌더러(요소 재사용, 인덱스 슬롯 기준, sortedFrom/sortedTo)
@@ -70,7 +72,11 @@ schemas/
   meta.schema.json         # 카탈로그 레코드 계약
 scripts/
   validate-trace.mjs       # 트레이스 검증기(훅·서브에이전트·CI 공용, 의존성 없음)
-  validate-notes.mjs       # 해설 문서 구조 검증기(섹션 어휘·순서·내부 링크)
+  validate-notes.mjs       # 해설 문서 구조 검증기(알고리즘/유형 두 스키마)
+  build-paradigm-index.mjs # paradigms/index.json 생성(--check 로 CI 게이트)
+paradigms/                 # 알고리즘 "유형" 문서 — 개별 알고리즘과 구별되는 층
+  index.json               # 유형 카탈로그(자동 생성)
+  <id>/meta.json notes.md  # meta.match = { categories, tags } 로 알고리즘을 자동 수집
 algorithms/
   index.json               # 카탈로그(= meta 레코드 배열). 클라이언트에서 필터/검색
   <id>/
@@ -104,6 +110,7 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **바닐라 ES 모듈**(빌드리스가 기본). 프레임워크·번들러 도입은 사전 합의.
 - **해시 라우팅 필수** — GH Pages 는 서버 리라이트가 없다. `#/catalog`, `#/algo/:id`.
   태그·분류 링크는 `#/catalog?q=<term>` (검색어 프리필). `/algo/quick-sort` 같은 경로는 404 난다.
+  유형 문서는 `#/paradigms`(목록) · `#/paradigm/:id`(본문).
 - **상대 경로** — 프로젝트 페이지는 `user.github.io/<repo>/` 하위. base 경로 주의.
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
 - **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/stack/tree/graph…)로 위임.
@@ -126,6 +133,11 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **viz 슬롯**: `meta.dataStructures` 중 렌더러가 등록된 타입이 **모두** 세로로 쌓인다.
   각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`, `matrix`는 `step.matrix`.
   슬롯이 없는 스텝에서는 그 viz 가 자동으로 숨는다.
+- **유형(패러다임) 문서**: `paradigms/<id>/` — 개별 알고리즘이 아니라 "푸는 방식"을 설명한다.
+  섹션 뼈대가 알고리즘 문서와 **다르다**(한눈에/언제 쓸 수 있나/구현 골격 + 잘 맞는 문제/함정/더 보기).
+  `meta.match = { categories, tags }` 로 알고리즘을 자동 수집하므로 알고리즘 meta 를 건드릴 필요가 없다 —
+  새 알고리즘을 추가하면 유형 페이지에 저절로 나타난다. 분류가 안 걸리면 **알고리즘에 정확한 태그를 더하라**
+  (유형 쪽에 id 를 하드코딩하지 마라 — 태그 검색과 어휘가 갈라진다).
 - **placeholder 알고리즘**: `meta.json` 에 `"placeholder": true` 면 generator 없이 카탈로그·"준비 중" 페이지에만 노출.
 - **그래프 알고리즘 입력**: `dataStructure==='graph'` 이면 배열 입력행 대신 `graph-editor.js` 편집기를 붙인다.
   generator 는 `defaultGraph`·`capabilities` 를 export 하고 `generate(graph)` 로 그래프를 받는다(인자 없으면 defaultGraph — 검증기 호환).
@@ -176,7 +188,10 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 알고리즘별 해설 문서(`notes.md`) + 마크다운 렌더러 + 섹션 규약 검증기
 - [x] 가중치/방향 그래프 편집기 구현 + graph 렌더러 확장(가중치·화살표·거리 라벨·간선 상태)
 - [x] 그래프 알고리즘 4종: 다익스트라 · A* · 크루스칼(MST) · 플로이드-워셜 (총 13종)
-- [ ] 확충 계속: 벨만-포드 · 위상 정렬 · SCC · 프림 → DP 테이블 등
+- [x] 그래프 알고리즘 3종 추가: 벨만-포드 · 위상 정렬(칸) · 타잔 SCC (총 16종)
+- [x] 알고리즘 **유형**(패러다임) 문서 7종 — 그리디/분할정복/DP/재귀/그래프 탐색/전처리/증분법.
+      `paradigms/<id>/` 폴더 규약, `meta.match` 로 알고리즘 자동 수집, 태그 검색과 어휘 공유
+- [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT → DP 테이블(배낭·LCS) 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 - [ ] (선택) `build.sh` WASM 경로 정리 — 소비처 없으니 제거 또는 명시적 보존 결정
 - [ ] (선택) GitHub Actions: `index.json` 생성 + Model 2 WASM 빌드 + 스키마 검증

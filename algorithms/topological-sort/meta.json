@@ -1,0 +1,17 @@
+{
+  "id": "topological-sort",
+  "title": "위상 정렬 (칸 알고리즘)",
+  "summary": "방향 비순환 그래프의 정점을 모든 간선이 앞에서 뒤로 향하도록 줄 세운다. 사이클도 함께 탐지한다.",
+  "aliases": ["위상정렬", "topological sort", "topsort", "kahn", "칸 알고리즘", "선수과목", "DAG"],
+  "categories": ["graph", "search"],
+  "dataStructures": ["graph", "queue"],
+  "complexity": {
+    "time": { "best": "O(V+E)", "avg": "O(V+E)", "worst": "O(V+E)" },
+    "space": "O(V)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["dag", "ordering", "cycle-detection", "in-degree", "queue", "graph-traversal"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/topological-sort/"
+}

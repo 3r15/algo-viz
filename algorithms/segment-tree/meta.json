@@ -2,16 +2,41 @@
   "id": "segment-tree",
   "title": "세그먼트 트리",
   "summary": "구간 질의와 점 갱신을 둘 다 O(log n) 에 처리하는 이진 트리 자료구조.",
-  "aliases": ["세그트리", "구간 트리", "segment tree", "segtree", "구간합"],
-  "categories": ["tree", "search"],
-  "dataStructures": ["tree"],
+  "aliases": [
+    "세그트리",
+    "구간 트리",
+    "segment tree",
+    "segtree",
+    "구간합"
+  ],
+  "categories": [
+    "tree",
+    "search"
+  ],
+  "dataStructures": [
+    "tree"
+  ],
   "complexity": {
-    "time": { "best": "O(log n)", "avg": "O(log n)", "worst": "O(log n)" },
+    "time": {
+      "best": "O(log n)",
+      "avg": "O(log n)",
+      "worst": "O(log n)"
+    },
     "space": "O(n)"
   },
   "difficulty": "advanced",
-  "tags": ["range-query", "point-update", "divide-and-conquer", "monoid"],
-  "languages": ["cpp"],
-  "generation": ["model-a"],
+  "tags": [
+    "range-query",
+    "point-update",
+    "divide-and-conquer",
+    "monoid",
+    "recursion"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
   "path": "algorithms/segment-tree/"
 }

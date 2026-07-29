@@ -15,7 +15,7 @@ case "$f" in
   *algorithms/*generator.js|*algorithms/*trace.json|*algorithms/*meta.json)
     node "${CLAUDE_PROJECT_DIR:-.}/scripts/validate-trace.mjs" "$f" 1>&2 || exit 2
     ;;
-  *algorithms/*notes.md)
+  *algorithms/*notes.md|*paradigms/*notes.md)
     node "${CLAUDE_PROJECT_DIR:-.}/scripts/validate-notes.mjs" "$f" 1>&2 || exit 2
     ;;
 esac

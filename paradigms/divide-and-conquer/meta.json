@@ -1,0 +1,7 @@
+{
+  "id": "divide-and-conquer",
+  "title": "분할 정복",
+  "summary": "문제를 같은 모양의 작은 문제로 쪼개고, 부분해를 합쳐 전체 해를 만든다.",
+  "tagline": "쪼개고 · 풀고 · 합친다",
+  "match": { "categories": [], "tags": ["divide-and-conquer"] }
+}

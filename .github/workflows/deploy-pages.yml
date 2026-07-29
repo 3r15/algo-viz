@@ -28,7 +28,9 @@ jobs:
 
       # 카탈로그를 최신으로 만들어 배포 아티팩트에 포함
       - name: 카탈로그 생성
-        run: node scripts/build-index.mjs
+        run: |
+          node scripts/build-index.mjs
+          node scripts/build-paradigm-index.mjs
 
       # (선택) Model 2 WASM 빌드가 필요하면 여기에서 Emscripten 설정 후 ./build.sh
       # - name: Emscripten 설치

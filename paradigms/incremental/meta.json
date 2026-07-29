@@ -1,0 +1,7 @@
+{
+  "id": "incremental",
+  "title": "증분법 (Incremental)",
+  "summary": "이미 해결한 부분을 불변식으로 유지하면서 원소를 하나씩 편입시켜 범위를 넓힌다.",
+  "tagline": "푼 만큼을 지키며 한 칸씩 넓힌다",
+  "match": { "categories": [], "tags": ["incremental", "online"] }
+}

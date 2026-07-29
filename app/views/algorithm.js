@@ -13,6 +13,7 @@ import { getRenderer, hasRenderer } from '../renderers/registry.js';
 import { highlightCpp } from '../highlight.js';
 import { createGraphEditor } from '../graph-editor.js';
 import { renderMarkdown } from '../markdown.js';
+import { loadParadigms, paradigmsOfAlgorithm } from '../paradigm-data.js';
 import '../renderers/array.js';
 import '../renderers/graph.js';
 import '../renderers/matrix.js';
@@ -52,6 +53,21 @@ function tagsBar(algo) {
   return `<div class="tags"><span class="tags-label">태그</span>` +
     algo.tags.map(tag => `<button class="tag" data-q="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join('') +
     `</div>`;
+}
+
+// 이 알고리즘이 어떤 "유형"(그리디·DP·분할정복…)에 속하는지 상단에 배지로 덧붙인다.
+// 알고리즘 meta 에 유형을 적어 두지 않고 paradigms 쪽 match 규칙으로 역참조하므로,
+// 페이지 렌더를 막지 않도록 비동기로 붙인다(실패해도 페이지는 그대로 동작).
+async function attachParadigmBadges(container, algorithm) {
+  const topInfoEl = container.querySelector('.topinfo');
+  if (!topInfoEl) return;
+  let paradigms;
+  try { paradigms = await loadParadigms(); } catch { return; }
+  const matched = paradigmsOfAlgorithm(paradigms, algorithm);
+  if (!matched.length) return;
+  topInfoEl.insertAdjacentHTML('beforeend', matched.map(paradigm =>
+    `<a class="badge para" href="#/paradigm/${escapeHtml(paradigm.id)}" ` +
+    `title="${escapeHtml(paradigm.summary || '')}">${escapeHtml(paradigm.title)}</a>`).join(''));
 }
 
 // [data-q] 요소 클릭 → 카탈로그 검색 결과로 이동
@@ -125,6 +141,7 @@ export async function renderAlgorithm(container, id) {
       ${notesSection(current.notes)}`;
     wireSearchLinks(container);
     wireTocLinks(container);
+    attachParadigmBadges(container, current);
     return () => {};
   }
 
@@ -311,6 +328,7 @@ export async function renderAlgorithm(container, id) {
   ui.speedSlider.addEventListener('input', event => store.setSpeed(event.target.value));
   wireSearchLinks(container);
   wireTocLinks(container);
+  attachParadigmBadges(container, current);
 
   const onKeyDown = event => {
     // 입력란·버튼에 포커스가 있으면 그쪽 키 동작(스페이스=클릭 등)을 가로채지 않는다

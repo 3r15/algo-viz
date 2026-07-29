@@ -2,16 +2,43 @@
   "id": "binary-lifting",
   "title": "이진 상승 (Binary Lifting)",
   "summary": "2의 거듭제곱 칸씩 미리 저장한 조상 표로 k번째 조상과 LCA 를 O(log n) 에 구한다.",
-  "aliases": ["이진상승", "희소 조상", "binary lifting", "LCA", "최소 공통 조상", "kth ancestor"],
-  "categories": ["tree", "graph"],
-  "dataStructures": ["tree", "matrix"],
+  "aliases": [
+    "이진상승",
+    "희소 조상",
+    "binary lifting",
+    "LCA",
+    "최소 공통 조상",
+    "kth ancestor"
+  ],
+  "categories": [
+    "tree",
+    "graph"
+  ],
+  "dataStructures": [
+    "tree",
+    "matrix"
+  ],
   "complexity": {
-    "time": { "best": "O(log n)", "avg": "O(log n)", "worst": "O(log n)" },
+    "time": {
+      "best": "O(log n)",
+      "avg": "O(log n)",
+      "worst": "O(log n)"
+    },
     "space": "O(n log n)"
   },
   "difficulty": "advanced",
-  "tags": ["lca", "ancestor", "preprocessing", "binary-decomposition"],
-  "languages": ["cpp"],
-  "generation": ["model-a"],
+  "tags": [
+    "lca",
+    "ancestor",
+    "preprocessing",
+    "binary-decomposition",
+    "doubling"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
   "path": "algorithms/binary-lifting/"
 }

@@ -1,0 +1,7 @@
+{
+  "id": "greedy",
+  "title": "그리디 (탐욕법)",
+  "summary": "매 순간 가장 좋아 보이는 선택을 하고 되돌아보지 않는다. 되는 이유를 증명해야 쓸 수 있다.",
+  "tagline": "지금 최선 = 전체 최선, 임을 증명했을 때만",
+  "match": { "categories": ["greedy"], "tags": ["greedy", "cut-property"] }
+}

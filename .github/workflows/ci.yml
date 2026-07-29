@@ -15,7 +15,9 @@ jobs:
         with:
           node-version: 22
       - name: 카탈로그 최신성 검사
-        run: node scripts/build-index.mjs --check
+        run: |
+          node scripts/build-index.mjs --check
+          node scripts/build-paradigm-index.mjs --check
       - name: 모든 트레이스/메타 검증
         run: node scripts/validate-all.mjs
       - name: 해설 문서(notes.md) 구조 검증
