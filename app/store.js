@@ -7,7 +7,7 @@
 export function createStore() {
   const state = {
     traceA: [],          // Model A (generator.js)
-    trace2: [],          // Model 2 (reference-trace.json / WASM)
+    trace2: [],          // Model 2 (reference-trace.json — CI 오라클)
     trace2Valid: false,  // trace2 가 현재 입력에 대응하는가
     step: 0,
     playing: false,

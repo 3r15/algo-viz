@@ -18,8 +18,9 @@ const NODE_RADIUS = 5.4;
 const graphCaches = new WeakMap();    // host 요소 → { wrap, nodes, edges, auxLabel, graph }
 
 // 보조 자료구조는 하나만 표시한다(알고리즘마다 쓰는 것이 다르다)
+// 보조 자료구조 한 줄. 우선순위 큐는 heap 렌더러가 자기 슬롯(step.heap)에서 크게 그리므로
+// 여기서는 다루지 않는다 — 같은 것을 두 번 보여 주지 않기 위해서다.
 const AUX_SLOTS = [
-  { key: 'pq', label: 'PQ' },
   { key: 'stack', label: 'stack' },
   { key: 'queue', label: 'queue' },
 ];

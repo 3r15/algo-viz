@@ -1,0 +1,44 @@
+{
+  "id": "heap-sort",
+  "title": "힙 정렬 (Heap Sort)",
+  "summary": "배열을 최대 힙으로 만든 뒤 루트(최댓값)를 하나씩 뒤로 빼내, 추가 메모리 없이 O(n log n) 을 보장한다.",
+  "aliases": [
+    "힙 정렬",
+    "힙정렬",
+    "heap sort",
+    "heapsort",
+    "최대 힙",
+    "우선순위 큐 정렬"
+  ],
+  "categories": [
+    "sorting"
+  ],
+  "dataStructures": [
+    "array",
+    "heap"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(n log n)",
+      "avg": "O(n log n)",
+      "worst": "O(n log n)"
+    },
+    "space": "O(1)"
+  },
+  "difficulty": "intermediate",
+  "tags": [
+    "in-place",
+    "unstable",
+    "comparison-sort",
+    "selection",
+    "priority-queue",
+    "worst-case-guarantee"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/heap-sort/"
+}

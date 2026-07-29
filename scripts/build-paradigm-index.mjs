@@ -5,6 +5,7 @@
 
 import { readdirSync, readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { describeRecordDiff, reportStaleIndex } from './index-diff.mjs';
 
 const PARADIGM_DIR = 'paradigms';
 const OUT = join(PARADIGM_DIR, 'index.json');
@@ -24,10 +25,12 @@ const json = JSON.stringify(records, null, 2) + '\n';
 if (checkOnly) {
   const current = existsSync(OUT) ? readFileSync(OUT, 'utf8') : '';
   if (current !== json) {
-    console.error('❌ paradigms/index.json 이 최신이 아닙니다. `node scripts/build-paradigm-index.mjs` 후 커밋하세요.');
+    let currentRecords = [];
+    try { currentRecords = JSON.parse(current); } catch { /* 파일이 없거나 깨졌으면 전부 추가로 보인다 */ }
+    reportStaleIndex(OUT, 'npm run index', describeRecordDiff(currentRecords, records));
     process.exit(1);
   }
-  console.log('✓ paradigms/index.json 최신');
+  console.log(`✓ ${OUT} 최신 — ${records.length} 개 유형`);
 } else {
   writeFileSync(OUT, json);
   console.log(`✓ paradigms/index.json 생성 — ${records.length} 개 유형`);

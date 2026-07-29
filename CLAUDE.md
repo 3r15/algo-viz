@@ -20,9 +20,9 @@ C++ 알고리즘을 **라인별 실행·되감기**하며 자료구조 변화를
   대신 네이티브 g++ 컴파일로 `reference-trace.json` 을 뽑아 두고, **CI/훅이 Model A ↔ reference-trace 동치(LOCK)를 게이트**한다.
 
 결정 근거: 정적 호스팅 + 다수 알고리즘 + 빠른 브라우징엔 Model A(제로 빌드·수 KB)가 적합.
-Model 2 의 "표시=실행" 강점은 **런타임 WASM 없이도** reference-trace 동치 검증으로 확보된다.
+Model 2 의 "표시=실행" 강점은 **브라우저에서 C++ 을 돌리지 않고도** reference-trace 동치 검증으로 확보된다.
 그래서 `step.line`/`op`/`values` 계약과 LOCK 불변식은 그대로 살아 있고, Model 2 는 정확성 게이트로만 남는다.
-(`build.sh` 의 WASM 빌드 경로는 현재 소비처가 없어 사실상 휴면 상태.)
+**WASM 경로는 제거했다** — 소비처가 없었고, 네이티브 `g++` 만으로 오라클 역할이 충분하다.
 
 ---
 
@@ -63,17 +63,19 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
   renderers/
     registry.js            # registerRenderer('<type>', render). render(host, step, ctx)
     array.js               # array 렌더러(요소 재사용, 인덱스 슬롯 기준, sortedFrom/sortedTo)
-    graph.js               # graph 렌더러(SVG, 정점 상태색 + 큐). ctx.graph 로 구조 수신
+    graph.js               # graph 렌더러(SVG, 정점 상태색 + 큐/스택). ctx.graph 로 구조 수신
     tree.js                # tree 렌더러(SVG). step.tree = perfect(세그트리) | rooted(parent[])
     matrix.js              # matrix 렌더러(표). step.matrix = DP 테이블 · st[k][i] · up[k][v]
-build.sh                   # (휴면) 계측 C++ → WASM. 진실 원천 algorithms/<id>/code/. 현재 소비처 없음
+    heap.js                # heap 렌더러. step.heap = 배열 줄 + 완전 이진 트리(shape:'list' 면 목록만)
 schemas/
   trace.schema.json        # 트레이스 계약
   meta.schema.json         # 카탈로그 레코드 계약
 scripts/
   validate-trace.mjs       # 트레이스 검증기(훅·서브에이전트·CI 공용, 의존성 없음)
-  validate-notes.mjs       # 해설 문서 구조 검증기(알고리즘/유형 두 스키마)
+  validate-notes.mjs       # 해설 문서 구조 검증기(차근차근/깊이 보기/유형 세 스키마)
+  build-index.mjs          # algorithms/index.json 생성(--check 로 CI 게이트)
   build-paradigm-index.mjs # paradigms/index.json 생성(--check 로 CI 게이트)
+  index-diff.mjs           # 인덱스가 뒤처졌을 때 무엇이 달라졌는지 설명(CI 주석 포함)
 paradigms/                 # 알고리즘 "유형" 문서 — 개별 알고리즘과 구별되는 층
   index.json               # 유형 카탈로그(자동 생성)
   <id>/meta.json notes.md  # meta.match = { categories, tags } 로 알고리즘을 자동 수집
@@ -115,7 +117,8 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   유형 문서는 `#/paradigms`(목록) · `#/paradigm/:id`(본문).
 - **상대 경로** — 프로젝트 페이지는 `user.github.io/<repo>/` 하위. base 경로 주의.
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
-- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/stack/tree/graph…)로 위임.
+- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap)로 위임.
+  아직 없는 타입(stack/queue/linked-list…)은 `meta.dataStructures` 에 적어도 viz 슬롯이 생기지 않는다.
 - **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
 - **변수명은 역할이 드러나게** — 한 글자 이름으로 역할을 가리지 마라. 두 축으로 갈린다.
   - **유지**: 알고리즘 관례명 `i j k l r n u v lo hi mid pivot` 과
@@ -137,7 +140,8 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   작성 규약은 `.claude/skills/algorithm-notes/SKILL.md`. **수식 라이브러리를 싣지 말 것** — 유니코드 + 코드 펜스로 쓴다.
   한 페이지에 문서가 둘이므로 `renderMarkdown(md, { idPrefix })` 로 앵커를 분리한다.
 - **viz 슬롯**: `meta.dataStructures` 중 렌더러가 등록된 타입이 **모두** 세로로 쌓인다.
-  각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`, `matrix`는 `step.matrix`.
+  각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`,
+  `matrix`는 `step.matrix`, `heap`은 `step.heap`.
   슬롯이 없는 스텝에서는 그 viz 가 자동으로 숨는다.
 - **유형(패러다임) 문서**: `paradigms/<id>/` — 개별 알고리즘이 아니라 "푸는 방식"을 설명한다.
   섹션 뼈대가 알고리즘 문서와 **다르다**(한눈에/언제 쓸 수 있나/구현 골격 + 잘 맞는 문제/함정/더 보기).
@@ -145,6 +149,14 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   새 알고리즘을 추가하면 유형 페이지에 저절로 나타난다. 분류가 안 걸리면 **알고리즘에 정확한 태그를 더하라**
   (유형 쪽에 id 를 하드코딩하지 마라 — 태그 검색과 어휘가 갈라진다).
 - **placeholder 알고리즘**: `meta.json` 에 `"placeholder": true` 면 generator 없이 카탈로그·"준비 중" 페이지에만 노출.
+- **입력은 세 종류**: 기본은 정수 배열(최대 12개, ±999). `inputKind='text'` 를 export 하면
+  자유 텍스트(LCS 의 두 문자열, 최대 24자)로 바뀌고, 생성기가 직접 파싱한다.
+  형식이 특수하면(배낭의 `용량 w v w v …`) `randomInput()` 을 export 해 Randomize 가 그 형식을 지키게 한다.
+  **`randomInput` 은 무작위를 담는 유일한 자리다** — `generate` 는 순수 함수로 남아야 한다.
+- **heap 슬롯**: `step.heap = { values, size, states, labels, shape, caption }`.
+  `shape:'tree'`(기본)는 배열 줄 + 완전 이진 트리, `shape:'list'` 는 목록만 그린다.
+  **내부가 실제 이진 힙이 아닌 PQ 는 반드시 `'list'`** — 다익스트라·A* 의 PQ 는 배열+정렬이라
+  트리로 그리면 알고리즘이 만들지 않는 구조를 보여 주게 된다.
 - **그래프 알고리즘 입력**: `dataStructure==='graph'` 이면 배열 입력행 대신 `graph-editor.js` 편집기를 붙인다.
   generator 는 `defaultGraph`·`capabilities` 를 export 하고 `generate(graph)` 로 그래프를 받는다(인자 없으면 defaultGraph — 검증기 호환).
   간선은 `[u,v,w]`(가중치 기본 1). 렌더러엔 `ctx.graph`(현재 그린 그래프)를 넘긴다. BFS 는 `queue`, DFS 는 `stack` 필드로 보조 자료구조 표시.
@@ -171,7 +183,7 @@ node scripts/validate-trace.mjs algorithms/<id>/meta.json
 node scripts/validate-notes.mjs algorithms/<id>/notes.md
 npm run check                      # index 최신성 + 트레이스 + 문서 한 번에
 
-# Model 2 CI 오라클: 네이티브 컴파일로 reference-trace 재생성/대조(emcc 불필요)
+# Model 2 CI 오라클: 네이티브 컴파일로 reference-trace 재생성/대조
 g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tmp/bs "5 2 9 1 5 6"
 # → 출력이 algorithms/bubble-sort/reference-trace.json 과 일치해야 하고,
 #   validate-trace 가 generator.js(Model A) ↔ reference-trace 동치를 게이트한다(LOCK).
@@ -197,11 +209,14 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 그래프 알고리즘 3종 추가: 벨만-포드 · 위상 정렬(칸) · 타잔 SCC (총 16종)
 - [x] 알고리즘 **유형**(패러다임) 문서 7종 — 그리디/분할정복/DP/재귀/그래프 탐색/전처리/증분법.
       `paradigms/<id>/` 폴더 규약, `meta.match` 로 알고리즘 자동 수집, 태그 검색과 어휘 공유
-- [x] 해설 문서 2층 재구성 — 차근차근(walkthrough.md) + 깊이 보기(notes.md). 16종 전부
-- [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT → DP 테이블(배낭·LCS) 등
+- [x] 해설 문서 2층 재구성 — 차근차근(walkthrough.md) + 깊이 보기(notes.md). 20종 전부
+- [x] DP 테이블 3종 — 0/1 배낭 · LCS · LIS. matrix 렌더러 재사용, `#/paradigm/dynamic-programming` 의 공백을 메움 (총 19종)
+- [x] heap 렌더러(배열 줄 + 완전 이진 트리) + 힙 정렬 (총 20종). 다익스트라·A* 의 PQ 도 이 슬롯으로 이전
+- [x] WASM 경로 제거 — `build.sh` 삭제, Model 2 는 네이티브 `g++` 오라클로만 남김
+- [x] 카탈로그 생성을 배포 워크플로로 이관 + CI 는 어긋남을 설명하는 게이트로
+- [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT · 편집 거리 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
-- [ ] (선택) `build.sh` WASM 경로 정리 — 소비처 없으니 제거 또는 명시적 보존 결정
-- [ ] (선택) GitHub Actions: `index.json` 생성 + Model 2 WASM 빌드 + 스키마 검증
+- [ ] stack/queue 전용 렌더러 — 지금은 graph 렌더러의 한 줄 표시로만 보인다
 
 ## 함정 메모
 

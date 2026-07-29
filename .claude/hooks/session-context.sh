@@ -6,7 +6,7 @@ branch=$(git branch --show-current 2>/dev/null || echo '?')
 cat <<EOF
 [algo-viz] git=$branch
 핵심 불변식:
-· 트레이스가 계약이다. Model A(generator.js)와 Model 2(C++→WASM)는 반드시 동일한 트레이스를 산출한다.
+· 트레이스가 계약이다. Model A(generator.js)와 Model 2(계측 C++ → reference-trace)는 반드시 동일한 트레이스를 산출한다.
 · 되감기는 스냅샷 인덱스 이동일 뿐 — undo 로직을 만들지 말 것.
 · 코드 편집 후 generator.js / trace.json / meta.json 은 PostToolUse 훅이 자동 검증한다.
 루틴:

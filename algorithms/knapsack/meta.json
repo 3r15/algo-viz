@@ -1,0 +1,42 @@
+{
+  "id": "knapsack",
+  "title": "0/1 배낭 문제 (Knapsack)",
+  "summary": "물건을 하나씩 추가하며 \"담을까 말까\" 두 선택지만 비교해, 한도별 최대 가치 표를 채운다.",
+  "aliases": [
+    "배낭",
+    "배낭 문제",
+    "knapsack",
+    "0/1 knapsack",
+    "냅색",
+    "짐 싸기"
+  ],
+  "categories": [
+    "dp"
+  ],
+  "dataStructures": [
+    "matrix"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(n·W)",
+      "avg": "O(n·W)",
+      "worst": "O(n·W)"
+    },
+    "space": "O(n·W)"
+  },
+  "difficulty": "intermediate",
+  "tags": [
+    "dynamic-programming",
+    "two-dimensional-dp",
+    "optimization",
+    "pseudo-polynomial",
+    "reconstruction"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/knapsack/"
+}

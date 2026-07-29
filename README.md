@@ -6,17 +6,19 @@ C++ 알고리즘을 **라인별로 실행·되감기**하며 메모리·자료�
 > 핵심: 브라우저에서 C++을 인터프리트하지 않는다. 알고리즘마다 **실행 스텝 배열(trace)** 을
 > 만들어 두고, 플레이어는 인덱스 하나만 오간다. 되감기 = `i-1` (undo 로직 없음).
 
-## 트레이스 생성 두 방식
+## 트레이스 생성 — 제품 한 채널 + 검증 오라클
 
 | | Model A | Model 2 |
 |---|---|---|
-| 방법 | `generator.js` (JS 재구현) | 계측 C++ → WASM (Emscripten) |
-| 빌드 | 불필요 | `build.sh` 필요 |
-| 임의 입력 | 실시간 | WASM 빌드 후 실시간 |
-| 표시=실행 | 아니오(논리 일치는 검증기로 보장) | 예 |
+| 방법 | `generator.js` (JS 재구현) | 계측 C++ (`algorithms/<id>/code/`) |
+| 어디서 도나 | **브라우저 — 배포되는 유일한 방식** | CI/로컬의 네이티브 `g++` |
+| 빌드 | 불필요 | `g++ -std=c++17` 한 줄 |
+| 임의 입력 | 실시간 | 명령줄 인자로 |
+| 역할 | 제품 | **정확성 게이트(오라클)** |
 
-두 방식은 **바이트 단위로 동일한 트레이스**를 산출해야 한다. `index.html` 데모의 LOCK 램프와
-`scripts/validate-trace.mjs` 가 이 동일성을 확인한다.
+브라우저는 Model A 만 재생한다. Model 2 는 같은 알고리즘을 C++ 로 계측해 뽑아 둔
+`reference-trace.json` 으로 남아, **두 트레이스가 바이트 단위로 같은지**를
+`scripts/validate-trace.mjs` 가 게이트한다(LOCK). WASM 은 쓰지 않는다.
 
 ## 빠른 시작
 
@@ -35,23 +37,26 @@ node scripts/build-index.mjs    # 카탈로그 재생성
 npm run validate                # 검증
 ```
 
-Model 2(WASM) 활성화:
+Model 2 동치(LOCK) 확인:
 
 ```bash
-npm run build:wasm              # algorithms/bubble-sort/bubble_sort.js + .wasm (emcc 필요)
-# 그다음 meta.json 에 wasm 필드 추가 + 글루 스크립트 로드
+g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs
+/tmp/bs "5 2 9 1 5 6"           # 출력이 reference-trace.json 과 같아야 한다
+npm run validate                # generator.js ↔ reference-trace.json 동치를 게이트
 ```
 
 ## 구조
 
 ```
-index.html              데모(GH Pages 진입점) — Model A vs Model 2 비교
+index.html              얇은 셸(GH Pages 진입점) — #app 마운트 + CSS, app/main.js 만 로드
+app/                    라우터 · 뷰 · 공용 플레이어 · 렌더러(array/graph/tree/matrix/heap)
 CLAUDE.md               Claude Code 프로젝트 메모리(아키텍처·계약·규약)
 paradigms/              알고리즘 유형 문서(그리디·DP·분할정복…) — 알고리즘과 구별되는 층
   <id>/                 meta.json(match 규칙) · notes.md
 algorithms/
   index.json            카탈로그(meta 레코드 배열, 자동 생성)
-  <id>/                 meta.json · code/ · generator.js · reference-trace.json · notes.md
+  <id>/                 meta.json · generator.js · walkthrough.md · notes.md
+                        (+ 선택: code/<id>.cpp · reference-trace.json — Model 2 오라클)
 schemas/                trace.schema.json · meta.schema.json (계약)
 scripts/                validate-trace · validate-notes · validate-all · build-index (의존성 없는 Node)
 docs/design.md          전체 설계 문서
@@ -63,6 +68,10 @@ docs/design.md          전체 설계 문서
 
 `main` 에 push 하면 `.github/workflows/deploy-pages.yml` 가 사이트를 배포한다.
 저장소 **Settings → Pages → Source: GitHub Actions** 로 한 번 설정해 두면 된다.
+
+카탈로그(`algorithms/index.json` · `paradigms/index.json`)는 **배포 시점에 항상 새로 생성**되므로
+배포된 사이트가 뒤처지는 일은 없다. 커밋된 파일은 로컬에서 정적 서버로 열었을 때를 위한 것이라,
+CI 가 `meta.json` 과 어긋나지 않는지 검사하고 어긋나면 무엇이 달라졌는지 알려 준다(`npm run index` 로 고친다).
 
 라우팅은 **해시 라우팅**을 쓴다(`#/catalog`, `#/algo/:id`) — GH Pages 는 서버 리라이트가 없어
 `/algo/...` 경로는 404 나기 때문이다.

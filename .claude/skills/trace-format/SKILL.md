@@ -5,7 +5,7 @@ description: The trace contract every algorithm must satisfy. Read this before w
 
 # 트레이스 계약
 
-트레이스는 이 프로젝트의 **단일 계약**이다. 생성 방식(Model A: JS / Model 2: C++→WASM)과
+트레이스는 이 프로젝트의 **단일 계약**이다. 생성 방식(Model A: JS / Model 2: 계측 C++ → reference-trace)과
 무관하게, 두 방식은 **바이트 단위로 동일한 트레이스**를 산출해야 한다. 트레이스만 있으면
 플레이어·시각화·되감기는 생성 방식과 완전히 독립적으로 동작한다.
 
