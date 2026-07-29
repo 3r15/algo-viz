@@ -78,25 +78,57 @@ function wireSearchLinks(container) {
     }));
 }
 
-// 해설 문서(notes.md) — 목차 + 본문. 없으면 빈 문자열.
-//
-// 목차 링크를 <a href="#slug"> 로 만들면 해시 라우터가 가로채므로(=#/catalog 로 튐)
-// 버튼 + scrollIntoView 로 이동한다. 버튼도 포커스 가능하므로 키보드 접근성은 유지된다.
-function notesSection(markdown) {
-  if (!markdown || !markdown.trim()) return '';
-  const { html, toc } = renderMarkdown(markdown);
-  const tocNav = toc.length >= 3
+// 해설 문서는 두 층이다.
+//   차근차근(walkthrough.md) — 처음 보는 사람용. 구체적 예시로 원리를 쌓아 올린다.
+//   깊이 보기(notes.md)      — 불변식·증명·복잡도.
+// 둘 다 항상 DOM 에 둔다(탭으로 감추지 않는다) — Ctrl+F 검색·스크린리더·인쇄가 그대로 동작하게.
+// 대신 맨 위 층 선택 버튼과 문서별로 묶인 목차로 긴 페이지를 넘나든다.
+const DOC_LEVELS = [
+  { key: 'walkthrough', anchor: 'doc-walkthrough', label: '차근차근',
+    hint: '처음 보는 사람용 — 예시를 따라가며 원리를 쌓는다' },
+  { key: 'notes', anchor: 'doc-notes', label: '깊이 보기',
+    hint: '불변식과 증명, 복잡도 분석' },
+];
+
+function docsSection(algo) {
+  const docs = DOC_LEVELS
+    .map(level => ({ ...level, source: algo[level.key] }))
+    .filter(doc => doc.source && doc.source.trim())
+    .map(doc => ({ ...doc, ...renderMarkdown(doc.source, { idPrefix: doc.key }) }));
+
+  if (!docs.length) return '';
+
+  const levelNav = docs.length > 1
+    ? `<div class="doc-levels" role="group" aria-label="문서 수준 선택">
+         ${docs.map(doc =>
+           `<button class="doc-level" data-goto="${doc.anchor}">
+              <span class="doc-level-label">${escapeHtml(doc.label)}</span>
+              <span class="doc-level-hint">${escapeHtml(doc.hint)}</span>
+            </button>`).join('')}
+       </div>`
+    : '';
+
+  // 목차는 문서별로 묶어서 보여 준다(둘이 섞이면 어느 층의 절인지 알 수 없다)
+  const tocNav = docs.some(doc => doc.toc.length >= 3)
     ? `<nav class="notes-toc" aria-label="해설 목차">
-         <div class="toc-label">목차</div>
-         <ul>${toc.map(entry =>
-           `<li class="lv${entry.level}"><button class="toc-link" data-goto="${escapeHtml(entry.id)}">` +
-           `${escapeHtml(entry.text)}</button></li>`
-         ).join('')}</ul>
+         ${docs.map(doc =>
+           `<div class="toc-label">${escapeHtml(doc.label)}</div>
+            <ul>${doc.toc.map(entry =>
+              `<li class="lv${entry.level}"><button class="toc-link" data-goto="${escapeHtml(entry.id)}">` +
+              `${escapeHtml(entry.text)}</button></li>`).join('')}</ul>`).join('')}
        </nav>`
     : '';
-  return `<section class="notes" aria-labelledby="notes-h">
-      <h2 class="notes-title" id="notes-h">해설</h2>
-      <div class="notes-body">${tocNav}<article class="md">${html}</article></div>
+
+  const articles = docs.map(doc =>
+    `<article class="md doc" id="${doc.anchor}" aria-labelledby="${doc.anchor}-h">
+       <h2 class="doc-title" id="${doc.anchor}-h">${escapeHtml(doc.label)}
+         <span class="doc-title-hint">${escapeHtml(doc.hint)}</span></h2>
+       ${doc.html}
+     </article>`).join('');
+
+  return `<section class="notes">
+      ${levelNav}
+      <div class="notes-body">${tocNav}<div class="doc-stack">${articles}</div></div>
     </section>`;
 }
 
@@ -138,7 +170,7 @@ export async function renderAlgorithm(container, id) {
         <p class="cs-note">이 알고리즘의 시각화는 아직 구현되지 않았습니다.</p>
       </div>
       ${tagsBar(current)}
-      ${notesSection(current.notes)}`;
+      ${docsSection(current)}`;
     wireSearchLinks(container);
     wireTocLinks(container);
     attachParadigmBadges(container, current);
@@ -191,7 +223,7 @@ export async function renderAlgorithm(container, id) {
       </section>
 
       ${tagsBar(current)}
-      ${notesSection(current.notes)}
+      ${docsSection(current)}
     </div>`;
 
   const find = selector => container.querySelector(selector);

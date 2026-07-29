@@ -5,6 +5,8 @@
 //   node scripts/validate-notes.mjs algorithms/<id>/notes.md   # 한 파일
 //   node scripts/validate-notes.mjs                            # 전체(algorithms/* + paradigms/*)
 //
+// 문서 층: algorithms/<id>/walkthrough.md(차근차근) · notes.md(깊이 보기) · paradigms/<id>/notes.md(유형)
+//
 // 검증 내용:
 //   1. h2 제목은 정해진 어휘(SECTIONS)에서만 고른다 — 알고리즘마다 문서 뼈대가 같아진다
 //   2. 필수 섹션이 모두 있다
@@ -34,6 +36,16 @@ const ALGORITHM_SECTIONS = [
   { name: '변형과 확장', required: false },   // 관련 알고리즘으로 가는 다리
   { name: '함께 보기', required: false },     // 사이트 내부 링크
 ];
+// 차근차근(walkthrough.md) — 처음 보는 사람용. 증명이 아니라 "왜 이렇게 하게 됐는가"가 중심이다.
+const WALKTHROUGH_SECTIONS = [
+  { name: '어떤 문제인가', required: true },      // 무엇을 푸는지, 왜 어려운지
+  { name: '손으로 해보기', required: true },      // 작은 예시를 직접 따라가기
+  { name: '아이디어 쌓기', required: true },      // 단순한 방법 → 개선 → 알고리즘
+  { name: '코드로 옮기기', required: true },      // 표시 코드를 한 조각씩
+  { name: '자주 하는 실수', required: false },
+  { name: '스스로 확인하기', required: false },   // 스텝을 눌러 보며 확인할 것들
+];
+
 // 유형 해설 — "언제 이 방식이 성립하는가" 가 중심이다.
 const PARADIGM_SECTIONS = [
   { name: '한눈에', required: true },          // 이 방식이 무엇인지 3~5줄
@@ -45,6 +57,10 @@ const PARADIGM_SECTIONS = [
 ];
 
 const SCHEMAS = {
+  walkthrough: {
+    order: WALKTHROUGH_SECTIONS.map(section => section.name),
+    required: WALKTHROUGH_SECTIONS.filter(section => section.required).map(section => section.name),
+  },
   algorithm: {
     order: ALGORITHM_SECTIONS.map(section => section.name),
     required: ALGORITHM_SECTIONS.filter(section => section.required).map(section => section.name),
@@ -55,7 +71,11 @@ const SCHEMAS = {
   },
 };
 
-const schemaFor = notesPath => notesPath.includes('paradigms') ? SCHEMAS.paradigm : SCHEMAS.algorithm;
+// 파일 이름과 경로로 스키마를 고른다
+const schemaFor = notesPath =>
+  basename(notesPath) === 'walkthrough.md' ? SCHEMAS.walkthrough
+    : notesPath.includes('paradigms') ? SCHEMAS.paradigm
+      : SCHEMAS.algorithm;
 
 // cwd 가 프로젝트 루트가 아닐 수도 있다(편집 훅에서 절대 경로로 호출) → 스크립트 위치로 폴백
 const projectDir = existsSync('algorithms')
@@ -142,7 +162,8 @@ const pathArg = process.argv[2];
 const targets = pathArg
   ? [pathArg]
   : [
-      ...[...knownIds].sort().map(id => join(ALGO_DIR, id, 'notes.md')),
+      ...[...knownIds].sort().flatMap(id =>
+        ['walkthrough.md', 'notes.md'].map(name => join(ALGO_DIR, id, name))),
       ...[...knownParadigms].sort().map(id => join(PARADIGM_DIR, id, 'notes.md')),
     ].filter(existsSync);
 

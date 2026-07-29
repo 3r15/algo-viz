@@ -59,10 +59,12 @@ function splitTableRow(line) {
 
 /**
  * 마크다운 → HTML.
+ * @param {string} markdown 원문
+ * @param {{idPrefix?: string}} options 헤딩 앵커 id 앞에 붙일 접두어
  * @returns {{ html: string, toc: {level:number, text:string, id:string}[] }}
  *   toc 는 h2/h3 만 담는다(문서 목차용).
  */
-export function renderMarkdown(markdown) {
+export function renderMarkdown(markdown, { idPrefix = '' } = {}) {
   const lines = String(markdown).replace(/\r\n?/g, '\n').split('\n');
   const blocks = [];              // 완성된 블록 HTML 조각들
   const toc = [];
@@ -70,10 +72,12 @@ export function renderMarkdown(markdown) {
   let cursor = 0;                 // 지금 읽고 있는 줄 번호(0-based)
 
   // 같은 제목이 두 번 나와도 앵커가 겹치지 않게 -2, -3 을 붙인다
+  // 한 페이지에 문서가 둘 이상 실리므로(차근차근 + 깊이 보기) 접두어로 앵커를 분리한다
   const uniqueId = text => {
-    let id = slugify(text);
+    const base = idPrefix ? `${idPrefix}-${slugify(text)}` : slugify(text);
+    let id = base;
     let suffix = 2;
-    while (usedIds.has(id)) id = `${slugify(text)}-${suffix++}`;
+    while (usedIds.has(id)) id = `${base}-${suffix++}`;
     usedIds.add(id);
     return id;
   };

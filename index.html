@@ -337,6 +337,26 @@
 
   /* ===== 해설 문서(notes.md) ===== */
   .notes{margin-top:34px; border-top:1px solid var(--line); padding-top:24px}
+  /* 문서 수준 선택 — 두 층(차근차근 / 깊이 보기) 사이를 오간다 */
+  .doc-levels{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px}
+  .doc-level{flex:1 1 240px; display:flex; flex-direction:column; gap:3px; text-align:left;
+    background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px 15px;
+    cursor:pointer; color:inherit; font:inherit;
+    transition:border-color .14s, background .14s}
+  .doc-level:hover{border-color:var(--acc); background:#282828}
+  .doc-level:focus-visible{outline:2px solid var(--acc); outline-offset:2px}
+  .doc-level-label{font-size:15px; font-weight:600; color:#f2f2f2}
+  .doc-level-hint{font-family:var(--mono); font-size:11px; color:var(--muted)}
+
+  .doc-stack{display:flex; flex-direction:column; gap:38px; min-width:0}
+  .doc-title{font-family:var(--sans); font-size:22px; font-weight:600; letter-spacing:-.3px;
+    color:#f6f6f6; margin:0 0 18px; padding-bottom:9px; border-bottom:2px solid var(--line);
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:10px}
+  .doc-title-hint{font-family:var(--mono); font-size:11.5px; font-weight:400; color:var(--muted)}
+  .md.doc > h2:first-of-type{margin-top:0}
+  .notes-toc .toc-label:not(:first-child){margin-top:14px; padding-top:12px;
+    border-top:1px solid var(--line)}
+
   .notes-title{font-family:var(--sans); font-size:21px; font-weight:600; letter-spacing:-.3px;
     margin:0 0 18px; color:#f2f2f2}
   .notes-body{display:grid; grid-template-columns:206px minmax(0,1fr); gap:30px; align-items:start}
