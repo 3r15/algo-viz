@@ -80,7 +80,9 @@ paradigms/                 # 알고리즘 "유형" 문서 — 개별 알고리�
 algorithms/
   index.json               # 카탈로그(= meta 레코드 배열). 클라이언트에서 필터/검색
   <id>/
-    meta.json  code/<id>.cpp  generator.js  reference-trace.json  notes.md
+    meta.json  code/<id>.cpp  generator.js  reference-trace.json
+    walkthrough.md           # 차근차근(초보자) — 예시로 원리를 쌓는다
+    notes.md                 # 깊이 보기(심화) — 불변식·증명·복잡도
   bubble-sort/             # 시드 알고리즘(참고 구현)
 .claude/
   settings.json            # 훅 + 권한
@@ -127,9 +129,13 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
     (bfs 의 큐 `q` ↔ `pushStep(..., queueSnapshot, ...)`).
   - 리네임은 **순수 리팩터링**이어야 한다 — 트레이스 JSON·렌더 결과를 이전 버전과 대조해 확인.
 - **알고리즘 페이지 레이아웃**: 상단 3정보(분류·시간·공간) → 툴바(입력+조작 패널, 코드 위) → 코드(최대 높이 제한, 활성 줄 자동 스크롤) → viz(고정 높이) → 태그 → 해설. 태그/분류 클릭 → 검색.
-- **해설 문서**: `algorithms/<id>/notes.md` 가 있으면 페이지 맨 아래 "해설" 섹션으로 렌더된다.
-  섹션 뼈대(한눈에/동작 원리/정확성/복잡도 + 선택 3개)는 고정이며 `scripts/validate-notes.mjs` 가 강제한다.
+- **해설 문서는 두 층**이고, 페이지 맨 아래에 나란히 쌓인다(탭으로 감추지 않는다 — 검색·스크린리더·인쇄 유지).
+  - `algorithms/<id>/walkthrough.md` → **차근차근**. 초보자용. 어떤 문제인가/손으로 해보기/아이디어 쌓기/코드로 옮기기
+  - `algorithms/<id>/notes.md` → **깊이 보기**. 한눈에/동작 원리/정확성/복잡도
+  - `paradigms/<id>/notes.md` → 유형 문서. 한눈에/언제 쓸 수 있나/구현 골격
+  세 스키마 모두 `scripts/validate-notes.mjs` 가 파일명·경로로 골라 강제한다.
   작성 규약은 `.claude/skills/algorithm-notes/SKILL.md`. **수식 라이브러리를 싣지 말 것** — 유니코드 + 코드 펜스로 쓴다.
+  한 페이지에 문서가 둘이므로 `renderMarkdown(md, { idPrefix })` 로 앵커를 분리한다.
 - **viz 슬롯**: `meta.dataStructures` 중 렌더러가 등록된 타입이 **모두** 세로로 쌓인다.
   각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`, `matrix`는 `step.matrix`.
   슬롯이 없는 스텝에서는 그 viz 가 자동으로 숨는다.
@@ -191,6 +197,7 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 그래프 알고리즘 3종 추가: 벨만-포드 · 위상 정렬(칸) · 타잔 SCC (총 16종)
 - [x] 알고리즘 **유형**(패러다임) 문서 7종 — 그리디/분할정복/DP/재귀/그래프 탐색/전처리/증분법.
       `paradigms/<id>/` 폴더 규약, `meta.match` 로 알고리즘 자동 수집, 태그 검색과 어휘 공유
+- [x] 해설 문서 2층 재구성 — 차근차근(walkthrough.md) + 깊이 보기(notes.md). 16종 전부
 - [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT → DP 테이블(배낭·LCS) 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 - [ ] (선택) `build.sh` WASM 경로 정리 — 소비처 없으니 제거 또는 명시적 보존 결정

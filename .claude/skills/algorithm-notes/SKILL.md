@@ -3,15 +3,41 @@ name: algorithm-notes
 description: The structure contract for algorithm explainer documents (algorithms/<id>/notes.md) — required sections, what belongs in each, the markdown subset the site renders, and how to link between algorithms. Use whenever writing or editing an algorithm's notes.md, or when adding documentation to a new algorithm.
 ---
 
-# 해설 문서(notes.md) 규약
+# 해설 문서 규약
 
-알고리즘 하나 = 해설 문서 하나. `algorithms/<id>/notes.md` 에 두면 알고리즘 페이지 맨 아래
-"해설" 섹션에 자동으로 렌더된다(별도 등록 없음 — 폴더 규약).
+알고리즘 하나 = **해설 문서 두 개**. 폴더에 두기만 하면 알고리즘 페이지 맨 아래에
+두 층으로 자동 렌더된다(별도 등록 없음 — 폴더 규약).
+
+| 파일 | 페이지 표시 | 독자 | 중심 |
+|---|---|---|---|
+| `algorithms/<id>/walkthrough.md` | **차근차근** | 처음 보는 사람 | 구체적 예시로 원리를 쌓아 올린다 |
+| `algorithms/<id>/notes.md` | **깊이 보기** | 이미 아는 사람 | 불변식·증명·복잡도 |
+
+둘 다 선택이지만, 새 알고리즘에는 **둘 다 쓰는 것이 기본**이다.
+두 문서는 항상 함께 DOM 에 있고(탭으로 감추지 않는다), 목차가 층별로 묶여 나온다.
 
 검증: `node scripts/validate-notes.mjs algorithms/<id>/notes.md`
 (편집하면 PostToolUse 훅이 자동 실행, CI 도 게이트한다.)
 
 ## 섹션 뼈대 — 순서 고정
+
+### 차근차근 (walkthrough.md)
+
+| 섹션 | 필수 | 내용 |
+|---|---|---|
+| `## 어떤 문제인가` | ✓ | 무엇을 푸는지. 일상 비유나 "단순한 방법은 왜 부족한가"로 연다 |
+| `## 손으로 해보기` | ✓ | **작은 예시를 끝까지 따라간다.** 이 문서의 심장 |
+| `## 아이디어 쌓기` | ✓ | 1단계 → 2단계 → … 로 알고리즘을 조립한다 |
+| `## 코드로 옮기기` | ✓ | 쌓은 단계가 코드의 어느 줄인지 대응시킨다 |
+| `## 자주 하는 실수` | | 초보자가 실제로 겪는 것들 |
+| `## 스스로 확인하기` | | 플레이어에서 눌러 볼 것들 |
+
+**쓰는 법**
+- 예시는 반드시 **기본 입력/기본 그래프**로 — 독자가 플레이어에서 그대로 재생할 수 있어야 한다
+- 증명하지 마라. "왜 이렇게 하게 됐는가"만 설명하고, 증명은 깊이 보기로 넘긴다
+- 마지막에 깊이 보기로 이어지는 한 문장을 둔다
+
+### 깊이 보기 (notes.md)
 
 | 섹션 | 필수 | 내용 |
 |---|---|---|

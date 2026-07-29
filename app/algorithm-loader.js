@@ -3,6 +3,7 @@
 // 상대 경로는 이 모듈의 URL 을 기준으로 해석하므로 GH Pages 의
 // user.github.io/<repo>/ base 경로에서도 그대로 동작한다.
 //
+// 해설은 두 층이다: walkthrough.md(차근차근) + notes.md(깊이 보기). 둘 다 선택.
 // generator.js 계약: export generate(input), code[], defaultInput, category.
 // meta.json 은 있으면 쓰고 없으면 무시(단독 generator 도 허용).
 // meta 에 "placeholder": true 면 generator.js 를 로드하지 않고 "준비 중" 자산만 돌려준다.
@@ -11,7 +12,10 @@
 export async function loadAlgorithm(id) {
   const metaURL = new URL(`../algorithms/${id}/meta.json`, import.meta.url);
   const notesURL = new URL(`../algorithms/${id}/notes.md`, import.meta.url);
-  const [meta, notes] = await Promise.all([fetchJSON(metaURL), fetchText(notesURL)]);
+  const walkthroughURL = new URL(`../algorithms/${id}/walkthrough.md`, import.meta.url);
+  const [meta, notes, walkthrough] = await Promise.all([
+    fetchJSON(metaURL), fetchText(notesURL), fetchText(walkthroughURL),
+  ]);
 
   const base = {
     id,
@@ -24,7 +28,8 @@ export async function loadAlgorithm(id) {
     complexity: meta?.complexity ?? null,
     difficulty: meta?.difficulty ?? null,
     tags: meta?.tags ?? [],
-    notes,                                  // notes.md 원문(없으면 null)
+    walkthrough,                            // walkthrough.md — 초보자 트랙(없으면 null)
+    notes,                                  // notes.md — 심화 트랙(없으면 null)
   };
 
   if (meta?.placeholder) return { ...base, placeholder: true };
