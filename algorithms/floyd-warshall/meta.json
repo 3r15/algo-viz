@@ -1,0 +1,17 @@
+{
+  "id": "floyd-warshall",
+  "title": "플로이드-워셜 모든 쌍 최단 경로",
+  "summary": "경유 가능한 정점을 하나씩 늘려 가며 3중 반복문 한 번으로 모든 정점 쌍의 최단 거리를 구한다.",
+  "aliases": ["플로이드", "워셜", "floyd", "warshall", "floyd-warshall", "모든 쌍 최단 경로", "APSP"],
+  "categories": ["graph", "dp"],
+  "dataStructures": ["graph", "matrix"],
+  "complexity": {
+    "time": { "best": "O(V^3)", "avg": "O(V^3)", "worst": "O(V^3)" },
+    "space": "O(V^2)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["shortest-path", "all-pairs", "dynamic-programming", "weighted", "negative-edges"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/floyd-warshall/"
+}

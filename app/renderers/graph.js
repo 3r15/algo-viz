@@ -1,16 +1,28 @@
 // app/renderers/graph.js — 그래프 렌더러(type='graph').
 //
-// 정적 구조(nodes/edges)는 알고리즘이 export 한 graph 를 ctx.graph 로 받는다.
-// 스텝의 values[i] = 정점 i 의 상태: 0 미방문 · 1 큐 대기 · 2 방문 중 · 3 완료.
-// step.queue 는 현재 큐 내용(표시용).
+// 정적 구조(nodes/edges/directed/weighted)는 알고리즘이 만든 그래프를 ctx.graph 로 받는다.
 //
-// SVG 는 host 별로 1회 구성(WeakMap 캐시)하고, 매 스텝엔 정점 class 와 큐 텍스트만 갱신한다.
+// 스텝에서 읽는 것:
+//   step.values[i]   정점 i 의 상태: 0 미방문 · 1 발견(잠정) · 2 처리 중 · 3 확정
+//   step.edgeStates  간선별 상태(graph.edges 와 같은 순서): 0 기본 · 1 검사 중 · 2 갱신됨 · 3 채택
+//   step.nodeLabels  정점 아래 붙는 짧은 텍스트(다익스트라의 dist, A* 의 f=g+h 등)
+//   step.queue / step.stack / step.pq   보조 자료구조 한 줄 표시
+//
+// SVG 는 그래프 구조가 바뀔 때만 재구성(WeakMap 캐시)하고, 매 스텝엔 class·텍스트만 갱신한다.
 
 import { registerRenderer } from './registry.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const VIEW_W = 100, VIEW_H = 60;                  // viewBox 좌표계. 정점 x,y 는 0..1 비율
-const graphCaches = new WeakMap();                // host 요소 → { wrap, nodes, queueLabel, graph }
+const VIEW_W = 100, VIEW_H = 60;      // viewBox 좌표계. 정점 x,y 는 0..1 비율
+const NODE_RADIUS = 5.4;
+const graphCaches = new WeakMap();    // host 요소 → { wrap, nodes, edges, auxLabel, graph }
+
+// 보조 자료구조는 하나만 표시한다(알고리즘마다 쓰는 것이 다르다)
+const AUX_SLOTS = [
+  { key: 'pq', label: 'PQ' },
+  { key: 'stack', label: 'stack' },
+  { key: 'queue', label: 'queue' },
+];
 
 export function renderGraph(host, step, ctx) {
   const graph = ctx?.graph;
@@ -24,15 +36,38 @@ export function renderGraph(host, step, ctx) {
     graphCaches.set(host, cache);
   }
 
-  step.values.forEach((state, nodeId) => {
+  step.values.forEach((nodeState, nodeId) => {
     const node = cache.nodes[nodeId];
-    if (node) node.group.setAttribute('class', 'gnode s' + state);
+    if (!node) return;
+    node.group.setAttribute('class', 'gnode s' + nodeState);
+    if (node.sideLabel) node.sideLabel.textContent = step.nodeLabels?.[nodeId] ?? '';
   });
 
-  // 보조 자료구조: DFS 는 stack, BFS 는 queue
-  const usesStack = Array.isArray(step.stack);
-  const items = (usesStack ? step.stack : step.queue) || [];
-  cache.queueLabel.textContent = (usesStack ? 'stack' : 'queue') + '  [ ' + items.join('   ') + ' ]';
+  cache.edges.forEach((edge, edgeIndex) => {
+    const edgeState = step.edgeStates?.[edgeIndex] ?? 0;
+    edge.line.setAttribute('class', 'gedge e' + edgeState);
+    if (edge.weightLabel) edge.weightLabel.setAttribute('class', 'gweight e' + edgeState);
+  });
+
+  const aux = AUX_SLOTS.find(slot => Array.isArray(step[slot.key]));
+  cache.auxLabel.textContent = aux
+    ? `${aux.label}  [ ${step[aux.key].join('   ')} ]`
+    : '';
+}
+
+// 간선을 정점 원 바깥에서 시작·끝나게 잘라 낸다(화살촉이 원에 파묻히지 않도록)
+function edgeGeometry(from, to) {
+  const ax = from.x * VIEW_W, ay = from.y * VIEW_H;
+  const bx = to.x * VIEW_W, by = to.y * VIEW_H;
+  const dx = bx - ax, dy = by - ay;
+  const length = Math.hypot(dx, dy) || 1;
+  const ux = dx / length, uy = dy / length;
+  return {
+    x1: ax + ux * NODE_RADIUS, y1: ay + uy * NODE_RADIUS,
+    x2: bx - ux * NODE_RADIUS, y2: by - uy * NODE_RADIUS,
+    midX: (ax + bx) / 2, midY: (ay + by) / 2,
+    normalX: -uy, normalY: ux,
+  };
 }
 
 function buildSvg(host, graph) {
@@ -45,15 +80,52 @@ function buildSvg(host, graph) {
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('viewBox', `0 0 ${VIEW_W} ${VIEW_H}`);
   svg.setAttribute('class', 'graph-svg');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', '그래프 탐색 시각화');
 
-  for (const [from, to] of graph.edges) {
-    const a = graph.nodes[from], b = graph.nodes[to];
-    const edge = document.createElementNS(SVG_NS, 'line');
-    edge.setAttribute('x1', a.x * VIEW_W); edge.setAttribute('y1', a.y * VIEW_H);
-    edge.setAttribute('x2', b.x * VIEW_W); edge.setAttribute('y2', b.y * VIEW_H);
-    edge.setAttribute('class', 'gedge');
-    svg.appendChild(edge);
+  // 방향 그래프용 화살촉(호스트마다 id 가 겹치지 않도록 정점 수를 섞어 쓴다)
+  const arrowId = `g-arrow-${Math.random().toString(36).slice(2, 8)}`;
+  if (graph.directed) {
+    const defs = document.createElementNS(SVG_NS, 'defs');
+    const marker = document.createElementNS(SVG_NS, 'marker');
+    marker.setAttribute('id', arrowId);
+    marker.setAttribute('viewBox', '0 0 6 6');
+    marker.setAttribute('refX', '5.6'); marker.setAttribute('refY', '3');
+    marker.setAttribute('markerWidth', '4'); marker.setAttribute('markerHeight', '4');
+    marker.setAttribute('orient', 'auto-start-reverse');
+    const head = document.createElementNS(SVG_NS, 'path');
+    head.setAttribute('d', 'M0,0 L6,3 L0,6 z');
+    head.setAttribute('class', 'garrowhead');
+    marker.appendChild(head);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
   }
+
+  const edges = graph.edges.map(([u, v, weight]) => {
+    const from = graph.nodes[u], to = graph.nodes[v];
+    if (!from || !to) return { line: document.createElementNS(SVG_NS, 'line') };
+    const geom = edgeGeometry(from, to);
+
+    const line = document.createElementNS(SVG_NS, 'line');
+    line.setAttribute('x1', geom.x1); line.setAttribute('y1', geom.y1);
+    line.setAttribute('x2', geom.x2); line.setAttribute('y2', geom.y2);
+    line.setAttribute('class', 'gedge e0');
+    if (graph.directed) line.setAttribute('marker-end', `url(#${arrowId})`);
+    svg.appendChild(line);
+
+    let weightLabel = null;
+    if (graph.weighted) {
+      weightLabel = document.createElementNS(SVG_NS, 'text');
+      weightLabel.setAttribute('x', geom.midX + geom.normalX * 2.6);
+      weightLabel.setAttribute('y', geom.midY + geom.normalY * 2.6);
+      weightLabel.setAttribute('text-anchor', 'middle');
+      weightLabel.setAttribute('dominant-baseline', 'central');
+      weightLabel.setAttribute('class', 'gweight e0');
+      weightLabel.textContent = weight ?? 1;
+      svg.appendChild(weightLabel);
+    }
+    return { line, weightLabel };
+  });
 
   const nodes = graph.nodes.map((node, nodeId) => {
     const group = document.createElementNS(SVG_NS, 'g');
@@ -61,26 +133,34 @@ function buildSvg(host, graph) {
     const cx = node.x * VIEW_W, cy = node.y * VIEW_H;
 
     const circle = document.createElementNS(SVG_NS, 'circle');
-    circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', '5.4');
+    circle.setAttribute('cx', cx); circle.setAttribute('cy', cy);
+    circle.setAttribute('r', NODE_RADIUS);
 
     const label = document.createElementNS(SVG_NS, 'text');
     label.setAttribute('x', cx); label.setAttribute('y', cy);
-    label.setAttribute('text-anchor', 'middle'); label.setAttribute('dominant-baseline', 'central');
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('dominant-baseline', 'central');
     label.textContent = node.label ?? nodeId;
 
-    group.append(circle, label);
+    // 정점 아래 붙는 보조 라벨(거리 등). 값이 없으면 빈 문자열이라 보이지 않는다.
+    const sideLabel = document.createElementNS(SVG_NS, 'text');
+    sideLabel.setAttribute('x', cx);
+    sideLabel.setAttribute('y', cy + NODE_RADIUS + 3.4);
+    sideLabel.setAttribute('text-anchor', 'middle');
+    sideLabel.setAttribute('class', 'gdist');
+
+    group.append(circle, label, sideLabel);
     svg.appendChild(group);
-    return { group, circle, label };
+    return { group, circle, label, sideLabel };
   });
 
   wrap.appendChild(svg);
-  const queueLabel = document.createElement('div');
-  queueLabel.className = 'graph-queue';
-  queueLabel.textContent = 'queue  [ ]';
-  wrap.appendChild(queueLabel);
+  const auxLabel = document.createElement('div');
+  auxLabel.className = 'graph-queue';
+  wrap.appendChild(auxLabel);
   host.appendChild(wrap);
 
-  return { wrap, nodes, queueLabel };
+  return { wrap, nodes, edges, auxLabel };
 }
 
 registerRenderer('graph', renderGraph);
