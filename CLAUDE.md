@@ -108,6 +108,17 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
 - **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/stack/tree/graph…)로 위임.
 - **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
+- **변수명은 역할이 드러나게** — 한 글자 이름으로 역할을 가리지 마라. 두 축으로 갈린다.
+  - **유지**: 알고리즘 관례명 `i j k l r n u v lo hi mid pivot` 과
+    `st[k][i]` `up[k][v]` `t[i]` `adj` `dist` `depth` `parent`.
+    notes.md 의 증명·교과서와 1:1로 읽혀야 하므로 길게 바꾸면 오히려 손해다.
+    `generator.js` 의 표시 코드(`code[]`)도 그대로 둔다 — `step.line` 매핑과 직결.
+  - **바꿈**: 그 밖의 모든 것. DOM 요소는 무엇인지(`codePanel`·`scrubber`), 콜백 인자는
+    무엇을 받는지(`record`·`listener`·`event`), 헬퍼는 무엇을 하는지(`escapeHtml`·`markInvalid`)가
+    이름에 있어야 한다. 매직넘버는 상수로(`MAX_INPUT_LENGTH`).
+  - **가림(shadowing) 금지**: 바깥 변수와 같은 이름을 파라미터로 쓰지 마라
+    (bfs 의 큐 `q` ↔ `pushStep(..., queueSnapshot, ...)`).
+  - 리네임은 **순수 리팩터링**이어야 한다 — 트레이스 JSON·렌더 결과를 이전 버전과 대조해 확인.
 - **알고리즘 페이지 레이아웃**: 상단 3정보(분류·시간·공간) → 툴바(입력+조작 패널, 코드 위) → 코드(최대 높이 제한, 활성 줄 자동 스크롤) → viz(고정 높이) → 태그 → 해설. 태그/분류 클릭 → 검색.
 - **해설 문서**: `algorithms/<id>/notes.md` 가 있으면 페이지 맨 아래 "해설" 섹션으로 렌더된다.
   섹션 뼈대(한눈에/동작 원리/정확성/복잡도 + 선택 3개)는 고정이며 `scripts/validate-notes.mjs` 가 강제한다.
@@ -120,7 +131,12 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   generator 는 `defaultGraph`·`capabilities` 를 export 하고 `generate(graph)` 로 그래프를 받는다(인자 없으면 defaultGraph — 검증기 호환).
   간선은 `[u,v,w]`(가중치 기본 1). 렌더러엔 `ctx.graph`(현재 그린 그래프)를 넘긴다. BFS 는 `queue`, DFS 는 `stack` 필드로 보조 자료구조 표시.
 - **옵션 게이팅**: 편집기의 방향/가중치 옵션은 `IMPLEMENTED[opt] && algo.capabilities[opt]` 일 때만 설정 가능.
-  아니면 비활성 + 사유("준비 중"=편집기 미구현, "미지원"=알고리즘이 안 씀). 현재 방향·가중치 둘 다 미구현(예정).
+  아니면 비활성 + 사유("준비 중"=편집기 미구현, "미지원"=알고리즘이 안 씀). **방향·가중치 모두 구현 완료.**
+  가중치는 편집기의 `⚖ 가중치` 모드에서 간선 클릭으로 1..9 순환. 방향이면 화살촉을 그린다.
+- **그래프 스텝 확장 필드**(graph 렌더러가 읽음, 전부 선택):
+  `nodeLabels[v]` 정점 아래 짧은 텍스트(dist · g+h · 집합 대표) ·
+  `edgeStates[e]` 간선 상태(0 기본 · 1 검사 중 · 2 갱신됨 · 3 확정) ·
+  `pq`/`stack`/`queue` 보조 자료구조 한 줄.
 - `prefers-reduced-motion` 존중, 키보드 포커스 가시화, 모바일 반응형.
 
 ---
@@ -158,7 +174,9 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 그래프 직접 그리기 입력 편집기(`graph-editor.js`) + 알고리즘별 옵션 게이팅(capabilities)
 - [x] tree/matrix 렌더러 + 다중 viz 슬롯 → 세그먼트 트리 · 희소 배열 · 이진 상승 3종 추가(총 9종)
 - [x] 알고리즘별 해설 문서(`notes.md`) + 마크다운 렌더러 + 섹션 규약 검증기
-- [ ] 확충 계속: 가중치/방향 그래프 편집기 구현(예정) → 다익스트라 → DP 테이블 등
+- [x] 가중치/방향 그래프 편집기 구현 + graph 렌더러 확장(가중치·화살표·거리 라벨·간선 상태)
+- [x] 그래프 알고리즘 4종: 다익스트라 · A* · 크루스칼(MST) · 플로이드-워셜 (총 13종)
+- [ ] 확충 계속: 벨만-포드 · 위상 정렬 · SCC · 프림 → DP 테이블 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 - [ ] (선택) `build.sh` WASM 경로 정리 — 소비처 없으니 제거 또는 명시적 보존 결정
 - [ ] (선택) GitHub Actions: `index.json` 생성 + Model 2 WASM 빌드 + 스키마 검증

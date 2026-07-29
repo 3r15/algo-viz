@@ -215,7 +215,22 @@
   .gnode.s2 text{fill:#1a1a1a}
   .gnode.s3 circle{fill:#2f3a2f; stroke:var(--sorted)}      /* 완료 */
   .gnode.s3 text{fill:var(--sorted)}
-  .graph-queue{font-family:var(--mono); font-size:12.5px; color:var(--muted); letter-spacing:.04em}
+  .graph-queue{font-family:var(--mono); font-size:12.5px; color:var(--muted); letter-spacing:.04em;
+    min-height:17px}
+
+  /* 가중치 · 방향 · 거리 라벨 (다익스트라 · A* · MST) */
+  .garrowhead{fill:#4a4a4a}
+  .gweight{fill:var(--muted); font-family:var(--mono); font-size:3.6px; font-weight:600;
+    paint-order:stroke; stroke:var(--panel); stroke-width:1.2px}  /* 선 위에서도 읽히게 */
+  .gdist{fill:var(--acc); font-family:var(--mono); font-size:3.8px; font-weight:600;
+    paint-order:stroke; stroke:var(--panel); stroke-width:1.2px}
+  .gnode text.gdist{fill:var(--acc)}
+  .gedge.e1{stroke:var(--cmp); stroke-width:1.1}              /* 검사 중 */
+  .gedge.e2{stroke:var(--acc); stroke-width:1.4}              /* 갱신됨 */
+  .gedge.e3{stroke:var(--sorted); stroke-width:1.4}           /* 최단경로 트리 · MST 채택 */
+  .gweight.e1{fill:var(--ink)}
+  .gweight.e2{fill:var(--acc)}
+  .gweight.e3{fill:var(--sorted)}
 
   /* ===== 그래프 입력 편집기 ===== */
   .geditor{border:1px solid var(--line); border-radius:8px; background:var(--panel); overflow:hidden}
@@ -252,6 +267,10 @@
   .ge-node.start circle{fill:#2f3a2f; stroke:var(--sorted); stroke-width:1.4}
   .ge-node.pending circle{fill:var(--acc); stroke:var(--acc)}
   .ge-node.pending text{fill:#1a1a1a}
+  .ge-arrowhead{fill:#5c5c5c}
+  .ge-weight{fill:var(--ink); font-family:var(--mono); font-size:3.8px; font-weight:600;
+    paint-order:stroke; stroke:var(--panel2); stroke-width:1.2px}
+  .ge-mode[hidden]{display:none}
   .ge-adj{border-top:1px solid var(--line)}
   .ge-adj-head{display:flex; align-items:center; justify-content:space-between; padding:8px 12px;
     font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}

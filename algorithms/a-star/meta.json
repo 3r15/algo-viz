@@ -1,0 +1,17 @@
+{
+  "id": "a-star",
+  "title": "A* 최단 경로 탐색",
+  "summary": "다익스트라에 '목표까지 남은 거리' 추정 h 를 더해, 목표 쪽으로 우선 탐색하는 최단 경로 알고리즘.",
+  "aliases": ["A*", "A스타", "에이스타", "a star", "astar", "휴리스틱 탐색", "heuristic search"],
+  "categories": ["graph", "search"],
+  "dataStructures": ["graph", "heap"],
+  "complexity": {
+    "time": { "best": "O(E)", "avg": "O((V+E) log V)", "worst": "O((V+E) log V)" },
+    "space": "O(V)"
+  },
+  "difficulty": "advanced",
+  "tags": ["shortest-path", "heuristic", "admissible", "priority-queue", "weighted", "pathfinding"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/a-star/"
+}

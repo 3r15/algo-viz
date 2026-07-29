@@ -1,5 +1,51 @@
 [
   {
+    "id": "a-star",
+    "title": "A* 최단 경로 탐색",
+    "summary": "다익스트라에 '목표까지 남은 거리' 추정 h 를 더해, 목표 쪽으로 우선 탐색하는 최단 경로 알고리즘.",
+    "aliases": [
+      "A*",
+      "A스타",
+      "에이스타",
+      "a star",
+      "astar",
+      "휴리스틱 탐색",
+      "heuristic search"
+    ],
+    "categories": [
+      "graph",
+      "search"
+    ],
+    "dataStructures": [
+      "graph",
+      "heap"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(E)",
+        "avg": "O((V+E) log V)",
+        "worst": "O((V+E) log V)"
+      },
+      "space": "O(V)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "shortest-path",
+      "heuristic",
+      "admissible",
+      "priority-queue",
+      "weighted",
+      "pathfinding"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/a-star/"
+  },
+  {
     "id": "bfs",
     "title": "너비 우선 탐색 (BFS)",
     "summary": "시작점에서 가까운 정점부터 층별로 방문하는 그래프 탐색.",
@@ -160,6 +206,94 @@
     "path": "algorithms/dfs/"
   },
   {
+    "id": "dijkstra",
+    "title": "다익스트라 최단 경로",
+    "summary": "음이 아닌 가중치 그래프에서 한 정점으로부터의 최단 거리를 그리디하게 확정해 나간다.",
+    "aliases": [
+      "다익스트라",
+      "dijkstra",
+      "최단경로",
+      "shortest path",
+      "최단 거리"
+    ],
+    "categories": [
+      "graph",
+      "greedy"
+    ],
+    "dataStructures": [
+      "graph",
+      "heap"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O((V+E) log V)",
+        "avg": "O((V+E) log V)",
+        "worst": "O((V+E) log V)"
+      },
+      "space": "O(V)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "shortest-path",
+      "greedy",
+      "priority-queue",
+      "weighted",
+      "relaxation"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/dijkstra/"
+  },
+  {
+    "id": "floyd-warshall",
+    "title": "플로이드-워셜 모든 쌍 최단 경로",
+    "summary": "경유 가능한 정점을 하나씩 늘려 가며 3중 반복문 한 번으로 모든 정점 쌍의 최단 거리를 구한다.",
+    "aliases": [
+      "플로이드",
+      "워셜",
+      "floyd",
+      "warshall",
+      "floyd-warshall",
+      "모든 쌍 최단 경로",
+      "APSP"
+    ],
+    "categories": [
+      "graph",
+      "dp"
+    ],
+    "dataStructures": [
+      "graph",
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V^3)",
+        "avg": "O(V^3)",
+        "worst": "O(V^3)"
+      },
+      "space": "O(V^2)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "shortest-path",
+      "all-pairs",
+      "dynamic-programming",
+      "weighted",
+      "negative-edges"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/floyd-warshall/"
+  },
+  {
     "id": "insertion-sort",
     "title": "삽입 정렬",
     "summary": "앞쪽 정렬된 구간에 원소를 하나씩 알맞은 자리에 끼워 넣는 정렬.",
@@ -196,6 +330,50 @@
       "model-a"
     ],
     "path": "algorithms/insertion-sort/"
+  },
+  {
+    "id": "kruskal",
+    "title": "크루스칼 최소 신장 트리",
+    "summary": "간선을 가중치 순으로 훑으며 사이클을 만들지 않는 것만 골라 최소 신장 트리를 만든다.",
+    "aliases": [
+      "크루스칼",
+      "kruskal",
+      "MST",
+      "최소신장트리",
+      "최소 스패닝 트리",
+      "union find",
+      "유니온 파인드"
+    ],
+    "categories": [
+      "graph",
+      "greedy"
+    ],
+    "dataStructures": [
+      "graph"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(E log E)",
+        "avg": "O(E log E)",
+        "worst": "O(E log E)"
+      },
+      "space": "O(V)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "mst",
+      "greedy",
+      "union-find",
+      "weighted",
+      "cut-property"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/kruskal/"
   },
   {
     "id": "merge-sort",

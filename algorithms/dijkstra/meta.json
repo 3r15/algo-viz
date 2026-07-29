@@ -1,0 +1,17 @@
+{
+  "id": "dijkstra",
+  "title": "다익스트라 최단 경로",
+  "summary": "음이 아닌 가중치 그래프에서 한 정점으로부터의 최단 거리를 그리디하게 확정해 나간다.",
+  "aliases": ["다익스트라", "dijkstra", "최단경로", "shortest path", "최단 거리"],
+  "categories": ["graph", "greedy"],
+  "dataStructures": ["graph", "heap"],
+  "complexity": {
+    "time": { "best": "O((V+E) log V)", "avg": "O((V+E) log V)", "worst": "O((V+E) log V)" },
+    "space": "O(V)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["shortest-path", "greedy", "priority-queue", "weighted", "relaxation"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/dijkstra/"
+}
