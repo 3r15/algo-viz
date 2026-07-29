@@ -1,18 +1,26 @@
 // app/views/algorithm.js — 단일 채널 Model A 플레이어(#/algo/:id).
 //
-// 레이아웃: 상단 3정보(분류/시간/공간) → 툴바(입력 + 조작 패널) → 코드 → viz → 하단 태그.
+// 레이아웃: 상단 3정보(분류/시간/공간) → 툴바(입력 + 조작 패널) → 코드 → viz → 태그 → 해설 문서.
 // 조작 패널을 코드 위에 두어, 아래쪽 viz 높이 변화가 조작 패널을 밀지 않게 한다.
 // 상단 분류·하단 태그는 클릭 시 카탈로그 검색(#/catalog?q=...)으로 연결된다.
+// 맨 아래 해설(notes.md)은 "도구는 위, 읽을거리는 아래" 원칙으로 항상 펼쳐 둔다.
 //
 // renderAlgorithm(container, id) → teardown 함수 반환.
 
 import { createStore } from '../store.js';
 import { loadAlgorithm } from '../algorithm-loader.js';
-import { getRenderer } from '../renderers/registry.js';
+import { getRenderer, hasRenderer } from '../renderers/registry.js';
 import { highlightCpp } from '../highlight.js';
 import { createGraphEditor } from '../graph-editor.js';
+import { renderMarkdown } from '../markdown.js';
 import '../renderers/array.js';
 import '../renderers/graph.js';
+import '../renderers/matrix.js';
+import '../renderers/tree.js';
+
+// 렌더러가 스텝에서 읽는 데이터 슬롯. 슬롯이 비어 있는 스텝에서는 그 viz 를 숨긴다.
+// (array/graph 는 step.values 를 그대로 쓰므로 슬롯이 없다.)
+const VIZ_SLOT = { tree: 'tree', matrix: 'matrix' };
 
 const CAT_LABEL = {
   sorting: '정렬', graph: '그래프', dp: 'DP', search: '탐색', greedy: '그리디',
@@ -46,6 +54,38 @@ function wireLinks(container) {
     b.addEventListener('click', () => { location.hash = '#/catalog?q=' + encodeURIComponent(b.dataset.q); }));
 }
 
+// 해설 문서(notes.md) — 목차 + 본문. 없으면 빈 문자열.
+//
+// 목차 링크를 <a href="#slug"> 로 만들면 해시 라우터가 가로채므로(=#/catalog 로 튐)
+// 버튼 + scrollIntoView 로 이동한다. 버튼도 포커스 가능하므로 키보드 접근성은 유지된다.
+function notesSection(md) {
+  if (!md || !md.trim()) return '';
+  const { html, toc } = renderMarkdown(md);
+  const nav = toc.length >= 3
+    ? `<nav class="notes-toc" aria-label="해설 목차">
+         <div class="toc-label">목차</div>
+         <ul>${toc.map(h =>
+           `<li class="lv${h.level}"><button class="toc-link" data-goto="${esc(h.id)}">${esc(h.text)}</button></li>`
+         ).join('')}</ul>
+       </nav>`
+    : '';
+  return `<section class="notes" aria-labelledby="notes-h">
+      <h2 class="notes-title" id="notes-h">해설</h2>
+      <div class="notes-body">${nav}<article class="md">${html}</article></div>
+    </section>`;
+}
+
+function wireNotes(container) {
+  container.querySelectorAll('[data-goto]').forEach(b =>
+    b.addEventListener('click', () => {
+      const t = container.querySelector(`[id="${CSS.escape(b.dataset.goto)}"]`);
+      if (!t) return;
+      t.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      t.setAttribute('tabindex', '-1');
+      t.focus({ preventScroll: true });   // 스크린리더 포커스도 함께 이동
+    }));
+}
+
 export async function renderAlgorithm(container, id) {
   let current;
   try {
@@ -71,10 +111,16 @@ export async function renderAlgorithm(container, id) {
         ${current.summary ? `<p class="cs-sum">${esc(current.summary)}</p>` : ''}
         <p class="cs-note">이 알고리즘의 시각화는 아직 구현되지 않았습니다.</p>
       </div>
-      ${tagsBar(current)}`;
+      ${tagsBar(current)}
+      ${notesSection(current.notes)}`;
     wireLinks(container);
+    wireNotes(container);
     return () => {};
   }
+
+  // viz 슬롯: meta.dataStructures 중 렌더러가 등록된 것만(예: bfs 의 'queue' 는 건너뜀).
+  const vizTypes = current.dataStructures.filter(t => hasRenderer(t));
+  if (!vizTypes.length) vizTypes.push('array');
 
   container.innerHTML = `
     <div class="player">
@@ -86,12 +132,13 @@ export async function renderAlgorithm(container, id) {
 
       <div class="toolbar">
         <div class="inputrow">
-          <label for="arr">input[]</label>
-          <input id="arr" spellcheck="false" />
+          <label for="arr">${esc(current.inputLabel)}</label>
+          <input id="arr" spellcheck="false" aria-describedby="arr-hint" />
           <button class="btn primary" data-act="run">Run</button>
           <button class="btn" data-act="rand">Randomize</button>
           <button class="btn" data-act="reset">Default</button>
         </div>
+        ${current.inputHint ? `<div class="inputhint" id="arr-hint">${esc(current.inputHint)}</div>` : ''}
         <div class="editor-slot"></div>
         <div class="transport">
           <div class="tbtns">
@@ -110,17 +157,21 @@ export async function renderAlgorithm(container, id) {
 
       <section class="chan">
         <div class="code"></div>
-        <div class="viz"></div>
+        <div class="vizstack">
+          ${vizTypes.map(t => `<div class="viz" data-type="${esc(t)}"></div>`).join('')}
+        </div>
         <div class="readout"></div>
       </section>
 
       ${tagsBar(current)}
+      ${notesSection(current.notes)}
     </div>`;
 
   const q = sel => container.querySelector(sel);
+  const vizHosts = [...container.querySelectorAll('.viz')];
   const el = {
     note: q('.note'), arr: q('#arr'),
-    code: q('.code'), viz: q('.viz'), readout: q('.readout'),
+    code: q('.code'), readout: q('.readout'),
     scrub: q('.scrub'), speed: q('.speed-range'), counter: q('.counter'), play: q('[data-act=play]'),
   };
   el.arr.value = current.defaultInput.join(' ');
@@ -149,14 +200,31 @@ export async function renderAlgorithm(container, id) {
         row.append(ln, c); el.code.append(row);
       });
     }
-    for (const row of el.code.children)
-      row.classList.toggle('on', !!step && Number(row.dataset.line) === step.line);
+    let active = null;
+    for (const row of el.code.children) {
+      const on = !!step && Number(row.dataset.line) === step.line;
+      row.classList.toggle('on', on);
+      if (on) active = row;
+    }
+    // 코드 패널이 스크롤 가능한 경우(긴 소스) 활성 줄을 화면 안으로 끌어온다
+    if (active && el.code.scrollHeight > el.code.clientHeight) {
+      const top = active.offsetTop, h = active.offsetHeight;
+      if (top < el.code.scrollTop || top + h > el.code.scrollTop + el.code.clientHeight)
+        el.code.scrollTop = top - (el.code.clientHeight - h) / 2;
+    }
   }
 
+  // 슬롯마다 해당 타입 렌더러를 호출한다. 스텝에 그 슬롯 데이터가 없으면 그 viz 는 감춘다
+  // (예: 세그먼트 트리 build 단계엔 표가 없다).
   function paintViz(step) {
     if (!step) return;
-    const render = getRenderer(current.dataStructure) || getRenderer('array');
-    render(el.viz, step, { graph: activeGraph });
+    for (const host of vizHosts) {
+      const type = host.dataset.type;
+      const slot = VIZ_SLOT[type];
+      const has = !slot || step[slot];
+      host.hidden = !has;
+      if (has) (getRenderer(type) || getRenderer('array'))(host, step, { graph: activeGraph });
+    }
   }
 
   function renderReadout(step) {
@@ -215,9 +283,11 @@ export async function renderAlgorithm(container, id) {
   el.scrub.addEventListener('input', e => { store.stopPlay(); store.setStep(Number(e.target.value)); });
   el.speed.addEventListener('input', e => store.setSpeed(e.target.value));
   wireLinks(container);
+  wireNotes(container);
 
   const onKey = e => {
-    if (e.target.tagName === 'INPUT' && e.target.id === 'arr') return;
+    // 입력란·버튼에 포커스가 있으면 그쪽 키 동작(스페이스=클릭 등)을 가로채지 않는다
+    if (/^(INPUT|TEXTAREA|BUTTON|SELECT)$/.test(e.target.tagName)) return;
     if (e.key === 'ArrowRight') { store.stopPlay(); store.next(); }
     if (e.key === 'ArrowLeft')  { store.stopPlay(); store.prev(); }
     if (e.key === ' ')          { e.preventDefault(); store.togglePlay(); }

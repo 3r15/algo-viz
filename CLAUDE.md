@@ -57,16 +57,20 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
   algorithm-loader.js      # 폴더 규약으로 generator.js/meta.json 로드
   highlight.js             # 경량 C++ 신택스 하이라이터(표시 코드용)
   graph-editor.js          # 그래프 직접 그리기 입력 편집기(정점/간선/시작점, 인접 리스트·행렬)
+  markdown.js              # 의존성 없는 초소형 마크다운 렌더러(notes.md 표시용)
   renderers/
     registry.js            # registerRenderer('<type>', render). render(host, step, ctx)
     array.js               # array 렌더러(요소 재사용, 인덱스 슬롯 기준, sortedFrom/sortedTo)
     graph.js               # graph 렌더러(SVG, 정점 상태색 + 큐). ctx.graph 로 구조 수신
+    tree.js                # tree 렌더러(SVG). step.tree = perfect(세그트리) | rooted(parent[])
+    matrix.js              # matrix 렌더러(표). step.matrix = DP 테이블 · st[k][i] · up[k][v]
 build.sh                   # (휴면) 계측 C++ → WASM. 진실 원천 algorithms/<id>/code/. 현재 소비처 없음
 schemas/
   trace.schema.json        # 트레이스 계약
   meta.schema.json         # 카탈로그 레코드 계약
 scripts/
-  validate-trace.mjs       # 검증기(훅·서브에이전트·CI 공용, 의존성 없음)
+  validate-trace.mjs       # 트레이스 검증기(훅·서브에이전트·CI 공용, 의존성 없음)
+  validate-notes.mjs       # 해설 문서 구조 검증기(섹션 어휘·순서·내부 링크)
 algorithms/
   index.json               # 카탈로그(= meta 레코드 배열). 클라이언트에서 필터/검색
   <id>/
@@ -76,7 +80,7 @@ algorithms/
   settings.json            # 훅 + 권한
   hooks/                   # validate-on-edit.sh, session-context.sh
   agents/                  # algorithm-author, trace-validator, renderer-builder
-  skills/                  # add-algorithm, trace-format
+  skills/                  # add-algorithm, trace-format, algorithm-notes
 ```
 
 목표 구조는 `algorithms/<id>/`. `index.html` 은 이제 `app/main.js` 만 로드하는 얇은 셸이고,
@@ -104,7 +108,13 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
 - **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/stack/tree/graph…)로 위임.
 - **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
-- **알고리즘 페이지 레이아웃**: 상단 3정보(분류·시간·공간) → 툴바(입력+조작 패널, 코드 위) → 코드 → viz(고정 높이) → 하단 태그. 태그/분류 클릭 → 검색.
+- **알고리즘 페이지 레이아웃**: 상단 3정보(분류·시간·공간) → 툴바(입력+조작 패널, 코드 위) → 코드(최대 높이 제한, 활성 줄 자동 스크롤) → viz(고정 높이) → 태그 → 해설. 태그/분류 클릭 → 검색.
+- **해설 문서**: `algorithms/<id>/notes.md` 가 있으면 페이지 맨 아래 "해설" 섹션으로 렌더된다.
+  섹션 뼈대(한눈에/동작 원리/정확성/복잡도 + 선택 3개)는 고정이며 `scripts/validate-notes.mjs` 가 강제한다.
+  작성 규약은 `.claude/skills/algorithm-notes/SKILL.md`. **수식 라이브러리를 싣지 말 것** — 유니코드 + 코드 펜스로 쓴다.
+- **viz 슬롯**: `meta.dataStructures` 중 렌더러가 등록된 타입이 **모두** 세로로 쌓인다.
+  각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`, `matrix`는 `step.matrix`.
+  슬롯이 없는 스텝에서는 그 viz 가 자동으로 숨는다.
 - **placeholder 알고리즘**: `meta.json` 에 `"placeholder": true` 면 generator 없이 카탈로그·"준비 중" 페이지에만 노출.
 - **그래프 알고리즘 입력**: `dataStructure==='graph'` 이면 배열 입력행 대신 `graph-editor.js` 편집기를 붙인다.
   generator 는 `defaultGraph`·`capabilities` 를 export 하고 `generate(graph)` 로 그래프를 받는다(인자 없으면 defaultGraph — 검증기 호환).
@@ -121,9 +131,11 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 # 로컬 미리보기(정적)
 python3 -m http.server 8000        # → http://localhost:8000
 
-# 트레이스/메타 검증
+# 트레이스/메타/문서 검증
 node scripts/validate-trace.mjs algorithms/<id>/generator.js
 node scripts/validate-trace.mjs algorithms/<id>/meta.json
+node scripts/validate-notes.mjs algorithms/<id>/notes.md
+npm run check                      # index 최신성 + 트레이스 + 문서 한 번에
 
 # Model 2 CI 오라클: 네이티브 컴파일로 reference-trace 재생성/대조(emcc 불필요)
 g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tmp/bs "5 2 9 1 5 6"
@@ -144,7 +156,10 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 카탈로그 뷰(`#/catalog`): 검색(title/tags/aliases) + 파셋(분류/자료구조/난이도) → 카드 → `#/algo/:id`
 - [x] 알고리즘 6종: bubble/insertion/quick/merge sort(array) + BFS/DFS(graph, SVG 렌더러, visited 벡터)
 - [x] 그래프 직접 그리기 입력 편집기(`graph-editor.js`) + 알고리즘별 옵션 게이팅(capabilities)
+- [x] tree/matrix 렌더러 + 다중 viz 슬롯 → 세그먼트 트리 · 희소 배열 · 이진 상승 3종 추가(총 9종)
+- [x] 알고리즘별 해설 문서(`notes.md`) + 마크다운 렌더러 + 섹션 규약 검증기
 - [ ] 확충 계속: 가중치/방향 그래프 편집기 구현(예정) → 다익스트라 → DP 테이블 등
+- [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 - [ ] (선택) `build.sh` WASM 경로 정리 — 소비처 없으니 제거 또는 명시적 보존 결정
 - [ ] (선택) GitHub Actions: `index.json` 생성 + Model 2 WASM 빌드 + 스키마 검증
 
