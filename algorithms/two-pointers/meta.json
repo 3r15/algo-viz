@@ -1,0 +1,42 @@
+{
+  "id": "two-pointers",
+  "title": "투 포인터 (합이 target 인 두 수)",
+  "summary": "정렬된 배열의 양 끝에서 포인터를 마주 보게 두고 합에 따라 한쪽만 옮겨, 모든 쌍을 보지 않고 O(n) 에 답한다.",
+  "aliases": [
+    "투 포인터",
+    "두 포인터",
+    "two pointers",
+    "two sum",
+    "두 수의 합",
+    "양쪽 포인터"
+  ],
+  "categories": [
+    "search"
+  ],
+  "dataStructures": [
+    "array"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(1)",
+      "avg": "O(n)",
+      "worst": "O(n)"
+    },
+    "space": "O(1)"
+  },
+  "difficulty": "beginner",
+  "tags": [
+    "sorted-array",
+    "linear-scan",
+    "in-place",
+    "invariant",
+    "pruning"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/two-pointers/"
+}

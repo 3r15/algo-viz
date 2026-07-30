@@ -172,6 +172,48 @@
     "path": "algorithms/binary-lifting/"
   },
   {
+    "id": "binary-search",
+    "title": "이분 탐색 (Binary Search)",
+    "summary": "정렬된 배열에서 가운데를 보고 후보를 절반씩 버려, 비교 ⌊log₂ n⌋ + 1 번 안에 답을 낸다.",
+    "aliases": [
+      "이분 탐색",
+      "이진 탐색",
+      "이분탐색",
+      "binary search",
+      "lower_bound",
+      "매개 변수 탐색"
+    ],
+    "categories": [
+      "search"
+    ],
+    "dataStructures": [
+      "array"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(1)",
+        "avg": "O(log n)",
+        "worst": "O(log n)"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "divide-and-conquer",
+      "sorted-array",
+      "logarithmic",
+      "in-place",
+      "invariant"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/binary-search/"
+  },
+  {
     "id": "bubble-sort",
     "title": "버블 정렬",
     "summary": "인접한 두 원소를 비교·교환하며 큰 값을 뒤로 밀어내는 기본 정렬.",
@@ -383,6 +425,53 @@
     "path": "algorithms/heap-sort/"
   },
   {
+    "id": "huffman",
+    "title": "허프만 코딩 (Huffman Coding)",
+    "summary": "가장 드문 두 노드를 계속 형제로 묶어, 자주 나오는 글자에 짧은 부호가 붙는 최적 접두사 부호를 만든다.",
+    "aliases": [
+      "허프만",
+      "허프만 코딩",
+      "huffman",
+      "huffman coding",
+      "접두사 부호",
+      "가변 길이 부호",
+      "압축"
+    ],
+    "categories": [
+      "greedy",
+      "tree",
+      "string"
+    ],
+    "dataStructures": [
+      "tree",
+      "heap"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n log n)",
+        "avg": "O(n log n)",
+        "worst": "O(n log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "greedy",
+      "exchange-argument",
+      "priority-queue",
+      "prefix-code",
+      "compression",
+      "optimal"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/huffman/"
+  },
+  {
     "id": "insertion-sort",
     "title": "삽입 정렬",
     "summary": "앞쪽 정렬된 구간에 원소를 하나씩 알맞은 자리에 끼워 넣는 정렬.",
@@ -462,6 +551,51 @@
       "model-a"
     ],
     "path": "algorithms/knapsack/"
+  },
+  {
+    "id": "knights-tour",
+    "title": "나이트 여행 (Knight's Tour)",
+    "summary": "나이트가 모든 칸을 정확히 한 번씩 밟는 경로를 찾는다. 바른스도르프 규칙으로 후보 순서를 정해 백트래킹을 거의 없앤다.",
+    "aliases": [
+      "나이트 여행",
+      "나이트 투어",
+      "knights tour",
+      "knight tour",
+      "바른스도르프",
+      "warnsdorff",
+      "해밀턴 경로"
+    ],
+    "categories": [
+      "backtracking",
+      "graph"
+    ],
+    "dataStructures": [
+      "board"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n^2)",
+        "avg": "O(n^2)",
+        "worst": "O(8^(n^2))"
+      },
+      "space": "O(n^2)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "backtracking",
+      "heuristic",
+      "greedy",
+      "hamiltonian-path",
+      "pruning",
+      "recursion"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/knights-tour/"
   },
   {
     "id": "kruskal",
@@ -629,6 +763,50 @@
       "model-a"
     ],
     "path": "algorithms/merge-sort/"
+  },
+  {
+    "id": "n-queens",
+    "title": "N-퀸 (N-Queens)",
+    "summary": "n×n 판에 퀸 n개를 서로 공격하지 않게 놓는다. 한 행씩 내려가며 놓아 보고 막히면 물러나는 백트래킹의 표준 예시.",
+    "aliases": [
+      "N퀸",
+      "엔퀸",
+      "n queens",
+      "eight queens",
+      "여덟 퀸",
+      "퀸 배치",
+      "백트래킹"
+    ],
+    "categories": [
+      "backtracking",
+      "search"
+    ],
+    "dataStructures": [
+      "board"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n!)",
+        "avg": "O(n!)",
+        "worst": "O(n!)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "backtracking",
+      "pruning",
+      "recursion",
+      "constraint",
+      "exhaustive-search"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/n-queens/"
   },
   {
     "id": "quick-sort",
@@ -842,5 +1020,47 @@
       "model-a"
     ],
     "path": "algorithms/topological-sort/"
+  },
+  {
+    "id": "two-pointers",
+    "title": "투 포인터 (합이 target 인 두 수)",
+    "summary": "정렬된 배열의 양 끝에서 포인터를 마주 보게 두고 합에 따라 한쪽만 옮겨, 모든 쌍을 보지 않고 O(n) 에 답한다.",
+    "aliases": [
+      "투 포인터",
+      "두 포인터",
+      "two pointers",
+      "two sum",
+      "두 수의 합",
+      "양쪽 포인터"
+    ],
+    "categories": [
+      "search"
+    ],
+    "dataStructures": [
+      "array"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(1)",
+        "avg": "O(n)",
+        "worst": "O(n)"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "sorted-array",
+      "linear-scan",
+      "in-place",
+      "invariant",
+      "pruning"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/two-pointers/"
   }
 ]

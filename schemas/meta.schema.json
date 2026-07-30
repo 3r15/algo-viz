@@ -16,7 +16,7 @@
     "categories": { "type": "array", "minItems": 1,
       "items": { "enum": ["sorting", "graph", "dp", "search", "greedy", "string", "tree", "math", "backtracking", "geometry"] } },
     "dataStructures": { "type": "array",
-      "items": { "enum": ["array", "matrix", "stack", "queue", "linked-list", "tree", "heap", "graph", "hash-table", "trie"] } },
+      "items": { "enum": ["array", "matrix", "board", "stack", "queue", "linked-list", "tree", "heap", "graph", "hash-table", "trie"] } },
     "complexity": {
       "type": "object",
       "required": ["time"],
