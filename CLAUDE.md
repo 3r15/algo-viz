@@ -253,8 +253,12 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 유형 문서 2종 추가 — 정렬(sorting) · 선형 스캔(linear-scan) (총 9종). 어느 유형에도 안 걸리던
       알고리즘 6종(계수·기수·힙 정렬 · 괄호 검사 · 후위 표기법 · 투 포인터)을 덮어 **유형 수집률 100%**.
       정렬은 비교 하한(Ω(n log n))과 분배 정렬을, 선형 스캔은 스택/두 포인터의 분할상환 O(n) 을 다룬다.
-- [ ] 확충 계속: 0-1 BFS · 2-SAT · 편집 거리 변형 등
-- [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
+- [x] 자료구조 보강 2종 — 유니온 파인드(DSU) · 펜윅 트리(BIT) (총 38종). 새 렌더러 없이 재사용:
+      DSU 는 tree 숲(parent[]·roots) + matrix(parent·sz), BIT 는 matrix 2행(a·t). 카테고리 tree.
+      DSU 는 크루스칼이 쓰던 사이클 판정을 독립 시각화(경로 압축+크기 합치기, incremental 유형).
+      BIT 는 lowbit 트릭으로 접두사 합·갱신 O(log n)(preprocessing 유형, 세그먼트 트리보다 가벼움).
+- [ ] 확충 계속: 0-1 BFS · 2-SAT · 라빈-카프 · 편집 거리 변형 등
+- [ ] 세그먼트 트리 지연 전파(lazy) — tree/matrix 렌더러 재사용
 
 ## 훅 메모 — Stop 훅 오탐
 

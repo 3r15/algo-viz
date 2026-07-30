@@ -1,0 +1,17 @@
+{
+  "id": "union-find",
+  "title": "유니온 파인드 (서로소 집합)",
+  "aliases": ["union find", "disjoint set", "dsu", "서로소 집합", "분리 집합", "union-find"],
+  "summary": "n 개의 원소를 서로소 집합들로 관리한다. find 는 경로 압축으로, unite 는 크기로 합쳐 연산당 상각 O(α(n)) — 사실상 상수.",
+  "categories": ["tree"],
+  "dataStructures": ["tree", "matrix"],
+  "complexity": {
+    "time": { "best": "O(α(n))", "avg": "O(α(n))", "worst": "O(log n)" },
+    "space": "O(n)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["disjoint-set", "union-find", "path-compression", "union-by-rank", "amortized", "online", "incremental", "forest"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/union-find/"
+}

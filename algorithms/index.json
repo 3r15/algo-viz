@@ -548,6 +548,50 @@
     "path": "algorithms/fast-power/"
   },
   {
+    "id": "fenwick-tree",
+    "title": "펜윅 트리 (이진 인덱스 트리)",
+    "aliases": [
+      "fenwick tree",
+      "binary indexed tree",
+      "bit",
+      "펜윅 트리",
+      "이진 인덱스 트리",
+      "fenwick-tree"
+    ],
+    "summary": "인덱스의 최하위 1비트로 구간을 나눠, 접두사 합 질의와 한 점 갱신을 모두 O(log n) 에. 세그먼트 트리보다 짧고 가볍다.",
+    "categories": [
+      "tree"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(log n)",
+        "avg": "O(log n)",
+        "worst": "O(log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "fenwick",
+      "binary-indexed-tree",
+      "range-query",
+      "prefix-sum",
+      "preprocessing",
+      "logarithmic",
+      "bit-trick"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/fenwick-tree/"
+  },
+  {
     "id": "floyd-warshall",
     "title": "플로이드-워셜 모든 쌍 최단 경로",
     "summary": "경유 가능한 정점을 하나씩 늘려 가며 3중 반복문 한 번으로 모든 정점 쌍의 최단 거리를 구한다.",
@@ -1531,5 +1575,51 @@
       "model-a"
     ],
     "path": "algorithms/two-pointers/"
+  },
+  {
+    "id": "union-find",
+    "title": "유니온 파인드 (서로소 집합)",
+    "aliases": [
+      "union find",
+      "disjoint set",
+      "dsu",
+      "서로소 집합",
+      "분리 집합",
+      "union-find"
+    ],
+    "summary": "n 개의 원소를 서로소 집합들로 관리한다. find 는 경로 압축으로, unite 는 크기로 합쳐 연산당 상각 O(α(n)) — 사실상 상수.",
+    "categories": [
+      "tree"
+    ],
+    "dataStructures": [
+      "tree",
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(α(n))",
+        "avg": "O(α(n))",
+        "worst": "O(log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "disjoint-set",
+      "union-find",
+      "path-compression",
+      "union-by-rank",
+      "amortized",
+      "online",
+      "incremental",
+      "forest"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/union-find/"
   }
 ]

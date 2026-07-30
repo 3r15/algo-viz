@@ -1,0 +1,17 @@
+{
+  "id": "fenwick-tree",
+  "title": "펜윅 트리 (이진 인덱스 트리)",
+  "aliases": ["fenwick tree", "binary indexed tree", "bit", "펜윅 트리", "이진 인덱스 트리", "fenwick-tree"],
+  "summary": "인덱스의 최하위 1비트로 구간을 나눠, 접두사 합 질의와 한 점 갱신을 모두 O(log n) 에. 세그먼트 트리보다 짧고 가볍다.",
+  "categories": ["tree"],
+  "dataStructures": ["matrix"],
+  "complexity": {
+    "time": { "best": "O(log n)", "avg": "O(log n)", "worst": "O(log n)" },
+    "space": "O(n)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["fenwick", "binary-indexed-tree", "range-query", "prefix-sum", "preprocessing", "logarithmic", "bit-trick"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/fenwick-tree/"
+}
