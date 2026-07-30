@@ -295,6 +295,47 @@
     "path": "algorithms/bubble-sort/"
   },
   {
+    "id": "counting-sort",
+    "title": "계수 정렬 (Counting Sort)",
+    "summary": "값을 비교하지 않는다. 각 값의 개수를 세어 작은 값부터 다시 늘어놓아 O(n + k) 에 정렬한다.",
+    "aliases": [
+      "계수 정렬",
+      "카운팅 정렬",
+      "counting sort",
+      "개수 정렬",
+      "비교 없는 정렬"
+    ],
+    "categories": [
+      "sorting"
+    ],
+    "dataStructures": [
+      "array",
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n + k)",
+        "avg": "O(n + k)",
+        "worst": "O(n + k)"
+      },
+      "space": "O(n + k)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "non-comparison-sort",
+      "stable",
+      "counting",
+      "linear-time"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/counting-sort/"
+  },
+  {
     "id": "dfs",
     "title": "깊이 우선 탐색 (DFS)",
     "summary": "현재 정점에서 갈 수 있는 데까지 재귀로 깊이 파고든 뒤 되돌아오는 그래프 탐색.",
@@ -682,6 +723,48 @@
     "path": "algorithms/insertion-sort/"
   },
   {
+    "id": "kmp",
+    "title": "KMP 문자열 검색",
+    "summary": "패턴의 실패 함수(접두사=접미사)를 미리 계산해, 어긋나도 텍스트를 되돌리지 않고 O(n + m) 에 찾는다.",
+    "aliases": [
+      "KMP",
+      "kmp",
+      "커누스 모리스 프랫",
+      "knuth morris pratt",
+      "문자열 검색",
+      "패턴 매칭",
+      "실패 함수"
+    ],
+    "categories": [
+      "string"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n + m)",
+        "avg": "O(n + m)",
+        "worst": "O(n + m)"
+      },
+      "space": "O(m)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "string-matching",
+      "prefix-function",
+      "linear-time",
+      "preprocessing"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/kmp/"
+  },
+  {
     "id": "knapsack",
     "title": "0/1 배낭 문제 (Knapsack)",
     "summary": "물건을 하나씩 추가하며 \"담을까 말까\" 두 선택지만 비교해, 한도별 최대 가치 표를 채운다.",
@@ -767,6 +850,49 @@
       "model-a"
     ],
     "path": "algorithms/knights-tour/"
+  },
+  {
+    "id": "kosaraju-scc",
+    "title": "코사라주 강한 연결 요소",
+    "summary": "두 번의 DFS 로 SCC 를 찾는다. 완료 순서로 쌓고, 간선을 뒤집어 위에서부터 DFS 하면 한 번이 한 덩어리.",
+    "aliases": [
+      "코사라주",
+      "kosaraju",
+      "강한 연결 요소",
+      "SCC",
+      "강연결요소",
+      "두 번 DFS"
+    ],
+    "categories": [
+      "graph"
+    ],
+    "dataStructures": [
+      "graph",
+      "stack"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V + E)",
+        "avg": "O(V + E)",
+        "worst": "O(V + E)"
+      },
+      "space": "O(V + E)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "scc",
+      "dfs",
+      "transpose",
+      "two-pass",
+      "connectivity"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/kosaraju-scc/"
   },
   {
     "id": "kruskal",
@@ -1104,6 +1230,47 @@
       "model-a"
     ],
     "path": "algorithms/quick-sort/"
+  },
+  {
+    "id": "radix-sort",
+    "title": "기수 정렬 (Radix Sort)",
+    "summary": "낮은 자리부터 자릿수별로 안정 계수 정렬을 반복한다. 비교 없이 O(d·(n + b)) 에 정렬.",
+    "aliases": [
+      "기수 정렬",
+      "레이딕스 정렬",
+      "radix sort",
+      "자릿수 정렬",
+      "LSD 정렬"
+    ],
+    "categories": [
+      "sorting"
+    ],
+    "dataStructures": [
+      "array",
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(d(n + b))",
+        "avg": "O(d(n + b))",
+        "worst": "O(d(n + b))"
+      },
+      "space": "O(n + b)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "non-comparison-sort",
+      "stable",
+      "counting",
+      "digit-by-digit"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/radix-sort/"
   },
   {
     "id": "segment-tree",

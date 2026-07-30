@@ -1,0 +1,14 @@
+{
+  "id": "kosaraju-scc",
+  "title": "코사라주 강한 연결 요소",
+  "summary": "두 번의 DFS 로 SCC 를 찾는다. 완료 순서로 쌓고, 간선을 뒤집어 위에서부터 DFS 하면 한 번이 한 덩어리.",
+  "aliases": ["코사라주", "kosaraju", "강한 연결 요소", "SCC", "강연결요소", "두 번 DFS"],
+  "categories": ["graph"],
+  "dataStructures": ["graph", "stack"],
+  "complexity": { "time": { "best": "O(V + E)", "avg": "O(V + E)", "worst": "O(V + E)" }, "space": "O(V + E)" },
+  "difficulty": "intermediate",
+  "tags": ["scc", "dfs", "transpose", "two-pass", "connectivity"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/kosaraju-scc/"
+}
