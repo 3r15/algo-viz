@@ -69,6 +69,7 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
     matrix.js              # matrix 렌더러(표). step.matrix = DP 테이블 · st[k][i] · up[k][v]
     heap.js                # heap 렌더러. step.heap = 배열 줄 + 완전 이진 트리(shape:'list' 면 목록만)
     board.js               # board 렌더러(체스판). step.board = 칸 상태 색 + 말 기호 + 이동 경로선
+    stack.js queue.js      # stack(LIFO)·queue(FIFO) 렌더러. step.stack/step.queue = 배열 또는 {values,states,…}
 schemas/
   trace.schema.json        # 트레이스 계약
   meta.schema.json         # 카탈로그 레코드 계약
@@ -119,7 +120,7 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   유형 문서는 `#/paradigms`(목록) · `#/paradigm/:id`(본문).
 - **상대 경로** — 프로젝트 페이지는 `user.github.io/<repo>/` 하위. base 경로 주의.
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
-- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap/board)로 위임.
+- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap/board/stack/queue)로 위임.
   아직 없는 타입(stack/queue/linked-list…)은 `meta.dataStructures` 에 적어도 viz 슬롯이 생기지 않는다.
 - **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
 - **변수명은 역할이 드러나게** — 한 글자 이름으로 역할을 가리지 마라. 두 축으로 갈린다.
@@ -143,7 +144,8 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   한 페이지에 문서가 둘이므로 `renderMarkdown(md, { idPrefix })` 로 앵커를 분리한다.
 - **viz 슬롯**: `meta.dataStructures` 중 렌더러가 등록된 타입이 **모두** 세로로 쌓인다.
   각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`,
-  `matrix`는 `step.matrix`, `heap`은 `step.heap`, `board`는 `step.board`.
+  `matrix`는 `step.matrix`, `heap`은 `step.heap`, `board`는 `step.board`,
+  `stack`은 `step.stack`, `queue`는 `step.queue`(둘 다 배열 또는 `{values,states,labels,caption}`).
   `tree` 의 `rooted` 는 `root`(단일) 대신 `roots: [...]` 를 주면 **숲**을 그린다 —
   허프만처럼 아래에서 위로 합쳐 가는 알고리즘이 이 중간 상태를 지난다.
   슬롯이 없는 스텝에서는 그 viz 가 자동으로 숨는다.
@@ -232,9 +234,11 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 수학 3종 — 유클리드 호제법 · 에라토스테네스의 체 · 빠른 거듭제곱 (총 28종).
       `math` 분류가 0개였다. 새 렌더러 없이 matrix 재사용. 체는 matrix 를 **값이 아니라 상태**로 쓴 첫 사례.
       빠른 거듭제곱은 배가(doubling)를 beginner 난이도로 소개(희소 배열·이진 상승과 같은 발상)
+- [x] stack/queue 전용 렌더러 + 괄호 검사 · 후위 표기법 (총 30종).
+      기존 BFS·DFS·타잔·위상정렬이 meta 에 stack/queue 를 적어 두고도 viz 가 없던 것을 채웠다.
+      렌더러는 배열(기존)·객체(신규) 두 형식을 받는다. graph 렌더러의 중복 AUX 한 줄은 제거.
 - [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT · 편집 거리 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
-- [ ] stack/queue 전용 렌더러 — 지금은 graph 렌더러의 한 줄 표시로만 보인다
 
 ## 훅 메모 — Stop 훅 오탐
 
