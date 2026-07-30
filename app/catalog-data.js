@@ -1,9 +1,12 @@
 // app/catalog-data.js — 카탈로그 데이터 로드 + 필터/검색(순수 함수).
 // index.json(= meta 레코드 배열)을 소비한다. DOM 무관 → 테스트 가능.
 
+import { fetchFresh } from './fetch-fresh.js';
+
 export async function loadCatalog() {
   const url = new URL('../algorithms/index.json', import.meta.url);
-  const response = await fetch(url);
+  // 알고리즘을 추가하면 바뀌는 목록이다 — 브라우저 캐시가 예전 목록을 내주지 않게 한다
+  const response = await fetchFresh(url);
   if (!response.ok) throw new Error('index.json 로드 실패');
   return response.json();
 }
