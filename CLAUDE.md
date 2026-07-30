@@ -122,6 +122,11 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
 - **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap/board/stack/queue)로 위임.
   아직 없는 타입(stack/queue/linked-list…)은 `meta.dataStructures` 에 적어도 viz 슬롯이 생기지 않는다.
+- **디자인 토큰** — `index.html` 의 `:root` 한 곳에서 색·모서리 반경·전이 시간·글꼴을 정한다.
+  CSS 규칙은 색/반경을 **리터럴로 쓰지 말고 `var(--…)`** 로 참조한다(색은 팔레트 + 파생 의미 토큰,
+  반경은 `--r-sm..--r-xl`, 시간은 `--dur*`). 테마·크기 변경은 `:root` 만 고치면 전 페이지에 반영된다.
+- **글꼴** — 한글은 각진 **Gothic A1**(`--sans`·`--mono` 폴백), 라틴은 `Space Grotesk`(본문)·`JetBrains Mono`(모노).
+  **코드 패널만 `--code`**(순수 JetBrains Mono, 한글 폴백 없음) — 표시 소스는 코드로 취급해 건드리지 않는다.
 - **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
 - **변수명은 역할이 드러나게** — 한 글자 이름으로 역할을 가리지 마라. 두 축으로 갈린다.
   - **유지**: 알고리즘 관례명 `i j k l r n u v lo hi mid pivot` 과
