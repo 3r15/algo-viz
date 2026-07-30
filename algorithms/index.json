@@ -377,6 +377,49 @@
     "path": "algorithms/dijkstra/"
   },
   {
+    "id": "edit-distance",
+    "title": "편집 거리 (Levenshtein)",
+    "summary": "A 를 B 로 바꾸는 최소 편집 수(삽입·삭제·교체). 마지막 글자가 같으면 대각선, 다르면 세 이웃의 최솟값+1.",
+    "aliases": [
+      "편집 거리",
+      "레벤슈타인",
+      "레벤슈타인 거리",
+      "edit distance",
+      "levenshtein",
+      "문자열 거리",
+      "오타 교정"
+    ],
+    "categories": [
+      "dp",
+      "string"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(mn)",
+        "avg": "O(mn)",
+        "worst": "O(mn)"
+      },
+      "space": "O(mn)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "dynamic-programming",
+      "two-dimensional-dp",
+      "string",
+      "reconstruction"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/edit-distance/"
+  },
+  {
     "id": "euclidean-gcd",
     "title": "유클리드 호제법 (GCD)",
     "summary": "gcd(a, b) = gcd(b, a mod b) 를 반복해, 나머지로 갈아치우며 최대공약수를 O(log) 번의 나눗셈에 구한다.",
@@ -977,6 +1020,52 @@
       "model-a"
     ],
     "path": "algorithms/postfix-eval/"
+  },
+  {
+    "id": "prim-mst",
+    "title": "프림 최소 신장 트리 (Prim)",
+    "summary": "한 정점에서 시작해 트리와 바깥을 잇는 가장 싼 경계 간선을 반복해 고른다. 크루스칼과 짝을 이루는 정점 중심 MST.",
+    "aliases": [
+      "프림",
+      "프림 알고리즘",
+      "최소 신장 트리",
+      "prim",
+      "prim mst",
+      "MST",
+      "minimum spanning tree"
+    ],
+    "categories": [
+      "graph",
+      "greedy"
+    ],
+    "dataStructures": [
+      "graph",
+      "heap"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(E log V)",
+        "avg": "O(E log V)",
+        "worst": "O(E log V)"
+      },
+      "space": "O(V + E)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "greedy",
+      "mst",
+      "priority-queue",
+      "weighted",
+      "cut-property",
+      "exchange-argument"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/prim-mst/"
   },
   {
     "id": "quick-sort",
