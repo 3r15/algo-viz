@@ -1,0 +1,44 @@
+{
+  "id": "n-queens",
+  "title": "N-퀸 (N-Queens)",
+  "summary": "n×n 판에 퀸 n개를 서로 공격하지 않게 놓는다. 한 행씩 내려가며 놓아 보고 막히면 물러나는 백트래킹의 표준 예시.",
+  "aliases": [
+    "N퀸",
+    "엔퀸",
+    "n queens",
+    "eight queens",
+    "여덟 퀸",
+    "퀸 배치",
+    "백트래킹"
+  ],
+  "categories": [
+    "backtracking",
+    "search"
+  ],
+  "dataStructures": [
+    "board"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(n!)",
+      "avg": "O(n!)",
+      "worst": "O(n!)"
+    },
+    "space": "O(n)"
+  },
+  "difficulty": "intermediate",
+  "tags": [
+    "backtracking",
+    "pruning",
+    "recursion",
+    "constraint",
+    "exhaustive-search"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/n-queens/"
+}

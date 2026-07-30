@@ -241,6 +241,37 @@
   .hnode.s4 text{fill:var(--sorted)}
   .hnode.out{opacity:0}                       /* 힙에서 빠진 칸 — 지우지 않고 감춘다 */
 
+  /* board 렌더러(체스판: 칸의 상태를 색으로 본다. matrix 는 값을, board 는 상태를 보여 준다) */
+  .viz[data-type=board]{height:auto; min-height:0; align-items:center; padding:14px 16px;
+    overflow-x:auto; gap:0}
+  .boardviz{display:flex; flex-direction:column; align-items:center; gap:9px; width:100%}
+  .bcaption{align-self:flex-start; font-family:var(--mono); font-size:11.5px; color:var(--muted);
+    letter-spacing:.03em}
+  .bcaption:empty{display:none}
+  .bstage{position:relative; width:min(100%, calc(var(--bcols) * 58px))}
+  .bgrid{display:grid; gap:0; border:1px solid var(--line); border-radius:3px; overflow:hidden}
+  .bcell{position:relative; aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    background:#232323; transition:background .18s, box-shadow .18s}
+  .bcell.dark{background:#1c1c1c}
+  .bmark{font-size:min(4.6vw, 21px); line-height:1; color:var(--muted); transition:color .18s}
+  .blabel{position:absolute; bottom:2px; right:4px; font-family:var(--mono); font-size:10.5px;
+    color:var(--muted)}
+  .bcell.s1{box-shadow:inset 0 0 0 2px var(--cmp)}                     /* 후보(검사 중) */
+  .bcell.s2{background:#3a2c2c}                                        /* 공격받음 · 방문 */
+  .bcell.s2.dark{background:#332525}
+  .bcell.s3 .bmark{color:var(--sorted)}                                /* 놓임(확정) */
+  .bcell.s3{background:#263026}
+  .bcell.s3.dark{background:#202a20}
+  .bcell.s4{background:var(--acc); box-shadow:inset 0 0 0 2px var(--acc)}   /* 방금 놓음 */
+  .bcell.s4 .bmark,.bcell.s4 .blabel{color:#1a1a1a}
+  .bcell.s5{background:#3f2f2f; box-shadow:inset 0 0 0 2px #7a4a4a}    /* 방금 물러남 */
+  .bcell.s5 .bmark{color:#c98b8b}
+  .bcell.s6{background:#3a2c2c; box-shadow:inset 0 0 0 2px var(--cmp)}  /* 후보인데 공격받음 */
+  .bcell.s6.dark{background:#332525}
+  .bpath{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+  .bpath-line{fill:none; stroke:var(--acc); stroke-width:1.8; stroke-opacity:.6;
+    stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke}
+
   /* graph 렌더러(정점 상태: 0 미방문·1 큐대기·2 방문중·3 완료) */
   .viz.graph{align-items:center}
   .graphviz{display:flex; flex-direction:column; align-items:center; gap:12px; width:100%}

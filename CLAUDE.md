@@ -68,6 +68,7 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
     tree.js                # tree 렌더러(SVG). step.tree = perfect(세그트리) | rooted(parent[] · roots 로 숲)
     matrix.js              # matrix 렌더러(표). step.matrix = DP 테이블 · st[k][i] · up[k][v]
     heap.js                # heap 렌더러. step.heap = 배열 줄 + 완전 이진 트리(shape:'list' 면 목록만)
+    board.js               # board 렌더러(체스판). step.board = 칸 상태 색 + 말 기호 + 이동 경로선
 schemas/
   trace.schema.json        # 트레이스 계약
   meta.schema.json         # 카탈로그 레코드 계약
@@ -118,7 +119,7 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   유형 문서는 `#/paradigms`(목록) · `#/paradigm/:id`(본문).
 - **상대 경로** — 프로젝트 페이지는 `user.github.io/<repo>/` 하위. base 경로 주의.
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
-- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap)로 위임.
+- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap/board)로 위임.
   아직 없는 타입(stack/queue/linked-list…)은 `meta.dataStructures` 에 적어도 viz 슬롯이 생기지 않는다.
 - **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
 - **변수명은 역할이 드러나게** — 한 글자 이름으로 역할을 가리지 마라. 두 축으로 갈린다.
@@ -142,7 +143,7 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   한 페이지에 문서가 둘이므로 `renderMarkdown(md, { idPrefix })` 로 앵커를 분리한다.
 - **viz 슬롯**: `meta.dataStructures` 중 렌더러가 등록된 타입이 **모두** 세로로 쌓인다.
   각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`,
-  `matrix`는 `step.matrix`, `heap`은 `step.heap`.
+  `matrix`는 `step.matrix`, `heap`은 `step.heap`, `board`는 `step.board`.
   `tree` 의 `rooted` 는 `root`(단일) 대신 `roots: [...]` 를 주면 **숲**을 그린다 —
   허프만처럼 아래에서 위로 합쳐 가는 알고리즘이 이 중간 상태를 지난다.
   슬롯이 없는 스텝에서는 그 viz 가 자동으로 숨는다.
@@ -151,11 +152,18 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   `meta.match = { categories, tags }` 로 알고리즘을 자동 수집하므로 알고리즘 meta 를 건드릴 필요가 없다 —
   새 알고리즘을 추가하면 유형 페이지에 저절로 나타난다. 분류가 안 걸리면 **알고리즘에 정확한 태그를 더하라**
   (유형 쪽에 id 를 하드코딩하지 마라 — 태그 검색과 어휘가 갈라진다).
+- **탐색이 폭발하는 알고리즘**은 스텝 예산(`MAX_STEPS`)을 두고, 끊었으면 **끊었다고 스텝에 적는다**.
+  N-퀸·나이트 여행처럼 "해가 없음" 을 증명하려면 전수 탐색이라 스텝이 수천으로 간다.
+  조용히 잘라내면 트레이스가 거짓말을 하게 된다.
 - **placeholder 알고리즘**: `meta.json` 에 `"placeholder": true` 면 generator 없이 카탈로그·"준비 중" 페이지에만 노출.
 - **입력은 세 종류**: 기본은 정수 배열(최대 12개, ±999). `inputKind='text'` 를 export 하면
   자유 텍스트(LCS 의 두 문자열, 최대 24자)로 바뀌고, 생성기가 직접 파싱한다.
   형식이 특수하면(배낭의 `용량 w v w v …`) `randomInput()` 을 export 해 Randomize 가 그 형식을 지키게 한다.
   **`randomInput` 은 무작위를 담는 유일한 자리다** — `generate` 는 순수 함수로 남아야 한다.
+- **board 슬롯**: `step.board = { rows, cols, states, labels, marks, path, caption }`.
+  **matrix 와 구분하라** — matrix 는 칸의 **값**(DP 테이블)을, board 는 칸의 **상태**(비었나·말이 있나·
+  공격받나·되돌렸나)를 색으로 본다. 체스판 명암·정사각 칸·말 기호·이동 경로선은 board 쪽이다.
+  칸 상태 0 빈칸 · 1 후보(테두리) · 2 못 쓰는 칸 · 3 확정 · 4 방금 놓음 · 5 방금 물러남 · 6 후보인데 못 씀.
 - **heap 슬롯**: `step.heap = { values, size, states, labels, shape, caption }`.
   `shape:'tree'`(기본)는 배열 줄 + 완전 이진 트리, `shape:'list'` 는 목록만 그린다.
   **내부가 실제 이진 힙이 아닌 PQ 는 반드시 `'list'`** — 다익스트라·A* 의 PQ 는 배열+정렬이라
@@ -219,6 +227,8 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] 카탈로그 생성을 배포 워크플로로 이관 + CI 는 어긋남을 설명하는 게이트로
 - [x] 기초 탐색 2종 + 허프만 코딩 (총 23종). tree 렌더러를 **숲**(roots)까지 다루게 일반화 —
       허프만은 heap(PQ) + tree 두 슬롯을 함께 쓰는 첫 알고리즘
+- [x] board(체스판) 렌더러 + 백트래킹 2종 — N-퀸 · 나이트 여행 (총 25종).
+      `backtracking` 분류가 0개였다. 되감기가 곧 "물러남" 이라 이 계열과 궁합이 가장 좋다
 - [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT · 편집 거리 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 - [ ] stack/queue 전용 렌더러 — 지금은 graph 렌더러의 한 줄 표시로만 보인다

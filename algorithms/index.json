@@ -553,6 +553,51 @@
     "path": "algorithms/knapsack/"
   },
   {
+    "id": "knights-tour",
+    "title": "나이트 여행 (Knight's Tour)",
+    "summary": "나이트가 모든 칸을 정확히 한 번씩 밟는 경로를 찾는다. 바른스도르프 규칙으로 후보 순서를 정해 백트래킹을 거의 없앤다.",
+    "aliases": [
+      "나이트 여행",
+      "나이트 투어",
+      "knights tour",
+      "knight tour",
+      "바른스도르프",
+      "warnsdorff",
+      "해밀턴 경로"
+    ],
+    "categories": [
+      "backtracking",
+      "graph"
+    ],
+    "dataStructures": [
+      "board"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n^2)",
+        "avg": "O(n^2)",
+        "worst": "O(8^(n^2))"
+      },
+      "space": "O(n^2)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "backtracking",
+      "heuristic",
+      "greedy",
+      "hamiltonian-path",
+      "pruning",
+      "recursion"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/knights-tour/"
+  },
+  {
     "id": "kruskal",
     "title": "크루스칼 최소 신장 트리",
     "summary": "간선을 가중치 순으로 훑으며 사이클을 만들지 않는 것만 골라 최소 신장 트리를 만든다.",
@@ -718,6 +763,50 @@
       "model-a"
     ],
     "path": "algorithms/merge-sort/"
+  },
+  {
+    "id": "n-queens",
+    "title": "N-퀸 (N-Queens)",
+    "summary": "n×n 판에 퀸 n개를 서로 공격하지 않게 놓는다. 한 행씩 내려가며 놓아 보고 막히면 물러나는 백트래킹의 표준 예시.",
+    "aliases": [
+      "N퀸",
+      "엔퀸",
+      "n queens",
+      "eight queens",
+      "여덟 퀸",
+      "퀸 배치",
+      "백트래킹"
+    ],
+    "categories": [
+      "backtracking",
+      "search"
+    ],
+    "dataStructures": [
+      "board"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n!)",
+        "avg": "O(n!)",
+        "worst": "O(n!)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "backtracking",
+      "pruning",
+      "recursion",
+      "constraint",
+      "exhaustive-search"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/n-queens/"
   },
   {
     "id": "quick-sort",
