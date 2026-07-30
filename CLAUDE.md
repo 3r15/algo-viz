@@ -54,6 +54,7 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
     algorithm.js           # 단일 채널 Model A 플레이어(#/algo/:id)
     paradigm.js            # 유형 목록(#/paradigms) + 유형 문서(#/paradigm/:id)
   catalog-data.js          # index.json 로드 + 필터/검색(순수 함수, DOM 무관)
+  fetch-fresh.js           # 배포마다 바뀌는 데이터용 fetch(cache:'no-cache'). 캐시 함정 메모 참고
   store.js                 # 플레이어 상태 + 트랜스포트(DOM 무관). undo 없음
   algorithm-loader.js      # 폴더 규약으로 generator.js/meta.json 로드
   highlight.js             # 경량 C++ 신택스 하이라이터(표시 코드용)
@@ -223,3 +224,7 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - **line 매핑 드리프트**: 표시 소스가 바뀌면 `step.line` 이 어긋난다. 소스와 generator 를 함께 고쳐라.
 - **동치 착시**: 기본 입력만 맞고 경계 입력에서 갈라질 수 있다. 여러 입력으로 대조(trace-validator).
 - **애니메이션 끊김**: 렌더 때 DOM 을 리빌드하면 transition 이 안 먹는다. 요소 재사용.
+- **배포했는데 새 알고리즘이 안 보인다**: GH Pages 는 정적 자산에 `Cache-Control: max-age=600` 을 붙인다.
+  카탈로그·meta·해설처럼 **배포마다 바뀌는 데이터**를 기본 `fetch` 로 받으면 최대 10분간 예전 것이 나온다.
+  그래서 데이터 로드는 전부 `app/fetch-fresh.js` 의 `fetchFresh()`(`cache:'no-cache'`)를 쓴다 —
+  안 바뀌었으면 304 라 비용은 거의 없다. **새 fetch 를 추가할 때 이걸 빠뜨리지 마라.**

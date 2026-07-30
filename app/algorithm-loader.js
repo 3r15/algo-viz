@@ -9,6 +9,8 @@
 // meta 에 "placeholder": true 면 generator.js 를 로드하지 않고 "준비 중" 자산만 돌려준다.
 // reference-trace.json 은 CI 검증(validate-trace)용 오라클이라 런타임에선 로드하지 않는다.
 
+import { fetchFresh } from './fetch-fresh.js';
+
 export async function loadAlgorithm(id) {
   const metaURL = new URL(`../algorithms/${id}/meta.json`, import.meta.url);
   const notesURL = new URL(`../algorithms/${id}/notes.md`, import.meta.url);
@@ -57,7 +59,7 @@ export async function loadAlgorithm(id) {
 
 async function fetchJSON(url) {
   try {
-    const r = await fetch(url);
+    const r = await fetchFresh(url);
     return r.ok ? await r.json() : null;
   } catch {
     return null;
@@ -66,7 +68,7 @@ async function fetchJSON(url) {
 
 async function fetchText(url) {
   try {
-    const r = await fetch(url);
+    const r = await fetchFresh(url);
     return r.ok ? await r.text() : null;
   } catch {
     return null;

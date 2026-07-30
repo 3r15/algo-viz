@@ -9,16 +9,18 @@
 // 덕분에 알고리즘 meta 를 건드리지 않아도 유형이 자동으로 채워지고,
 // 기존 태그 검색(#/catalog?q=<tag>)과 같은 어휘를 공유하게 된다.
 
+import { fetchFresh } from './fetch-fresh.js';
+
 export async function loadParadigms() {
   const url = new URL('../paradigms/index.json', import.meta.url);
-  const response = await fetch(url);
+  const response = await fetchFresh(url);
   if (!response.ok) throw new Error('paradigms/index.json 로드 실패');
   return response.json();
 }
 
 export async function loadParadigmNotes(id) {
   try {
-    const response = await fetch(new URL(`../paradigms/${id}/notes.md`, import.meta.url));
+    const response = await fetchFresh(new URL(`../paradigms/${id}/notes.md`, import.meta.url));
     return response.ok ? await response.text() : null;
   } catch {
     return null;
