@@ -15,15 +15,11 @@ import { registerRenderer } from './registry.js';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const VIEW_W = 100, VIEW_H = 60;      // viewBox 좌표계. 정점 x,y 는 0..1 비율
 const NODE_RADIUS = 5.4;
-const graphCaches = new WeakMap();    // host 요소 → { wrap, nodes, edges, auxLabel, graph }
+const graphCaches = new WeakMap();    // host 요소 → { wrap, nodes, edges, graph }
 
-// 보조 자료구조는 하나만 표시한다(알고리즘마다 쓰는 것이 다르다)
-// 보조 자료구조 한 줄. 우선순위 큐는 heap 렌더러가 자기 슬롯(step.heap)에서 크게 그리므로
-// 여기서는 다루지 않는다 — 같은 것을 두 번 보여 주지 않기 위해서다.
-const AUX_SLOTS = [
-  { key: 'stack', label: 'stack' },
-  { key: 'queue', label: 'queue' },
-];
+// 보조 자료구조(스택·큐·PQ)는 이제 각자의 전용 렌더러가 자기 슬롯에서 크게 그린다
+// (step.stack → stack 렌더러, step.queue → queue 렌더러, step.pq/heap → heap 렌더러).
+// 그래서 graph 렌더러는 한 줄 요약을 더 그리지 않는다 — 같은 것을 두 번 보여 주지 않기 위해서다.
 
 export function renderGraph(host, step, ctx) {
   const graph = ctx?.graph;
@@ -49,11 +45,6 @@ export function renderGraph(host, step, ctx) {
     edge.line.setAttribute('class', 'gedge e' + edgeState);
     if (edge.weightLabel) edge.weightLabel.setAttribute('class', 'gweight e' + edgeState);
   });
-
-  const aux = AUX_SLOTS.find(slot => Array.isArray(step[slot.key]));
-  cache.auxLabel.textContent = aux
-    ? `${aux.label}  [ ${step[aux.key].join('   ')} ]`
-    : '';
 }
 
 // 간선을 정점 원 바깥에서 시작·끝나게 잘라 낸다(화살촉이 원에 파묻히지 않도록)
@@ -156,12 +147,9 @@ function buildSvg(host, graph) {
   });
 
   wrap.appendChild(svg);
-  const auxLabel = document.createElement('div');
-  auxLabel.className = 'graph-queue';
-  wrap.appendChild(auxLabel);
   host.appendChild(wrap);
 
-  return { wrap, nodes, edges, auxLabel };
+  return { wrap, nodes, edges };
 }
 
 registerRenderer('graph', renderGraph);

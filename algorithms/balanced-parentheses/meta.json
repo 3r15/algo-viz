@@ -1,0 +1,41 @@
+{
+  "id": "balanced-parentheses",
+  "title": "괄호 검사 (Balanced Parentheses)",
+  "summary": "여는 괄호를 스택에 쌓고 닫는 괄호에서 맨 위와 짝을 맞춘다. 스택이 LIFO 라는 성질이 그대로 문제의 답이 되는 예.",
+  "aliases": [
+    "괄호 검사",
+    "괄호 짝",
+    "괄호 매칭",
+    "balanced parentheses",
+    "valid parentheses",
+    "bracket matching"
+  ],
+  "categories": [
+    "string"
+  ],
+  "dataStructures": [
+    "stack"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(n)",
+      "avg": "O(n)",
+      "worst": "O(n)"
+    },
+    "space": "O(n)"
+  },
+  "difficulty": "beginner",
+  "tags": [
+    "stack",
+    "linear-scan",
+    "matching",
+    "parsing"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/balanced-parentheses/"
+}
