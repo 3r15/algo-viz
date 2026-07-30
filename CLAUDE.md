@@ -229,6 +229,9 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
       허프만은 heap(PQ) + tree 두 슬롯을 함께 쓰는 첫 알고리즘
 - [x] board(체스판) 렌더러 + 백트래킹 2종 — N-퀸 · 나이트 여행 (총 25종).
       `backtracking` 분류가 0개였다. 되감기가 곧 "물러남" 이라 이 계열과 궁합이 가장 좋다
+- [x] 수학 3종 — 유클리드 호제법 · 에라토스테네스의 체 · 빠른 거듭제곱 (총 28종).
+      `math` 분류가 0개였다. 새 렌더러 없이 matrix 재사용. 체는 matrix 를 **값이 아니라 상태**로 쓴 첫 사례.
+      빠른 거듭제곱은 배가(doubling)를 beginner 난이도로 소개(희소 배열·이진 상승과 같은 발상)
 - [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT · 편집 거리 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 - [ ] stack/queue 전용 렌더러 — 지금은 graph 렌더러의 한 줄 표시로만 보인다
