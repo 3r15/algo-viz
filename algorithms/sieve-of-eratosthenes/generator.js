@@ -9,7 +9,8 @@
 //
 // 시각화: matrix 슬롯을 **값이 아니라 상태**로 쓴다(DP 테이블과 반대 용법).
 //   1..n 을 10칸씩 격자에 눕히고, 칸 색으로 판정 상태를 보인다.
-//   셀 상태: 0 아직 판정 안 됨 · 1 지금 보는 p · 2 지워짐(합성수) · 3 소수 확정 · 4 방금 지움
+//   matrix 팔레트의 **시각적 무게**에 뜻을 맞춘다(어두울수록 죽은 칸):
+//     0 지워짐(합성수 — 가장 어둡다) · 1 아직 후보 · 2 지금 보는 p · 3 방금 지움 · 4 소수 확정
 
 export const category = 'math';
 export const defaultInput = [60];
@@ -56,13 +57,20 @@ export function generate(input) {
   const steps = [];
 
   // 매 스텝의 상태는 isComposite 에서 새로 만든다 — 되감기가 스냅샷 재렌더로 끝나게.
+  const STATE_CROSSED = 0, STATE_CANDIDATE = 1, STATE_CURRENT_P = 2,
+        STATE_JUST_CROSSED = 3, STATE_PRIME = 4;
+
   const buildStates = extra => {
-    const states = new Array(rows * COLUMNS).fill(0);
+    const states = new Array(rows * COLUMNS).fill(STATE_CANDIDATE);
     for (let value = 2; value <= n; value++)
-      states[cellOf(value)] = isComposite[value] ? 2 : (extra.decided >= value ? 3 : 0);
-    states[cellOf(1)] = 2;                       // 1 은 소수가 아니다(정의상)
-    if (extra.prime) states[cellOf(extra.prime)] = 1;
-    if (extra.justCrossed) states[cellOf(extra.justCrossed)] = 4;
+      states[cellOf(value)] = isComposite[value]
+        ? STATE_CROSSED
+        : (extra.decided >= value ? STATE_PRIME : STATE_CANDIDATE);
+    states[cellOf(1)] = STATE_CROSSED;           // 1 은 소수가 아니다(정의상)
+    // 범위를 넘는 빈 칸은 값이 null 이라 어차피 비어 보인다
+    for (let index = n; index < rows * COLUMNS; index++) states[index] = STATE_CROSSED;
+    if (extra.prime) states[cellOf(extra.prime)] = STATE_CURRENT_P;
+    if (extra.justCrossed) states[cellOf(extra.justCrossed)] = STATE_JUST_CROSSED;
     return states;
   };
 
