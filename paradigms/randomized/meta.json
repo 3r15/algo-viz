@@ -1,0 +1,8 @@
+{
+  "id": "randomized",
+  "title": "랜덤화 알고리즘 (Randomized)",
+  "aliases": ["randomized", "확률적 알고리즘", "무작위 알고리즘", "monte carlo", "las vegas"],
+  "summary": "무작위를 알고리즘의 도구로 쓴다. 최악 입력을 확률로 흩뜨리거나(라스베이거스), 낮은 오류 확률을 감수해 빠르게 답한다(몬테카를로). 오류·시간을 확률로 다스린다.",
+  "tagline": "무작위로 최악을 흩뜨리거나, 확률로 빠르게 답한다",
+  "match": { "categories": [], "tags": ["randomized", "monte-carlo"] }
+}

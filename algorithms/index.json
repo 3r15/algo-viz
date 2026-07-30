@@ -255,6 +255,49 @@
     "path": "algorithms/binary-search/"
   },
   {
+    "id": "bit-manipulation",
+    "title": "비트 조작 (부분집합 열거)",
+    "aliases": [
+      "bit manipulation",
+      "bitmask",
+      "subset enumeration",
+      "비트 조작",
+      "비트마스크",
+      "부분집합 열거",
+      "bit-manipulation"
+    ],
+    "summary": "n개 원소의 모든 부분집합을 정수 마스크 0..2^n-1 로 훑는다. j번 비트로 j번 원소의 포함을 표현 — 부분집합 DP·조합 생성·완전 탐색의 뼈대.",
+    "categories": [
+      "math"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n·2^n)",
+        "avg": "O(n·2^n)",
+        "worst": "O(n·2^n)"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "bit-manipulation",
+      "bitmask",
+      "subset-enumeration",
+      "enumeration",
+      "brute-force"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/bit-manipulation/"
+  },
+  {
     "id": "bubble-sort",
     "title": "버블 정렬",
     "summary": "인접한 두 원소를 비교·교환하며 큰 값을 뒤로 밀어내는 기본 정렬.",
@@ -293,6 +336,49 @@
       "model-2"
     ],
     "path": "algorithms/bubble-sort/"
+  },
+  {
+    "id": "convex-hull",
+    "title": "볼록 껍질 (모노톤 체인)",
+    "aliases": [
+      "convex hull",
+      "graham scan",
+      "monotone chain",
+      "볼록 껍질",
+      "볼록 외피",
+      "convex-hull"
+    ],
+    "summary": "평면 위 점들을 모두 감싸는 가장 작은 볼록 다각형. 정렬 뒤 외적의 부호로 좌회전만 남기며 껍질을 O(n) 에 쌓는다.",
+    "categories": [
+      "geometry"
+    ],
+    "dataStructures": [
+      "geometry"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n log n)",
+        "avg": "O(n log n)",
+        "worst": "O(n log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "computational-geometry",
+      "convex-hull",
+      "cross-product",
+      "monotone-chain",
+      "sorting",
+      "incremental"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/convex-hull/"
   },
   {
     "id": "counting-sort",
@@ -1067,6 +1153,54 @@
     "path": "algorithms/lis/"
   },
   {
+    "id": "max-flow",
+    "title": "최대 유량 / 최소 컷 (에드몬드-카프)",
+    "aliases": [
+      "max flow",
+      "min cut",
+      "maximum flow",
+      "edmonds karp",
+      "ford fulkerson",
+      "최대 유량",
+      "최소 컷",
+      "max-flow"
+    ],
+    "summary": "소스에서 싱크로 보낼 수 있는 최대 유량. 잔여 그래프에서 증가 경로를 BFS 로 찾아 병목만큼 흘리기를 반복한다. 끝나면 소스 도달 집합이 최소 컷 — 최대 유량 = 최소 컷.",
+    "categories": [
+      "graph"
+    ],
+    "dataStructures": [
+      "graph"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(VE)",
+        "avg": "O(VE²)",
+        "worst": "O(VE²)"
+      },
+      "space": "O(V²)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "max-flow",
+      "min-cut",
+      "network-flow",
+      "augmenting-path",
+      "edmonds-karp",
+      "ford-fulkerson",
+      "bfs",
+      "duality",
+      "graph"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/max-flow/"
+  },
+  {
     "id": "merge-sort",
     "title": "병합 정렬",
     "summary": "반으로 나눠 각각 정렬한 뒤 병합하는 안정적 분할정복 정렬.",
@@ -1104,6 +1238,92 @@
       "model-a"
     ],
     "path": "algorithms/merge-sort/"
+  },
+  {
+    "id": "miller-rabin",
+    "title": "밀러-라빈 소수 판정",
+    "aliases": [
+      "miller rabin",
+      "primality test",
+      "밀러 라빈",
+      "밀러-라빈",
+      "소수 판정",
+      "miller-rabin"
+    ],
+    "summary": "n-1 = d·2^s 로 쓰고 증인 a 의 제곱 수열이 1 로 시작하거나 n-1 을 지나는지 본다. 페르마 판정을 강화해 카마이클 수도 잡는 확률적(작은 고정 증인이면 결정적) 소수 판정.",
+    "categories": [
+      "math"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(k log n)",
+        "avg": "O(k log³ n)",
+        "worst": "O(k log³ n)"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "randomized",
+      "monte-carlo",
+      "primality-test",
+      "number-theory",
+      "modular-exponentiation",
+      "probabilistic"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/miller-rabin/"
+  },
+  {
+    "id": "monotonic-stack",
+    "title": "단조 스택 (다음 큰 원소)",
+    "aliases": [
+      "monotonic stack",
+      "next greater element",
+      "nge",
+      "단조 스택",
+      "다음 큰 원소",
+      "monotonic-stack"
+    ],
+    "summary": "값이 단조(감소)인 인덱스 스택을 유지해, 각 원소의 '다음 큰 원소'를 O(n) 에 찾는다. 각 원소가 한 번 push·한 번 pop 되는 분할상환 선형.",
+    "categories": [
+      "search"
+    ],
+    "dataStructures": [
+      "matrix",
+      "stack"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n)",
+        "avg": "O(n)",
+        "worst": "O(n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "monotonic-stack",
+      "stack",
+      "linear-scan",
+      "amortized",
+      "next-greater-element"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/monotonic-stack/"
   },
   {
     "id": "n-queens",
@@ -1533,6 +1753,49 @@
       "model-a"
     ],
     "path": "algorithms/topological-sort/"
+  },
+  {
+    "id": "trie",
+    "title": "트라이 (접두사 트리)",
+    "aliases": [
+      "trie",
+      "prefix tree",
+      "digital tree",
+      "트라이",
+      "접두사 트리",
+      "prefix-tree"
+    ],
+    "summary": "문자열 집합을 글자 단위 트리로 저장한다. 공통 접두사를 한 경로로 공유해, 삽입·검색·접두사 질의를 문자열 길이 O(L) 에 한다.",
+    "categories": [
+      "string"
+    ],
+    "dataStructures": [
+      "tree"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(L)",
+        "avg": "O(L)",
+        "worst": "O(L)"
+      },
+      "space": "O(총 글자 수 · Σ)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "trie",
+      "prefix-tree",
+      "string",
+      "dictionary",
+      "preprocessing",
+      "retrieval"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/trie/"
   },
   {
     "id": "two-pointers",

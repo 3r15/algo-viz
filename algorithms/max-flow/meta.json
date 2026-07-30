@@ -1,0 +1,17 @@
+{
+  "id": "max-flow",
+  "title": "최대 유량 / 최소 컷 (에드몬드-카프)",
+  "aliases": ["max flow", "min cut", "maximum flow", "edmonds karp", "ford fulkerson", "최대 유량", "최소 컷", "max-flow"],
+  "summary": "소스에서 싱크로 보낼 수 있는 최대 유량. 잔여 그래프에서 증가 경로를 BFS 로 찾아 병목만큼 흘리기를 반복한다. 끝나면 소스 도달 집합이 최소 컷 — 최대 유량 = 최소 컷.",
+  "categories": ["graph"],
+  "dataStructures": ["graph"],
+  "complexity": {
+    "time": { "best": "O(VE)", "avg": "O(VE²)", "worst": "O(VE²)" },
+    "space": "O(V²)"
+  },
+  "difficulty": "advanced",
+  "tags": ["max-flow", "min-cut", "network-flow", "augmenting-path", "edmonds-karp", "ford-fulkerson", "bfs", "duality", "graph"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/max-flow/"
+}

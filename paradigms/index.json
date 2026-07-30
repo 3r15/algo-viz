@@ -1,5 +1,47 @@
 [
   {
+    "id": "brute-force",
+    "title": "완전 탐색 (Brute Force / 열거)",
+    "aliases": [
+      "brute force",
+      "exhaustive search",
+      "완전 탐색",
+      "완전탐색",
+      "열거",
+      "비트마스크"
+    ],
+    "summary": "가능한 모든 후보를 빠짐없이 만들어 확인한다. 정답은 보장되지만 후보 수가 지수·계승으로 폭발한다. 상태를 비트마스크로 압축하거나 가지치기·DP 로 규모를 줄인다.",
+    "tagline": "모든 후보를 빠짐없이 — 작을 때는 이게 정답이다",
+    "match": {
+      "categories": [],
+      "tags": [
+        "brute-force",
+        "enumeration",
+        "bitmask"
+      ]
+    }
+  },
+  {
+    "id": "computational-geometry",
+    "title": "계산 기하 (Computational Geometry)",
+    "aliases": [
+      "computational geometry",
+      "기하",
+      "계산 기하학"
+    ],
+    "summary": "점·선·다각형을 좌표로 다루는 문제들. 방향 판정(외적)·거리·스위프 같은 소수의 도구를 조합하고, 수치 오차와 경계 사례를 다스리는 것이 핵심이다.",
+    "tagline": "외적으로 방향을 재고, 정렬·스위프로 훑는다",
+    "match": {
+      "categories": [
+        "geometry"
+      ],
+      "tags": [
+        "computational-geometry",
+        "cross-product"
+      ]
+    }
+  },
+  {
     "id": "divide-and-conquer",
     "title": "분할 정복",
     "summary": "문제를 같은 모양의 작은 문제로 쪼개고, 부분해를 합쳐 전체 해를 만든다.",
@@ -91,6 +133,26 @@
         "preprocessing",
         "range-query",
         "doubling"
+      ]
+    }
+  },
+  {
+    "id": "randomized",
+    "title": "랜덤화 알고리즘 (Randomized)",
+    "aliases": [
+      "randomized",
+      "확률적 알고리즘",
+      "무작위 알고리즘",
+      "monte carlo",
+      "las vegas"
+    ],
+    "summary": "무작위를 알고리즘의 도구로 쓴다. 최악 입력을 확률로 흩뜨리거나(라스베이거스), 낮은 오류 확률을 감수해 빠르게 답한다(몬테카를로). 오류·시간을 확률로 다스린다.",
+    "tagline": "무작위로 최악을 흩뜨리거나, 확률로 빠르게 답한다",
+    "match": {
+      "categories": [],
+      "tags": [
+        "randomized",
+        "monte-carlo"
       ]
     }
   },

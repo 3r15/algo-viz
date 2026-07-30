@@ -1,0 +1,17 @@
+{
+  "id": "bit-manipulation",
+  "title": "비트 조작 (부분집합 열거)",
+  "aliases": ["bit manipulation", "bitmask", "subset enumeration", "비트 조작", "비트마스크", "부분집합 열거", "bit-manipulation"],
+  "summary": "n개 원소의 모든 부분집합을 정수 마스크 0..2^n-1 로 훑는다. j번 비트로 j번 원소의 포함을 표현 — 부분집합 DP·조합 생성·완전 탐색의 뼈대.",
+  "categories": ["math"],
+  "dataStructures": ["matrix"],
+  "complexity": {
+    "time": { "best": "O(n·2^n)", "avg": "O(n·2^n)", "worst": "O(n·2^n)" },
+    "space": "O(1)"
+  },
+  "difficulty": "beginner",
+  "tags": ["bit-manipulation", "bitmask", "subset-enumeration", "enumeration", "brute-force"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/bit-manipulation/"
+}

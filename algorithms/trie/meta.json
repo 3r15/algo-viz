@@ -1,0 +1,17 @@
+{
+  "id": "trie",
+  "title": "트라이 (접두사 트리)",
+  "aliases": ["trie", "prefix tree", "digital tree", "트라이", "접두사 트리", "prefix-tree"],
+  "summary": "문자열 집합을 글자 단위 트리로 저장한다. 공통 접두사를 한 경로로 공유해, 삽입·검색·접두사 질의를 문자열 길이 O(L) 에 한다.",
+  "categories": ["string"],
+  "dataStructures": ["tree"],
+  "complexity": {
+    "time": { "best": "O(L)", "avg": "O(L)", "worst": "O(L)" },
+    "space": "O(총 글자 수 · Σ)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["trie", "prefix-tree", "string", "dictionary", "preprocessing", "retrieval"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/trie/"
+}
