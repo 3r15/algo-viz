@@ -1,5 +1,25 @@
 [
   {
+    "id": "computational-geometry",
+    "title": "계산 기하 (Computational Geometry)",
+    "aliases": [
+      "computational geometry",
+      "기하",
+      "계산 기하학"
+    ],
+    "summary": "점·선·다각형을 좌표로 다루는 문제들. 방향 판정(외적)·거리·스위프 같은 소수의 도구를 조합하고, 수치 오차와 경계 사례를 다스리는 것이 핵심이다.",
+    "tagline": "외적으로 방향을 재고, 정렬·스위프로 훑는다",
+    "match": {
+      "categories": [
+        "geometry"
+      ],
+      "tags": [
+        "computational-geometry",
+        "cross-product"
+      ]
+    }
+  },
+  {
     "id": "divide-and-conquer",
     "title": "분할 정복",
     "summary": "문제를 같은 모양의 작은 문제로 쪼개고, 부분해를 합쳐 전체 해를 만든다.",
