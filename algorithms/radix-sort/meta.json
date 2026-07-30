@@ -1,0 +1,14 @@
+{
+  "id": "radix-sort",
+  "title": "기수 정렬 (Radix Sort)",
+  "summary": "낮은 자리부터 자릿수별로 안정 계수 정렬을 반복한다. 비교 없이 O(d·(n + b)) 에 정렬.",
+  "aliases": ["기수 정렬", "레이딕스 정렬", "radix sort", "자릿수 정렬", "LSD 정렬"],
+  "categories": ["sorting"],
+  "dataStructures": ["array", "matrix"],
+  "complexity": { "time": { "best": "O(d(n + b))", "avg": "O(d(n + b))", "worst": "O(d(n + b))" }, "space": "O(n + b)" },
+  "difficulty": "intermediate",
+  "tags": ["non-comparison-sort", "stable", "counting", "digit-by-digit"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/radix-sort/"
+}

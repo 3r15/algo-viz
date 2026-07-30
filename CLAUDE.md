@@ -122,6 +122,11 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
 - **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap/board/stack/queue)로 위임.
   아직 없는 타입(stack/queue/linked-list…)은 `meta.dataStructures` 에 적어도 viz 슬롯이 생기지 않는다.
+- **디자인 토큰** — `index.html` 의 `:root` 한 곳에서 색·모서리 반경·전이 시간·글꼴을 정한다.
+  CSS 규칙은 색/반경을 **리터럴로 쓰지 말고 `var(--…)`** 로 참조한다(색은 팔레트 + 파생 의미 토큰,
+  반경은 `--r-sm..--r-xl`, 시간은 `--dur*`). 테마·크기 변경은 `:root` 만 고치면 전 페이지에 반영된다.
+- **글꼴** — 한글은 각진 **Gothic A1**(`--sans`·`--mono` 폴백), 라틴은 `Space Grotesk`(본문)·`JetBrains Mono`(모노).
+  **코드 패널만 `--code`**(순수 JetBrains Mono, 한글 폴백 없음) — 표시 소스는 코드로 취급해 건드리지 않는다.
 - **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
 - **변수명은 역할이 드러나게** — 한 글자 이름으로 역할을 가리지 마라. 두 축으로 갈린다.
   - **유지**: 알고리즘 관례명 `i j k l r n u v lo hi mid pivot` 과
@@ -239,6 +244,12 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
       렌더러는 배열(기존)·객체(신규) 두 형식을 받는다. graph 렌더러의 중복 AUX 한 줄은 제거.
 - [x] 편집 거리(LCS 형제, matrix) + 프림 MST(크루스칼 짝, graph+heap) (총 32종).
       둘 다 새 렌더러 없이 재사용. 편집 거리는 DP 유형에, 프림은 그리디 유형에 자동 수집.
+- [x] 비교 없는 정렬 2종 — 계수 정렬 · 기수 정렬(array+matrix) (총 34종).
+      `Ω(n log n)` 하한 밖의 분배 정렬. 계수 정렬(안정·누적 합)이 기수 정렬의 부품이라 한 짝으로 넣었다.
+- [x] KMP 문자열 검색 (총 35종). `string` 분류 첫 알고리즘. `inputKind='text'`, matrix 3행(텍스트/패턴/fail).
+      실패 함수(접두사=접미사)로 텍스트를 되돌리지 않는 O(n+m) — 전처리 유형에 자동 수집.
+- [x] 코사라주 SCC(graph+stack) (총 36종). 타잔과 **같은 그래프·같은 답**을 두 번의 DFS 로 —
+      완료 순서 스택 + 전치 그래프. 개념이 투명한 대안으로 나란히 비교하게 했다.
 - [ ] 확충 계속: 0-1 BFS · 2-SAT · 편집 거리 변형 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 

@@ -1,0 +1,14 @@
+{
+  "id": "counting-sort",
+  "title": "계수 정렬 (Counting Sort)",
+  "summary": "값을 비교하지 않는다. 각 값의 개수를 세어 작은 값부터 다시 늘어놓아 O(n + k) 에 정렬한다.",
+  "aliases": ["계수 정렬", "카운팅 정렬", "counting sort", "개수 정렬", "비교 없는 정렬"],
+  "categories": ["sorting"],
+  "dataStructures": ["array", "matrix"],
+  "complexity": { "time": { "best": "O(n + k)", "avg": "O(n + k)", "worst": "O(n + k)" }, "space": "O(n + k)" },
+  "difficulty": "beginner",
+  "tags": ["non-comparison-sort", "stable", "counting", "linear-time"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/counting-sort/"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "kmp",
+  "title": "KMP 문자열 검색",
+  "summary": "패턴의 실패 함수(접두사=접미사)를 미리 계산해, 어긋나도 텍스트를 되돌리지 않고 O(n + m) 에 찾는다.",
+  "aliases": ["KMP", "kmp", "커누스 모리스 프랫", "knuth morris pratt", "문자열 검색", "패턴 매칭", "실패 함수"],
+  "categories": ["string"],
+  "dataStructures": ["matrix"],
+  "complexity": { "time": { "best": "O(n + m)", "avg": "O(n + m)", "worst": "O(n + m)" }, "space": "O(m)" },
+  "difficulty": "intermediate",
+  "tags": ["string-matching", "prefix-function", "linear-time", "preprocessing"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/kmp/"
+}
