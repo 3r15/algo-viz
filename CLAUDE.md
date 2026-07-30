@@ -70,6 +70,7 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
     heap.js                # heap 렌더러. step.heap = 배열 줄 + 완전 이진 트리(shape:'list' 면 목록만)
     board.js               # board 렌더러(체스판). step.board = 칸 상태 색 + 말 기호 + 이동 경로선
     stack.js queue.js      # stack(LIFO)·queue(FIFO) 렌더러. step.stack/step.queue = 배열 또는 {values,states,…}
+    geometry.js            # geometry 렌더러(SVG 2D). step.geometry = 평면 점 + 껍질 폴리라인(볼록 껍질)
 schemas/
   trace.schema.json        # 트레이스 계약
   meta.schema.json         # 카탈로그 레코드 계약
@@ -120,7 +121,7 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   유형 문서는 `#/paradigms`(목록) · `#/paradigm/:id`(본문).
 - **상대 경로** — 프로젝트 페이지는 `user.github.io/<repo>/` 하위. base 경로 주의.
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
-- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap/board/stack/queue)로 위임.
+- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap/board/stack/queue/geometry)로 위임.
   아직 없는 타입(stack/queue/linked-list…)은 `meta.dataStructures` 에 적어도 viz 슬롯이 생기지 않는다.
 - **디자인 토큰** — `index.html` 의 `:root` 한 곳에서 색·모서리 반경·전이 시간·글꼴을 정한다.
   CSS 규칙은 색/반경을 **리터럴로 쓰지 말고 `var(--…)`** 로 참조한다(색은 팔레트 + 파생 의미 토큰,
@@ -150,7 +151,8 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **viz 슬롯**: `meta.dataStructures` 중 렌더러가 등록된 타입이 **모두** 세로로 쌓인다.
   각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`,
   `matrix`는 `step.matrix`, `heap`은 `step.heap`, `board`는 `step.board`,
-  `stack`은 `step.stack`, `queue`는 `step.queue`(둘 다 배열 또는 `{values,states,labels,caption}`).
+  `stack`은 `step.stack`, `queue`는 `step.queue`(둘 다 배열 또는 `{values,states,labels,caption}`),
+  `geometry`는 `step.geometry`(평면 점 `points[{x,y}]` + `hull` 인덱스 + `states`·`testEdge`).
   `tree` 의 `rooted` 는 `root`(단일) 대신 `roots: [...]` 를 주면 **숲**을 그린다 —
   허프만처럼 아래에서 위로 합쳐 가는 알고리즘이 이 중간 상태를 지난다.
   슬롯이 없는 스텝에서는 그 viz 가 자동으로 숨는다.
@@ -257,7 +259,17 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
       DSU 는 tree 숲(parent[]·roots) + matrix(parent·sz), BIT 는 matrix 2행(a·t). 카테고리 tree.
       DSU 는 크루스칼이 쓰던 사이클 판정을 독립 시각화(경로 압축+크기 합치기, incremental 유형).
       BIT 는 lowbit 트릭으로 접두사 합·갱신 O(log n)(preprocessing 유형, 세그먼트 트리보다 가벼움).
-- [ ] 확충 계속: 0-1 BFS · 2-SAT · 라빈-카프 · 편집 거리 변형 등
+- [x] 다양성 배치 6종 + geometry 렌더러 + 유형 3종 (총 44종 · 유형 12종).
+      **geometry 렌더러**(2D 점 + 껍질 폴리라인, `step.geometry`) 신설 — VIZ_SLOT/CSS 배선.
+      graph 렌더러에 `step.edgeLabels`(유량/용량) 후방호환 오버라이드 추가.
+      · 볼록 껍질(geometry) — 외적 부호로 좌회전만, 모노톤 체인 → **계산 기하** 유형 신설
+      · 밀러-라빈(matrix) — n-1=d·2^s + 증인 제곱 수열, 카마이클 수도 잡음 → **랜덤화** 유형 신설
+      · 최대 유량/최소 컷(graph) — 에드몬드-카프, 잔여 그래프+BFS, 최대유량=최소컷 → graph-search
+      · 트라이(tree) — 접두사 공유 글자 트리, insert/search O(L) → preprocessing
+      · 단조 스택(matrix+stack) — 다음 큰 원소 O(n), 분할상환 → linear-scan
+      · 비트 조작(matrix) — 부분집합 마스크 열거 2^n → **완전 탐색** 유형 신설
+      유형 수집률 100% 유지(계산 기하·랜덤화·완전 탐색이 새 계열을 덮음).
+- [ ] 확충 계속: 0-1 BFS · 2-SAT · 라빈-카프 · 최근접 점 쌍 · 이분 매칭 등
 - [ ] 세그먼트 트리 지연 전파(lazy) — tree/matrix 렌더러 재사용
 
 ## 훅 메모 — Stop 훅 오탐
