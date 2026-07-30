@@ -1,0 +1,43 @@
+{
+  "id": "edit-distance",
+  "title": "편집 거리 (Levenshtein)",
+  "summary": "A 를 B 로 바꾸는 최소 편집 수(삽입·삭제·교체). 마지막 글자가 같으면 대각선, 다르면 세 이웃의 최솟값+1.",
+  "aliases": [
+    "편집 거리",
+    "레벤슈타인",
+    "레벤슈타인 거리",
+    "edit distance",
+    "levenshtein",
+    "문자열 거리",
+    "오타 교정"
+  ],
+  "categories": [
+    "dp",
+    "string"
+  ],
+  "dataStructures": [
+    "matrix"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(mn)",
+      "avg": "O(mn)",
+      "worst": "O(mn)"
+    },
+    "space": "O(mn)"
+  },
+  "difficulty": "intermediate",
+  "tags": [
+    "dynamic-programming",
+    "two-dimensional-dp",
+    "string",
+    "reconstruction"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/edit-distance/"
+}
