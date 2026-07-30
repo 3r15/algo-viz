@@ -16,7 +16,9 @@ algorithms/<id>/
   code/<id>.cpp          # 표시용 소스(언어별). 최소 1개
   generator.js           # Model A 생성기 (필수)
   reference-trace.json   # Model 2 참조 트레이스(선택, 있으면 동치 대조)
-  notes.md               # 해설 문서 — 원리·증명·복잡도. `algorithm-notes` 스킬의 섹션 규약을 따른다
+  walkthrough.md         # 해설 ①차근차근 — 예시로 원리를 쌓는다
+  notes.md               # 해설 ②깊이 보기 — 불변식·증명·복잡도
+                         # 두 문서 모두 `algorithm-notes` 스킬의 섹션 규약을 따른다
 ```
 
 `<id>` 는 kebab-case, 폴더명 == `meta.id`.
@@ -72,6 +74,7 @@ export function generate(input) {
 ```bash
 node scripts/validate-trace.mjs algorithms/<id>/generator.js
 node scripts/validate-trace.mjs algorithms/<id>/meta.json
+node scripts/validate-notes.mjs algorithms/<id>/walkthrough.md
 node scripts/validate-notes.mjs algorithms/<id>/notes.md
 ```
 
@@ -101,6 +104,7 @@ node scripts/validate-notes.mjs algorithms/<id>/notes.md
 | `graph` | `step.values` + `ctx.graph` |
 | `tree` | `step.tree` = `{ kind:'perfect'\|'rooted', ... }` |
 | `matrix` | `step.matrix` = `{ rows, cols, values, states, ... }` |
+| `heap` | `step.heap` = `{ values, size, states, shape, ... }` |
 
 슬롯이 없는 스텝에서는 해당 viz 가 자동으로 숨는다. 새 자료구조는 `renderer-builder` 서브에이전트에 맡긴다.
 
@@ -108,7 +112,7 @@ node scripts/validate-notes.mjs algorithms/<id>/notes.md
 
 C++ 정확도가 필요하면 `code/<id>.cpp` 를 계측해 작성하고, **표시 알고리즘 줄이 generator.js 의
 `code` 와 정확히 같도록** 맞춘다. 그 뒤 동치 확인은 `trace-validator` 서브에이전트에 맡긴다
-(네이티브 g++ 대조 또는 emcc WASM 빌드). 저자는 WASM 을 직접 빌드하지 않는다.
+(네이티브 `g++` 대조 — WASM 은 쓰지 않는다).
 
 ## 경계 입력 체크리스트(정렬 계열)
 

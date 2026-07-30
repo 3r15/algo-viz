@@ -15,7 +15,7 @@
 //   values[v]     0 미탐색 · 1 열린 목록(open) · 2 확장 중 · 3 닫힘(확정) — 목표는 마지막에 3
 //   nodeLabels[v] "g+h" (합이 곧 f)
 //   edgeStates[e] 0 기본 · 1 검사 중 · 2 g 개선됨 · 3 최종 경로
-//   pq            열린 목록 스냅샷("f:정점")
+//   heap          열린 목록 스냅샷(heap 렌더러의 목록형 슬롯)
 
 export const category = 'graph';
 export const defaultInput = [];
@@ -138,6 +138,17 @@ export function generate(arg) {
   const scoreLabels = () => gScore.map((cost, node) =>
     cost === Infinity ? '' : `${round1(cost)}+${heuristic[node]}`);
 
+  // heap 슬롯: 열린 목록은 배열+정렬이라 내부가 이진 힙이 아니다 → shape='list' 로 트리를 그리지 않는다.
+  const openHeapSlot = () => ({
+    values: openList.map(entry => entry.node),
+    labels: openList.map(entry => `f=${round1(entry.fScore)}`),
+    states: openList.map((_, index) => (index === 0 ? 4 : 0)),   // 맨 앞이 다음에 꺼낼 것
+    shape: 'list',
+    caption: openList.length
+      ? `열린 목록 — f = g + h 가 작은 순. 다음은 정점 ${openList[0].node} (f = ${round1(openList[0].fScore)})`
+      : '열린 목록이 비었다',
+  });
+
   const pushStep = (line, op, explain, extra = {}) => steps.push({
     line, op,
     a: extra.a ?? -1, b: extra.b ?? -1,
@@ -145,7 +156,7 @@ export function generate(arg) {
     values: nodeState.slice(),
     nodeLabels: scoreLabels(),
     edgeStates: edgeState.slice(),
-    pq: openList.map(entry => `${round1(entry.fScore)}:${entry.node}`),
+    heap: openHeapSlot(),
     explain,
   });
 

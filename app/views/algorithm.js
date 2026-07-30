@@ -18,10 +18,11 @@ import '../renderers/array.js';
 import '../renderers/graph.js';
 import '../renderers/matrix.js';
 import '../renderers/tree.js';
+import '../renderers/heap.js';
 
 // 렌더러가 스텝에서 읽는 데이터 슬롯. 슬롯이 비어 있는 스텝에서는 그 viz 를 숨긴다.
 // (array/graph 는 step.values 를 그대로 쓰므로 슬롯이 없다.)
-const VIZ_SLOT = { tree: 'tree', matrix: 'matrix' };
+const VIZ_SLOT = { tree: 'tree', matrix: 'matrix', heap: 'heap' };
 
 const CAT_LABEL = {
   sorting: '정렬', graph: '그래프', dp: 'DP', search: '탐색', greedy: '그리디',
@@ -234,7 +235,10 @@ export async function renderAlgorithm(container, id) {
     scrubber: find('.scrub'), speedSlider: find('.speed-range'),
     counter: find('.counter'), playButton: find('[data-act=play]'),
   };
-  ui.input.value = current.defaultInput.join(' ');
+  // 입력은 두 종류다: 정수 배열(기본) 또는 자유 텍스트(inputKind='text', 예: LCS 의 두 문자열).
+  const usesTextInput = current.inputKind === 'text';
+  const formatInput = value => (Array.isArray(value) ? value.join(' ') : String(value));
+  ui.input.value = formatInput(current.defaultInput);
 
   // 그래프 알고리즘: 배열 입력행 대신 그래프 편집기를 붙인다.
   const usesGraphInput = current.dataStructure === 'graph';
@@ -331,6 +335,16 @@ export async function renderAlgorithm(container, id) {
       store.setTraces({ traceA: current.generate(graph), trace2Valid: false });
       return;
     }
+    if (usesTextInput) {                     // 문자열 입력: 생성기가 직접 파싱한다
+      const text = ui.input.value.trim();
+      if (!text) { ui.message.textContent = '입력이 비었습니다'; return; }
+      if (text.length > MAX_TEXT_LENGTH) {
+        ui.message.textContent = `최대 ${MAX_TEXT_LENGTH}자까지 지원`;
+        return;
+      }
+      store.setTraces({ traceA: current.generate(text), trace2Valid: false });
+      return;
+    }
     const parsed = parseInput(ui.input.value);
     if (!parsed) { ui.message.textContent = '입력이 비었습니다'; return; }
     if (parsed.error) { ui.message.textContent = parsed.error; return; }
@@ -339,10 +353,14 @@ export async function renderAlgorithm(container, id) {
 
   const actions = {
     run,
-    reset: () => { ui.input.value = current.defaultInput.join(' '); run(); },
+    reset: () => { ui.input.value = formatInput(current.defaultInput); run(); },
+    // 입력 형식이 특수한 알고리즘(배낭의 "용량 w v w v …", LCS 의 두 문자열)은
+    // 생성기가 randomInput() 을 export 해 자기 형식에 맞는 예시를 만든다.
     rand: () => {
       const length = 5 + Math.floor(Math.random() * 3);
-      ui.input.value = Array.from({ length }, () => Math.floor(Math.random() * 20)).join(' ');
+      ui.input.value = formatInput(current.randomInput
+        ? current.randomInput()
+        : Array.from({ length }, () => Math.floor(Math.random() * 20)));
       run();
     },
     first: () => { store.stopPlay(); store.first(); },
@@ -381,6 +399,7 @@ export async function renderAlgorithm(container, id) {
 
 // "5 2 9" / "5,2,9" → { values: [5,2,9] } · 실패하면 { error } · 비었으면 null
 const MAX_INPUT_LENGTH = 12, MAX_INPUT_ABS = 999;
+const MAX_TEXT_LENGTH = 24;          // inputKind='text' 일 때 입력란 길이 상한
 
 function parseInput(raw) {
   const tokens = raw.replace(/,/g, ' ').trim().split(/\s+/).filter(Boolean);

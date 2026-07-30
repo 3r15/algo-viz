@@ -14,7 +14,7 @@ labels: ["algorithm"]
 
 ## 트레이스 생성 방식
 - [ ] Model A (generator.js)
-- [ ] Model 2 (C++ → WASM)
+- [ ] Model 2 (계측 C++ → reference-trace.json)
 
 ## 새 렌더러 필요 여부
 - [ ] 기존 렌더러로 충분 (array 등)

@@ -14,13 +14,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # 카탈로그 생성은 배포(deploy-pages.yml)가 맡는다 — 배포되는 사이트는 항상 최신이다.
+      # 여기서는 커밋된 index.json 이 meta.json 과 어긋나지 않는지만 본다(로컬에서 열었을 때를 위해).
+      # 어긋나면 무엇이 달라졌는지와 고치는 명령을 주석(annotation)으로 남긴다.
       - name: 카탈로그 최신성 검사
-        run: |
-          node scripts/build-index.mjs --check
-          node scripts/build-paradigm-index.mjs --check
+        run: npm run index:check
       - name: 모든 트레이스/메타 검증
         run: node scripts/validate-all.mjs
-      - name: 해설 문서(notes.md) 구조 검증
+      - name: 해설 문서(walkthrough.md · notes.md) 구조 검증
         run: node scripts/validate-notes.mjs
 
   cpp-build:

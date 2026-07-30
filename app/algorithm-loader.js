@@ -47,6 +47,8 @@ export async function loadAlgorithm(id) {
     defaultInput: mod.defaultInput ?? [5, 2, 9, 1, 5, 6],
     inputLabel: mod.inputLabel ?? 'input[]',   // 입력이 배열이 아닌 의미일 때(예: parent[])
     inputHint: mod.inputHint ?? '',            // 입력란 아래 한 줄 안내(선택)
+    inputKind: mod.inputKind === 'text' ? 'text' : 'numbers',  // 문자열 입력(LCS 등)이면 'text'
+    randomInput: typeof mod.randomInput === 'function' ? mod.randomInput : null, // Randomize 버튼용(선택)
     category: mod.category ?? base.category,
     defaultGraph: mod.defaultGraph ?? mod.graph ?? null,  // 그래프 알고리즘의 초기 구조(편집기 시작값)
     capabilities: mod.capabilities ?? { directed: false, weighted: false }, // 지원 옵션(편집기 게이팅)

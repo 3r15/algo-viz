@@ -1,0 +1,41 @@
+{
+  "id": "lis",
+  "title": "최장 증가 부분 수열 (LIS)",
+  "summary": "dp[i] 를 \"i 로 끝나는\" 최장 길이로 좁혀, 앞의 모든 원소를 후보로 훑으며 O(n²) 에 답한다.",
+  "aliases": [
+    "LIS",
+    "lis",
+    "최장 증가 부분 수열",
+    "증가 부분 수열",
+    "longest increasing subsequence"
+  ],
+  "categories": [
+    "dp"
+  ],
+  "dataStructures": [
+    "array",
+    "matrix"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(n^2)",
+      "avg": "O(n^2)",
+      "worst": "O(n^2)"
+    },
+    "space": "O(n)"
+  },
+  "difficulty": "beginner",
+  "tags": [
+    "dynamic-programming",
+    "subsequence",
+    "one-dimensional-dp",
+    "reconstruction"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/lis/"
+}

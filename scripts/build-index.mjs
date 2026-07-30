@@ -5,6 +5,7 @@
 
 import { readdirSync, readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { describeRecordDiff, reportStaleIndex } from './index-diff.mjs';
 
 const ALGO_DIR = 'algorithms';
 const OUT = join(ALGO_DIR, 'index.json');
@@ -24,10 +25,12 @@ const json = JSON.stringify(records, null, 2) + '\n';
 if (check) {
   const current = existsSync(OUT) ? readFileSync(OUT, 'utf8') : '';
   if (current !== json) {
-    console.error('❌ index.json 이 최신이 아닙니다. `node scripts/build-index.mjs` 후 커밋하세요.');
+    let currentRecords = [];
+    try { currentRecords = JSON.parse(current); } catch { /* 파일이 없거나 깨졌으면 전부 추가로 보인다 */ }
+    reportStaleIndex(OUT, 'npm run index', describeRecordDiff(currentRecords, records));
     process.exit(1);
   }
-  console.log('✓ index.json 최신');
+  console.log(`✓ ${OUT} 최신 — ${records.length} 개 알고리즘`);
 } else {
   writeFileSync(OUT, json);
   console.log(`✓ index.json 생성 — ${records.length} 개 알고리즘`);

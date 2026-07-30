@@ -1,0 +1,43 @@
+{
+  "id": "lcs",
+  "title": "최장 공통 부분 수열 (LCS)",
+  "summary": "두 문자열의 앞부분끼리 짝지은 표를 채워, 마지막 글자가 같으면 대각선+1 · 다르면 위·왼쪽 중 큰 쪽을 택한다.",
+  "aliases": [
+    "LCS",
+    "lcs",
+    "최장 공통 부분 수열",
+    "공통 부분 수열",
+    "longest common subsequence",
+    "diff"
+  ],
+  "categories": [
+    "dp",
+    "string"
+  ],
+  "dataStructures": [
+    "matrix"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(mn)",
+      "avg": "O(mn)",
+      "worst": "O(mn)"
+    },
+    "space": "O(mn)"
+  },
+  "difficulty": "intermediate",
+  "tags": [
+    "dynamic-programming",
+    "subsequence",
+    "two-dimensional-dp",
+    "string",
+    "reconstruction"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/lcs/"
+}

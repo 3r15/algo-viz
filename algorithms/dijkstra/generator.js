@@ -7,7 +7,7 @@
 //   values[v]     0 미방문(∞) · 1 발견(PQ 안, 잠정) · 2 처리 중 · 3 확정
 //   nodeLabels[v] 현재 dist 값(∞ 포함)
 //   edgeStates[e] 0 기본 · 1 완화 시도 · 2 완화 성공(거리 줄어듦) · 3 최단 경로 트리 간선
-//   pq            우선순위 큐 스냅샷("거리:정점")
+//   heap          우선순위 큐 스냅샷(heap 렌더러의 목록형 슬롯)
 
 export const category = 'graph';
 export const defaultInput = [];
@@ -93,7 +93,16 @@ export function generate(arg) {
     priorityQueue.push({ distance, node });
     priorityQueue.sort((a, b) => a.distance - b.distance || a.node - b.node);
   };
-  const queueSnapshot = () => priorityQueue.map(entry => `${entry.distance}:${entry.node}`);
+  // heap 슬롯: 이 PQ 는 배열+정렬이라 내부가 이진 힙이 아니다 → shape='list' 로 트리를 그리지 않는다.
+  const queueHeapSlot = () => ({
+    values: priorityQueue.map(entry => entry.node),
+    labels: priorityQueue.map(entry => `d=${entry.distance}`),
+    states: priorityQueue.map((_, index) => (index === 0 ? 4 : 0)),   // 맨 앞이 다음에 꺼낼 것
+    shape: 'list',
+    caption: priorityQueue.length
+      ? `PQ — 거리가 작은 순. 다음에 꺼낼 것은 정점 ${priorityQueue[0].node} (거리 ${priorityQueue[0].distance})`
+      : 'PQ 가 비었다',
+  });
   const distanceLabels = () => dist.map(value => value === Infinity ? INFINITY_LABEL : String(value));
 
   const pushStep = (line, op, explain, extra = {}) => steps.push({
@@ -103,7 +112,7 @@ export function generate(arg) {
     values: nodeState.slice(),
     nodeLabels: distanceLabels(),
     edgeStates: edgeState.slice(),
-    pq: queueSnapshot(),
+    heap: queueHeapSlot(),
     explain,
   });
 

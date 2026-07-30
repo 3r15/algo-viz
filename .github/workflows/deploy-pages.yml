@@ -26,16 +26,12 @@ jobs:
         with:
           node-version: 22
 
-      # 카탈로그를 최신으로 만들어 배포 아티팩트에 포함
+      # 카탈로그는 배포 시점에 항상 새로 만든다 — 커밋된 index.json 이 뒤처져 있어도
+      # 배포되는 사이트는 meta.json 들과 일치한다(생성물의 진실 원천은 meta.json).
       - name: 카탈로그 생성
         run: |
           node scripts/build-index.mjs
           node scripts/build-paradigm-index.mjs
-
-      # (선택) Model 2 WASM 빌드가 필요하면 여기에서 Emscripten 설정 후 ./build.sh
-      # - name: Emscripten 설치
-      #   uses: mymindstorm/setup-emsdk@v14
-      # - run: bash build.sh
 
       - uses: actions/configure-pages@v5
       - name: 아티팩트 업로드 (사이트 루트)
