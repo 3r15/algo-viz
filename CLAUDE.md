@@ -69,6 +69,7 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
     matrix.js              # matrix 렌더러(표). step.matrix = DP 테이블 · st[k][i] · up[k][v]
     heap.js                # heap 렌더러. step.heap = 배열 줄 + 완전 이진 트리(shape:'list' 면 목록만)
     board.js               # board 렌더러(체스판). step.board = 칸 상태 색 + 말 기호 + 이동 경로선
+    stack.js queue.js      # stack(LIFO)·queue(FIFO) 렌더러. step.stack/step.queue = 배열 또는 {values,states,…}
 schemas/
   trace.schema.json        # 트레이스 계약
   meta.schema.json         # 카탈로그 레코드 계약
@@ -119,7 +120,7 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   유형 문서는 `#/paradigms`(목록) · `#/paradigm/:id`(본문).
 - **상대 경로** — 프로젝트 페이지는 `user.github.io/<repo>/` 하위. base 경로 주의.
 - **브라우저 스토리지 금지**(localStorage/sessionStorage) — 상태는 메모리(플레이어 store)에.
-- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap/board)로 위임.
+- **렌더러 레지스트리** — `registerRenderer('<type>', render)`. 구조 `type`(array/graph/tree/matrix/heap/board/stack/queue)로 위임.
   아직 없는 타입(stack/queue/linked-list…)은 `meta.dataStructures` 에 적어도 viz 슬롯이 생기지 않는다.
 - **표시 코드는 스페이스 4칸 들여쓰기** — `generator.js` 의 `code[]`. 신택스 색은 `app/highlight.js`.
 - **변수명은 역할이 드러나게** — 한 글자 이름으로 역할을 가리지 마라. 두 축으로 갈린다.
@@ -143,7 +144,8 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
   한 페이지에 문서가 둘이므로 `renderMarkdown(md, { idPrefix })` 로 앵커를 분리한다.
 - **viz 슬롯**: `meta.dataStructures` 중 렌더러가 등록된 타입이 **모두** 세로로 쌓인다.
   각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`,
-  `matrix`는 `step.matrix`, `heap`은 `step.heap`, `board`는 `step.board`.
+  `matrix`는 `step.matrix`, `heap`은 `step.heap`, `board`는 `step.board`,
+  `stack`은 `step.stack`, `queue`는 `step.queue`(둘 다 배열 또는 `{values,states,labels,caption}`).
   `tree` 의 `rooted` 는 `root`(단일) 대신 `roots: [...]` 를 주면 **숲**을 그린다 —
   허프만처럼 아래에서 위로 합쳐 가는 알고리즘이 이 중간 상태를 지난다.
   슬롯이 없는 스텝에서는 그 viz 가 자동으로 숨는다.
@@ -229,9 +231,37 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
       허프만은 heap(PQ) + tree 두 슬롯을 함께 쓰는 첫 알고리즘
 - [x] board(체스판) 렌더러 + 백트래킹 2종 — N-퀸 · 나이트 여행 (총 25종).
       `backtracking` 분류가 0개였다. 되감기가 곧 "물러남" 이라 이 계열과 궁합이 가장 좋다
+- [x] 수학 3종 — 유클리드 호제법 · 에라토스테네스의 체 · 빠른 거듭제곱 (총 28종).
+      `math` 분류가 0개였다. 새 렌더러 없이 matrix 재사용. 체는 matrix 를 **값이 아니라 상태**로 쓴 첫 사례.
+      빠른 거듭제곱은 배가(doubling)를 beginner 난이도로 소개(희소 배열·이진 상승과 같은 발상)
+- [x] stack/queue 전용 렌더러 + 괄호 검사 · 후위 표기법 (총 30종).
+      기존 BFS·DFS·타잔·위상정렬이 meta 에 stack/queue 를 적어 두고도 viz 가 없던 것을 채웠다.
+      렌더러는 배열(기존)·객체(신규) 두 형식을 받는다. graph 렌더러의 중복 AUX 한 줄은 제거.
 - [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT · 편집 거리 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
-- [ ] stack/queue 전용 렌더러 — 지금은 graph 렌더러의 한 줄 표시로만 보인다
+
+## 훅 메모 — Stop 훅 오탐
+
+런처(`~/.claude/launcher-settings.json`)에 등록된 Stop 훅 스크립트에는 **커밋 범위 버그**가 있다.
+`$upstream..HEAD` 를 검사하는데, squash 병합 뒤 로컬 브랜치를 최신 `main` 위로 다시 잡으면
+그 범위에 **GitHub 이 만든 병합 커밋**(committer `noreply@github.com`)이 들어간다.
+그러면 "Unverified" 로 걸리고, **이미 푸시·배포된 커밋을 `--amend` 하라고 안내한다** —
+오탐이면서 따르면 해로운 지시다. 절대 그 커밋을 되쓰지 마라.
+
+고친 버전이 `.claude/hooks/stop-git-check.sh` 에 있다. 검사 항목은 원본과 같고
+**범위만** `HEAD --not --remotes`(어느 원격에서도 도달 불가 = 실제로 내가 손볼 수 있는 커밋)로
+바꾼 것이다. 훅을 끄는 것이 아니라 버그만 고쳤다.
+
+런처 설정은 실행 환경이 관리해 **에이전트가 등록을 해제하거나 자동 동기화할 수 없다**(차단된다).
+컨테이너가 재생성되면 런처 스크립트가 원본으로 되돌아가 오탐이 재발한다. 그때는 이렇게 되살린다.
+
+```bash
+cp .claude/hooks/stop-git-check.sh ~/.claude/stop-hook-git-check.sh
+```
+
+훅을 아예 없애려면 `~/.claude/launcher-settings.json` 에서 `"Stop"` 블록을 지운다
+(`"SessionStart"` 는 남겨 둘 것 — 커밋을 Verified 로 만드는 git identity 설정이다).
+이 파일은 사용자가 직접 고쳐야 한다.
 
 ## 함정 메모
 

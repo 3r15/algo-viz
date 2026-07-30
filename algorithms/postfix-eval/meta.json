@@ -1,0 +1,42 @@
+{
+  "id": "postfix-eval",
+  "title": "후위 표기법 계산 (Postfix / RPN)",
+  "summary": "숫자는 스택에 쌓고 연산자에서 위의 둘을 꺼내 계산해 도로 넣는다. 괄호도 우선순위도 필요 없어 계산기 내부가 쓰는 방식.",
+  "aliases": [
+    "후위 표기법",
+    "후위식",
+    "역폴란드 표기법",
+    "RPN",
+    "postfix",
+    "reverse polish notation",
+    "수식 계산"
+  ],
+  "categories": [
+    "string"
+  ],
+  "dataStructures": [
+    "stack"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(n)",
+      "avg": "O(n)",
+      "worst": "O(n)"
+    },
+    "space": "O(n)"
+  },
+  "difficulty": "intermediate",
+  "tags": [
+    "stack",
+    "linear-scan",
+    "parsing",
+    "expression-evaluation"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/postfix-eval/"
+}

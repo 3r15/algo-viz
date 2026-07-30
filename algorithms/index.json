@@ -46,6 +46,47 @@
     "path": "algorithms/a-star/"
   },
   {
+    "id": "balanced-parentheses",
+    "title": "괄호 검사 (Balanced Parentheses)",
+    "summary": "여는 괄호를 스택에 쌓고 닫는 괄호에서 맨 위와 짝을 맞춘다. 스택이 LIFO 라는 성질이 그대로 문제의 답이 되는 예.",
+    "aliases": [
+      "괄호 검사",
+      "괄호 짝",
+      "괄호 매칭",
+      "balanced parentheses",
+      "valid parentheses",
+      "bracket matching"
+    ],
+    "categories": [
+      "string"
+    ],
+    "dataStructures": [
+      "stack"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n)",
+        "avg": "O(n)",
+        "worst": "O(n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "stack",
+      "linear-scan",
+      "matching",
+      "parsing"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/balanced-parentheses/"
+  },
+  {
     "id": "bellman-ford",
     "title": "벨만-포드 최단 경로",
     "summary": "모든 간선을 V-1번 완화해 음수 간선이 있어도 최단 거리를 구하고, 음수 사이클까지 탐지한다.",
@@ -334,6 +375,93 @@
       "model-a"
     ],
     "path": "algorithms/dijkstra/"
+  },
+  {
+    "id": "euclidean-gcd",
+    "title": "유클리드 호제법 (GCD)",
+    "summary": "gcd(a, b) = gcd(b, a mod b) 를 반복해, 나머지로 갈아치우며 최대공약수를 O(log) 번의 나눗셈에 구한다.",
+    "aliases": [
+      "유클리드 호제법",
+      "호제법",
+      "최대공약수",
+      "GCD",
+      "gcd",
+      "euclidean algorithm",
+      "euclid"
+    ],
+    "categories": [
+      "math"
+    ],
+    "dataStructures": [
+      "array",
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(1)",
+        "avg": "O(log min(a,b))",
+        "worst": "O(log min(a,b))"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "number-theory",
+      "recursion",
+      "invariant",
+      "in-place",
+      "logarithmic"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/euclidean-gcd/"
+  },
+  {
+    "id": "fast-power",
+    "title": "빠른 거듭제곱 (Fast Power)",
+    "summary": "지수를 2진수로 쪼개고 밑을 제곱해 올려, a^n 을 n 번이 아니라 O(log n) 번의 곱셈으로 구한다.",
+    "aliases": [
+      "빠른 거듭제곱",
+      "분할정복 거듭제곱",
+      "모듈러 거듭제곱",
+      "fast power",
+      "binary exponentiation",
+      "modular exponentiation",
+      "pow"
+    ],
+    "categories": [
+      "math"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(log n)",
+        "avg": "O(log n)",
+        "worst": "O(log n)"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "number-theory",
+      "divide-and-conquer",
+      "doubling",
+      "bit-manipulation",
+      "logarithmic"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/fast-power/"
   },
   {
     "id": "floyd-warshall",
@@ -809,6 +937,48 @@
     "path": "algorithms/n-queens/"
   },
   {
+    "id": "postfix-eval",
+    "title": "후위 표기법 계산 (Postfix / RPN)",
+    "summary": "숫자는 스택에 쌓고 연산자에서 위의 둘을 꺼내 계산해 도로 넣는다. 괄호도 우선순위도 필요 없어 계산기 내부가 쓰는 방식.",
+    "aliases": [
+      "후위 표기법",
+      "후위식",
+      "역폴란드 표기법",
+      "RPN",
+      "postfix",
+      "reverse polish notation",
+      "수식 계산"
+    ],
+    "categories": [
+      "string"
+    ],
+    "dataStructures": [
+      "stack"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n)",
+        "avg": "O(n)",
+        "worst": "O(n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "stack",
+      "linear-scan",
+      "parsing",
+      "expression-evaluation"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/postfix-eval/"
+  },
+  {
     "id": "quick-sort",
     "title": "퀵 정렬",
     "summary": "피벗을 기준으로 분할하며 재귀적으로 정렬하는 분할정복 정렬.",
@@ -887,6 +1057,49 @@
       "model-a"
     ],
     "path": "algorithms/segment-tree/"
+  },
+  {
+    "id": "sieve-of-eratosthenes",
+    "title": "에라토스테네스의 체",
+    "summary": "작은 수부터 소수를 확정하고 그 배수를 지운다. p² 부터 지우면 되므로 전체가 O(n log log n).",
+    "aliases": [
+      "에라토스테네스의 체",
+      "에라토스테네스",
+      "소수 판정",
+      "소수 찾기",
+      "sieve",
+      "sieve of eratosthenes",
+      "prime sieve"
+    ],
+    "categories": [
+      "math",
+      "search"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n log log n)",
+        "avg": "O(n log log n)",
+        "worst": "O(n log log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "number-theory",
+      "preprocessing",
+      "prime",
+      "pruning"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/sieve-of-eratosthenes/"
   },
   {
     "id": "sparse-table",

@@ -20,10 +20,15 @@ import '../renderers/matrix.js';
 import '../renderers/tree.js';
 import '../renderers/heap.js';
 import '../renderers/board.js';
+import '../renderers/stack.js';
+import '../renderers/queue.js';
 
 // 렌더러가 스텝에서 읽는 데이터 슬롯. 슬롯이 비어 있는 스텝에서는 그 viz 를 숨긴다.
 // (array/graph 는 step.values 를 그대로 쓰므로 슬롯이 없다.)
-const VIZ_SLOT = { tree: 'tree', matrix: 'matrix', heap: 'heap', board: 'board' };
+const VIZ_SLOT = {
+  tree: 'tree', matrix: 'matrix', heap: 'heap', board: 'board',
+  stack: 'stack', queue: 'queue',
+};
 
 const CAT_LABEL = {
   sorting: '정렬', graph: '그래프', dp: 'DP', search: '탐색', greedy: '그리디',
