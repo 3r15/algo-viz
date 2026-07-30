@@ -1,0 +1,43 @@
+{
+  "id": "sieve-of-eratosthenes",
+  "title": "에라토스테네스의 체",
+  "summary": "작은 수부터 소수를 확정하고 그 배수를 지운다. p² 부터 지우면 되므로 전체가 O(n log log n).",
+  "aliases": [
+    "에라토스테네스의 체",
+    "에라토스테네스",
+    "소수 판정",
+    "소수 찾기",
+    "sieve",
+    "sieve of eratosthenes",
+    "prime sieve"
+  ],
+  "categories": [
+    "math",
+    "search"
+  ],
+  "dataStructures": [
+    "matrix"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(n log log n)",
+      "avg": "O(n log log n)",
+      "worst": "O(n log log n)"
+    },
+    "space": "O(n)"
+  },
+  "difficulty": "beginner",
+  "tags": [
+    "number-theory",
+    "preprocessing",
+    "prime",
+    "pruning"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/sieve-of-eratosthenes/"
+}

@@ -1,0 +1,44 @@
+{
+  "id": "euclidean-gcd",
+  "title": "유클리드 호제법 (GCD)",
+  "summary": "gcd(a, b) = gcd(b, a mod b) 를 반복해, 나머지로 갈아치우며 최대공약수를 O(log) 번의 나눗셈에 구한다.",
+  "aliases": [
+    "유클리드 호제법",
+    "호제법",
+    "최대공약수",
+    "GCD",
+    "gcd",
+    "euclidean algorithm",
+    "euclid"
+  ],
+  "categories": [
+    "math"
+  ],
+  "dataStructures": [
+    "array",
+    "matrix"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(1)",
+      "avg": "O(log min(a,b))",
+      "worst": "O(log min(a,b))"
+    },
+    "space": "O(1)"
+  },
+  "difficulty": "beginner",
+  "tags": [
+    "number-theory",
+    "recursion",
+    "invariant",
+    "in-place",
+    "logarithmic"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/euclidean-gcd/"
+}

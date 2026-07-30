@@ -336,6 +336,93 @@
     "path": "algorithms/dijkstra/"
   },
   {
+    "id": "euclidean-gcd",
+    "title": "유클리드 호제법 (GCD)",
+    "summary": "gcd(a, b) = gcd(b, a mod b) 를 반복해, 나머지로 갈아치우며 최대공약수를 O(log) 번의 나눗셈에 구한다.",
+    "aliases": [
+      "유클리드 호제법",
+      "호제법",
+      "최대공약수",
+      "GCD",
+      "gcd",
+      "euclidean algorithm",
+      "euclid"
+    ],
+    "categories": [
+      "math"
+    ],
+    "dataStructures": [
+      "array",
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(1)",
+        "avg": "O(log min(a,b))",
+        "worst": "O(log min(a,b))"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "number-theory",
+      "recursion",
+      "invariant",
+      "in-place",
+      "logarithmic"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/euclidean-gcd/"
+  },
+  {
+    "id": "fast-power",
+    "title": "빠른 거듭제곱 (Fast Power)",
+    "summary": "지수를 2진수로 쪼개고 밑을 제곱해 올려, a^n 을 n 번이 아니라 O(log n) 번의 곱셈으로 구한다.",
+    "aliases": [
+      "빠른 거듭제곱",
+      "분할정복 거듭제곱",
+      "모듈러 거듭제곱",
+      "fast power",
+      "binary exponentiation",
+      "modular exponentiation",
+      "pow"
+    ],
+    "categories": [
+      "math"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(log n)",
+        "avg": "O(log n)",
+        "worst": "O(log n)"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "number-theory",
+      "divide-and-conquer",
+      "doubling",
+      "bit-manipulation",
+      "logarithmic"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/fast-power/"
+  },
+  {
     "id": "floyd-warshall",
     "title": "플로이드-워셜 모든 쌍 최단 경로",
     "summary": "경유 가능한 정점을 하나씩 늘려 가며 3중 반복문 한 번으로 모든 정점 쌍의 최단 거리를 구한다.",
@@ -887,6 +974,49 @@
       "model-a"
     ],
     "path": "algorithms/segment-tree/"
+  },
+  {
+    "id": "sieve-of-eratosthenes",
+    "title": "에라토스테네스의 체",
+    "summary": "작은 수부터 소수를 확정하고 그 배수를 지운다. p² 부터 지우면 되므로 전체가 O(n log log n).",
+    "aliases": [
+      "에라토스테네스의 체",
+      "에라토스테네스",
+      "소수 판정",
+      "소수 찾기",
+      "sieve",
+      "sieve of eratosthenes",
+      "prime sieve"
+    ],
+    "categories": [
+      "math",
+      "search"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n log log n)",
+        "avg": "O(n log log n)",
+        "worst": "O(n log log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "number-theory",
+      "preprocessing",
+      "prime",
+      "pruning"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/sieve-of-eratosthenes/"
   },
   {
     "id": "sparse-table",

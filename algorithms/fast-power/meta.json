@@ -1,0 +1,43 @@
+{
+  "id": "fast-power",
+  "title": "빠른 거듭제곱 (Fast Power)",
+  "summary": "지수를 2진수로 쪼개고 밑을 제곱해 올려, a^n 을 n 번이 아니라 O(log n) 번의 곱셈으로 구한다.",
+  "aliases": [
+    "빠른 거듭제곱",
+    "분할정복 거듭제곱",
+    "모듈러 거듭제곱",
+    "fast power",
+    "binary exponentiation",
+    "modular exponentiation",
+    "pow"
+  ],
+  "categories": [
+    "math"
+  ],
+  "dataStructures": [
+    "matrix"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(log n)",
+      "avg": "O(log n)",
+      "worst": "O(log n)"
+    },
+    "space": "O(1)"
+  },
+  "difficulty": "beginner",
+  "tags": [
+    "number-theory",
+    "divide-and-conquer",
+    "doubling",
+    "bit-manipulation",
+    "logarithmic"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/fast-power/"
+}
