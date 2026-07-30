@@ -1,0 +1,47 @@
+{
+  "id": "huffman",
+  "title": "허프만 코딩 (Huffman Coding)",
+  "summary": "가장 드문 두 노드를 계속 형제로 묶어, 자주 나오는 글자에 짧은 부호가 붙는 최적 접두사 부호를 만든다.",
+  "aliases": [
+    "허프만",
+    "허프만 코딩",
+    "huffman",
+    "huffman coding",
+    "접두사 부호",
+    "가변 길이 부호",
+    "압축"
+  ],
+  "categories": [
+    "greedy",
+    "tree",
+    "string"
+  ],
+  "dataStructures": [
+    "tree",
+    "heap"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(n log n)",
+      "avg": "O(n log n)",
+      "worst": "O(n log n)"
+    },
+    "space": "O(n)"
+  },
+  "difficulty": "intermediate",
+  "tags": [
+    "greedy",
+    "exchange-argument",
+    "priority-queue",
+    "prefix-code",
+    "compression",
+    "optimal"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/huffman/"
+}

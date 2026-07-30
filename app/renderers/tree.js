@@ -3,11 +3,14 @@
 // 두 가지 트리 모양을 다룬다:
 //   · kind:'perfect' — 배열로 저장된 완전 이진 트리(세그먼트 트리). 노드 i 의 자식은 2i, 2i+1.
 //   · kind:'rooted'  — parent[] 로 주어진 일반 루트 트리(이진 상승의 대상 트리).
+//     루트를 여러 개 줄 수도 있다(roots: [...]) — 트리가 아직 하나로 합쳐지지 않은
+//     **숲**을 그린다. 허프만처럼 아래에서 위로 합쳐 가는 알고리즘이 이 모양을 지난다.
 //
 // 슬롯 규약 — 스텝의 step.tree 를 읽는다:
 //   step.tree = {
 //     kind: 'perfect', sz,            // 리프 개수(2의 거듭제곱). 노드 id = 1 .. 2*sz-1
 //     kind: 'rooted',  parent, root,  // 노드 id = 0 .. parent.length-1
+//                      (root 대신 roots: [...] 를 주면 숲으로 그린다)
 //     values: [...],                  // 노드 id 로 인덱싱. null/undefined 면 빈 노드
 //     states: [...],                  // 0 기본 · 1 경로(관련) · 2 활성 · 3 확정(결과)
 //     titles: [...],                  // (선택) <title> 툴팁 — 구간 등 상세 정보
@@ -29,7 +32,7 @@ export function renderTree(host, step) {
   // 트리 모양이 그대로면 SVG 를 재사용한다(요소 재사용 = transition 유지)
   const structureKey = tree.kind === 'perfect'
     ? `perfect:${tree.sz}`
-    : `rooted:${tree.root}:${(tree.parent || []).join(',')}`;
+    : `rooted:${rootsOf(tree).join('|')}:${(tree.parent || []).join(',')}`;
 
   let cache = treeCaches.get(host);
   if (!cache || cache.structureKey !== structureKey || !host.contains(cache.svg)) {
@@ -71,20 +74,30 @@ function layoutPerfect(leafCount) {
   return { positions, widestLevel: leafCount, edges };
 }
 
-// 일반 루트 트리: 리프를 DFS 순서대로 가로로 늘어놓고, 내부 노드는 자식들의 x 평균에 둔다.
-function layoutRooted(parent, root) {
+// 루트 목록 정규화 — root(단일) 와 roots(숲) 를 모두 받는다.
+function rootsOf(tree) {
+  if (Array.isArray(tree.roots)) return tree.roots;
+  return Number.isInteger(tree.root) ? [tree.root] : [0];
+}
+
+// 일반 루트 트리(또는 숲): 리프를 DFS 순서대로 가로로 늘어놓고, 내부 노드는 자식들의 x 평균에 둔다.
+// 루트가 여러 개면 왼쪽부터 차례로 배치한다 — 각 트리의 리프가 겹치지 않는다.
+function layoutRooted(parent, roots) {
   const nodeCount = parent.length;
   const children = Array.from({ length: nodeCount }, () => []);
+  const isRoot = new Set(roots);
   for (let node = 0; node < nodeCount; node++)
-    if (node !== root) children[parent[node]].push(node);
+    if (!isRoot.has(node) && Number.isInteger(parent[node]) && parent[node] >= 0)
+      children[parent[node]].push(node);
 
   const depths = new Array(nodeCount).fill(0);
   const leavesInOrder = [];
-  (function walk(node, depth) {
+  const walk = (node, depth) => {
     depths[node] = depth;
     if (!children[node].length) leavesInOrder.push(node);
     for (const child of children[node]) walk(child, depth + 1);
-  })(root, 0);
+  };
+  for (const root of roots) walk(root, 0);
 
   const levelCount = Math.max(...depths) + 1;
   const leafX = new Map(leavesInOrder.map((leaf, order) =>
@@ -92,13 +105,14 @@ function layoutRooted(parent, root) {
 
   // 자식을 먼저 배치해야 평균을 낼 수 있으므로 후위 순회로 내려갔다 올라온다
   const positions = new Map();
-  (function place(node) {
+  const place = node => {
     for (const child of children[node]) place(child);
     const x = children[node].length
       ? children[node].reduce((sum, child) => sum + positions.get(child).x, 0) / children[node].length
       : leafX.get(node);
     positions.set(node, { x, y: yForDepth(depths[node], levelCount), depth: depths[node] });
-  })(root);
+  };
+  for (const root of roots) place(root);
 
   const edges = [];
   for (let node = 0; node < nodeCount; node++)
@@ -121,7 +135,7 @@ function buildSvg(host, tree, structureKey) {
 
   const { positions, widestLevel, edges } = tree.kind === 'perfect'
     ? layoutPerfect(tree.sz)
-    : layoutRooted(tree.parent, tree.root ?? 0);
+    : layoutRooted(tree.parent, rootsOf(tree));
 
   // 가장 넓은 레벨에 맞춰 상자 크기를 정한다 — 노드가 많을수록 작고 촘촘하게
   const boxW = Math.max(5, Math.min((VIEW_W / widestLevel) * 0.82, 15));

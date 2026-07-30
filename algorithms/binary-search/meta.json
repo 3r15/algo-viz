@@ -1,0 +1,42 @@
+{
+  "id": "binary-search",
+  "title": "이분 탐색 (Binary Search)",
+  "summary": "정렬된 배열에서 가운데를 보고 후보를 절반씩 버려, 비교 ⌊log₂ n⌋ + 1 번 안에 답을 낸다.",
+  "aliases": [
+    "이분 탐색",
+    "이진 탐색",
+    "이분탐색",
+    "binary search",
+    "lower_bound",
+    "매개 변수 탐색"
+  ],
+  "categories": [
+    "search"
+  ],
+  "dataStructures": [
+    "array"
+  ],
+  "complexity": {
+    "time": {
+      "best": "O(1)",
+      "avg": "O(log n)",
+      "worst": "O(log n)"
+    },
+    "space": "O(1)"
+  },
+  "difficulty": "beginner",
+  "tags": [
+    "divide-and-conquer",
+    "sorted-array",
+    "logarithmic",
+    "in-place",
+    "invariant"
+  ],
+  "languages": [
+    "cpp"
+  ],
+  "generation": [
+    "model-a"
+  ],
+  "path": "algorithms/binary-search/"
+}

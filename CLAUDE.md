@@ -65,7 +65,7 @@ app/                       # 라우터 + 뷰 + 공용 플레이어 + 렌더러 (
     registry.js            # registerRenderer('<type>', render). render(host, step, ctx)
     array.js               # array 렌더러(요소 재사용, 인덱스 슬롯 기준, sortedFrom/sortedTo)
     graph.js               # graph 렌더러(SVG, 정점 상태색 + 큐/스택). ctx.graph 로 구조 수신
-    tree.js                # tree 렌더러(SVG). step.tree = perfect(세그트리) | rooted(parent[])
+    tree.js                # tree 렌더러(SVG). step.tree = perfect(세그트리) | rooted(parent[] · roots 로 숲)
     matrix.js              # matrix 렌더러(표). step.matrix = DP 테이블 · st[k][i] · up[k][v]
     heap.js                # heap 렌더러. step.heap = 배열 줄 + 완전 이진 트리(shape:'list' 면 목록만)
 schemas/
@@ -143,6 +143,8 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **viz 슬롯**: `meta.dataStructures` 중 렌더러가 등록된 타입이 **모두** 세로로 쌓인다.
   각 렌더러는 자기 슬롯만 읽는다 — `array/graph`는 `step.values`, `tree`는 `step.tree`,
   `matrix`는 `step.matrix`, `heap`은 `step.heap`.
+  `tree` 의 `rooted` 는 `root`(단일) 대신 `roots: [...]` 를 주면 **숲**을 그린다 —
+  허프만처럼 아래에서 위로 합쳐 가는 알고리즘이 이 중간 상태를 지난다.
   슬롯이 없는 스텝에서는 그 viz 가 자동으로 숨는다.
 - **유형(패러다임) 문서**: `paradigms/<id>/` — 개별 알고리즘이 아니라 "푸는 방식"을 설명한다.
   섹션 뼈대가 알고리즘 문서와 **다르다**(한눈에/언제 쓸 수 있나/구현 골격 + 잘 맞는 문제/함정/더 보기).
@@ -215,6 +217,8 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] heap 렌더러(배열 줄 + 완전 이진 트리) + 힙 정렬 (총 20종). 다익스트라·A* 의 PQ 도 이 슬롯으로 이전
 - [x] WASM 경로 제거 — `build.sh` 삭제, Model 2 는 네이티브 `g++` 오라클로만 남김
 - [x] 카탈로그 생성을 배포 워크플로로 이관 + CI 는 어긋남을 설명하는 게이트로
+- [x] 기초 탐색 2종 + 허프만 코딩 (총 23종). tree 렌더러를 **숲**(roots)까지 다루게 일반화 —
+      허프만은 heap(PQ) + tree 두 슬롯을 함께 쓰는 첫 알고리즘
 - [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT · 편집 거리 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 - [ ] stack/queue 전용 렌더러 — 지금은 graph 렌더러의 한 줄 표시로만 보인다

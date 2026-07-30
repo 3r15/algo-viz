@@ -50,6 +50,7 @@ npm run validate                # generator.js ↔ reference-trace.json 동치�
 ```
 index.html              얇은 셸(GH Pages 진입점) — #app 마운트 + CSS, app/main.js 만 로드
 app/                    라우터 · 뷰 · 공용 플레이어 · 렌더러(array/graph/tree/matrix/heap)
+                        tree 는 단일 루트와 숲(roots)을 모두 그린다
 CLAUDE.md               Claude Code 프로젝트 메모리(아키텍처·계약·규약)
 paradigms/              알고리즘 유형 문서(그리디·DP·분할정복…) — 알고리즘과 구별되는 층
   <id>/                 meta.json(match 규칙) · notes.md
