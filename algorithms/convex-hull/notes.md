@@ -71,7 +71,7 @@ cross(O,A,B) = (A−O) × (B−O) = (A.x−O.x)(B.y−O.y) − (A.y−O.y)(B.x�
 
 각 점은 **정확히 한 번 push** 된다. pop 되면 스택에서 영영 사라져 다시 검사되지 않는다.
 따라서 `while` 의 총 pop 횟수 ≤ 총 push 횟수 = `n`. 분할상환으로 두 루프 합쳐 `O(n)`.
-껍질 쌓기는 **단조 스택**과 같은 논증이다 — top 을 조건에 맞을 때까지 걷어낸다.
+껍질 쌓기는 [단조 스택](#/algo/monotonic-stack)과 같은 논증이다 — top 을 조건에 맞을 때까지 걷어낸다.
 
 ### 하한
 
@@ -116,7 +116,7 @@ cross(O,A,B) = (A−O) × (B−O) = (A.x−O.x)(B.y−O.y) − (A.y−O.y)(B.x�
 
 ## 함께 보기
 
-- 단조 스택 — "우회전이면 버린다" 는 껍질 쌓기와 같은 분할상환 스택 논증
+- [단조 스택](#/algo/monotonic-stack) — "우회전이면 버린다" 는 껍질 쌓기와 같은 분할상환 스택 논증
 - [정렬](#/paradigm/sorting) — 껍질의 지배 비용이자 하한의 근거
 - [#/paradigm/computational-geometry](#/paradigm/computational-geometry) — 방향 판정·스위프 등 기하의 공통 도구
 - [#/paradigm/incremental](#/paradigm/incremental) — 점을 하나씩 편입하며 경계를 넓히는 관점
