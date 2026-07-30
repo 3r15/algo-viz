@@ -233,6 +233,29 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 - [ ] stack/queue 전용 렌더러 — 지금은 graph 렌더러의 한 줄 표시로만 보인다
 
+## 훅 메모 — Stop 훅 오탐
+
+런처(`~/.claude/launcher-settings.json`)에 등록된 Stop 훅 스크립트에는 **커밋 범위 버그**가 있다.
+`$upstream..HEAD` 를 검사하는데, squash 병합 뒤 로컬 브랜치를 최신 `main` 위로 다시 잡으면
+그 범위에 **GitHub 이 만든 병합 커밋**(committer `noreply@github.com`)이 들어간다.
+그러면 "Unverified" 로 걸리고, **이미 푸시·배포된 커밋을 `--amend` 하라고 안내한다** —
+오탐이면서 따르면 해로운 지시다. 절대 그 커밋을 되쓰지 마라.
+
+고친 버전이 `.claude/hooks/stop-git-check.sh` 에 있다. 검사 항목은 원본과 같고
+**범위만** `HEAD --not --remotes`(어느 원격에서도 도달 불가 = 실제로 내가 손볼 수 있는 커밋)로
+바꾼 것이다. 훅을 끄는 것이 아니라 버그만 고쳤다.
+
+런처 설정은 실행 환경이 관리해 **에이전트가 등록을 해제하거나 자동 동기화할 수 없다**(차단된다).
+컨테이너가 재생성되면 런처 스크립트가 원본으로 되돌아가 오탐이 재발한다. 그때는 이렇게 되살린다.
+
+```bash
+cp .claude/hooks/stop-git-check.sh ~/.claude/stop-hook-git-check.sh
+```
+
+훅을 아예 없애려면 `~/.claude/launcher-settings.json` 에서 `"Stop"` 블록을 지운다
+(`"SessionStart"` 는 남겨 둘 것 — 커밋을 Verified 로 만드는 git identity 설정이다).
+이 파일은 사용자가 직접 고쳐야 한다.
+
 ## 함정 메모
 
 - **line 매핑 드리프트**: 표시 소스가 바뀌면 `step.line` 이 어긋난다. 소스와 generator 를 함께 고쳐라.
