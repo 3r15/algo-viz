@@ -43,7 +43,12 @@ export function renderGraph(host, step, ctx) {
   cache.edges.forEach((edge, edgeIndex) => {
     const edgeState = step.edgeStates?.[edgeIndex] ?? 0;
     edge.line.setAttribute('class', 'gedge e' + edgeState);
-    if (edge.weightLabel) edge.weightLabel.setAttribute('class', 'gweight e' + edgeState);
+    if (edge.weightLabel) {
+      edge.weightLabel.setAttribute('class', 'gweight e' + edgeState);
+      // step.edgeLabels 가 있으면 가중치 대신 그 텍스트를 쓴다(예: 유량 "3/5"). 없으면 그대로.
+      if (step.edgeLabels && step.edgeLabels[edgeIndex] != null)
+        edge.weightLabel.textContent = step.edgeLabels[edgeIndex];
+    }
   });
 }
 
