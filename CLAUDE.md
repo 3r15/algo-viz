@@ -237,7 +237,9 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
 - [x] stack/queue 전용 렌더러 + 괄호 검사 · 후위 표기법 (총 30종).
       기존 BFS·DFS·타잔·위상정렬이 meta 에 stack/queue 를 적어 두고도 viz 가 없던 것을 채웠다.
       렌더러는 배열(기존)·객체(신규) 두 형식을 받는다. graph 렌더러의 중복 AUX 한 줄은 제거.
-- [ ] 확충 계속: 프림 · 0-1 BFS · 2-SAT · 편집 거리 등
+- [x] 편집 거리(LCS 형제, matrix) + 프림 MST(크루스칼 짝, graph+heap) (총 32종).
+      둘 다 새 렌더러 없이 재사용. 편집 거리는 DP 유형에, 프림은 그리디 유형에 자동 수집.
+- [ ] 확충 계속: 0-1 BFS · 2-SAT · 편집 거리 변형 등
 - [ ] 세그먼트 트리 지연 전파(lazy) · 펜윅 트리 — tree/matrix 렌더러 재사용
 
 ## 훅 메모 — Stop 훅 오탐
