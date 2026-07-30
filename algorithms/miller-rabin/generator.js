@@ -64,8 +64,9 @@ export function generate(input) {
   // matrix: 행 = 시도한 증인, 열 = 최대 제곱 횟수(s). 셀 상태 0 기본 · 2 지금 계산 · 3 통과(n-1/1) · 4 합성 증거
   const buildMatrix = (sCols, active) => {
     const cols = Math.max(1, sCols);
-    const values = new Array(rows.length * cols).fill(null);
-    const states = new Array(rows.length * cols).fill(0);
+    const rowCount = Math.max(1, rows.length);   // 증인 행이 없어도 빈 한 행은 유지
+    const values = new Array(rowCount * cols).fill(null);
+    const states = new Array(rowCount * cols).fill(0);
     rows.forEach((row, ri) => {
       row.seq.forEach((v, ci) => {
         if (ci >= cols) return;
@@ -77,7 +78,7 @@ export function generate(input) {
     });
     if (active) states[active.r * cols + active.c] = active.s;
     return {
-      rows: Math.max(1, rows.length), cols,
+      rows: rowCount, cols,
       values, states,
       rowLabels: rows.length ? rows.map(r => `a=${r.a}`) : [''],
       colLabels: Array.from({ length: cols }, (_, c) => c === 0 ? 'a^d' : `↑²·${c}`),
