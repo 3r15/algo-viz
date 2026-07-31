@@ -269,8 +269,15 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
       · 단조 스택(matrix+stack) — 다음 큰 원소 O(n), 분할상환 → linear-scan
       · 비트 조작(matrix) — 부분집합 마스크 열거 2^n → **완전 탐색** 유형 신설
       유형 수집률 100% 유지(계산 기하·랜덤화·완전 탐색이 새 계열을 덮음).
-- [ ] 확충 계속: 0-1 BFS · 2-SAT · 라빈-카프 · 최근접 점 쌍 · 이분 매칭 등
-- [ ] 세그먼트 트리 지연 전파(lazy) — tree/matrix 렌더러 재사용
+- [x] 확충 배치 5종 (총 49종). 전부 기존 렌더러 재사용(geometry 에 divideX 분할선만 추가):
+      · 라빈-카프(matrix) — 롤링 해시로 창을 요약, 해시 같을 때만 문자 검증 → randomized
+      · 0-1 BFS(graph+queue) — 덱으로 0/1 가중치 최단 경로 O(V+E) → graph-search
+      · 세그먼트 트리 지연 전파(tree) — 구간 갱신+질의 O(log n), lazy 배지 → dc·preprocessing
+      · 이분 매칭(graph) — 쿤 증가 경로, 단위 용량 최대 유량의 조합론 → graph-search
+      · 최근접 점 쌍(geometry) — x 분할 + 띠 검사 O(n log n) → 계산 기하·분할 정복
+- [ ] **2-SAT (보류)** — 함의 그래프가 절 입력에서 **파생**되므로, 편집기 없이 파생 그래프를
+      렌더하려면 뷰/그래프 렌더러 배선 필요(usesGraphInput 을 dataStructures[0]==='graph' 에서
+      분리 + paintViz 가 step.graph 를 렌더러에 전달). 브라우저 검증과 함께 별도로 진행.
 
 ## 훅 메모 — Stop 훅 오탐
 
