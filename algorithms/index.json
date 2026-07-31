@@ -88,6 +88,50 @@
     "path": "algorithms/activity-selection/"
   },
   {
+    "id": "aho-corasick",
+    "title": "아호-코라식 (다중 패턴)",
+    "aliases": [
+      "aho corasick",
+      "aho-corasick",
+      "multi pattern matching",
+      "아호 코라식",
+      "아호-코라식",
+      "다중 패턴 검색"
+    ],
+    "summary": "여러 패턴을 텍스트 한 번 훑기로 모두 찾는다. 패턴들을 트라이에 넣고 KMP 실패 함수를 트라이로 일반화한 실패 링크를 걸어, O(n + Σ패턴길이 + 매칭수).",
+    "categories": [
+      "string"
+    ],
+    "dataStructures": [
+      "tree",
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n + m + z)",
+        "avg": "O(n + m + z)",
+        "worst": "O(n + m + z)"
+      },
+      "space": "O(m·Σ)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "aho-corasick",
+      "multi-pattern",
+      "trie",
+      "failure-link",
+      "string-matching",
+      "preprocessing"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/aho-corasick/"
+  },
+  {
     "id": "balanced-parentheses",
     "title": "괄호 검사 (Balanced Parentheses)",
     "summary": "여는 괄호를 스택에 쌓고 닫는 괄호에서 맨 위와 짝을 맞춘다. 스택이 LIFO 라는 성질이 그대로 문제의 답이 되는 예.",
