@@ -2010,6 +2010,50 @@
     "path": "algorithms/two-pointers/"
   },
   {
+    "id": "two-sat",
+    "title": "2-SAT (함의 그래프 + SCC)",
+    "aliases": [
+      "2-sat",
+      "2sat",
+      "two sat",
+      "satisfiability",
+      "2-충족성",
+      "함의 그래프",
+      "two-sat"
+    ],
+    "summary": "각 절이 리터럴 둘의 OR 인 논리식의 충족 가능성을, 함의 그래프의 강한 연결 요소로 O(V+E) 에 판정한다. x 와 ¬x 가 같은 SCC 면 모순, 아니면 위상 순서로 배정.",
+    "categories": [
+      "graph"
+    ],
+    "dataStructures": [
+      "graph"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "avg": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V+E)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "2-sat",
+      "satisfiability",
+      "implication-graph",
+      "scc",
+      "kosaraju",
+      "graph"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/two-sat/"
+  },
+  {
     "id": "union-find",
     "title": "유니온 파인드 (서로소 집합)",
     "aliases": [
