@@ -1927,5 +1927,49 @@
       "model-a"
     ],
     "path": "algorithms/union-find/"
+  },
+  {
+    "id": "zero-one-bfs",
+    "title": "0-1 BFS (덱 최단 경로)",
+    "aliases": [
+      "0-1 bfs",
+      "01 bfs",
+      "zero one bfs",
+      "deque bfs",
+      "0-1 너비 우선 탐색",
+      "zero-one-bfs"
+    ],
+    "summary": "간선 가중치가 0/1 뿐일 때, 우선순위 큐 없이 덱으로 최단 경로를 O(V+E) 에. 완화 시 0-간선은 덱 앞, 1-간선은 뒤로 넣어 거리 순서를 유지한다.",
+    "categories": [
+      "graph"
+    ],
+    "dataStructures": [
+      "graph",
+      "queue"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "avg": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V+E)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "shortest-path",
+      "deque",
+      "0-1-bfs",
+      "bfs",
+      "graph",
+      "weighted"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/zero-one-bfs/"
   }
 ]
