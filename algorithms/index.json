@@ -382,6 +382,46 @@
     "path": "algorithms/bubble-sort/"
   },
   {
+    "id": "closest-pair",
+    "title": "최근접 점 쌍 (분할 정복)",
+    "aliases": [
+      "closest pair",
+      "closest pair of points",
+      "최근접 점 쌍",
+      "가장 가까운 두 점",
+      "closest-pair"
+    ],
+    "summary": "평면 위 점들 중 가장 가까운 두 점을, x 로 나눠 재귀하고 분할선 근처 띠(strip)만 검사해 O(n log n) 에. 모든 쌍 비교 O(n²) 를 넘어선다.",
+    "categories": [
+      "geometry"
+    ],
+    "dataStructures": [
+      "geometry"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n log n)",
+        "avg": "O(n log n)",
+        "worst": "O(n log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "computational-geometry",
+      "closest-pair",
+      "divide-and-conquer",
+      "sorting"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/closest-pair/"
+  },
+  {
     "id": "convex-hull",
     "title": "볼록 껍질 (모노톤 체인)",
     "aliases": [

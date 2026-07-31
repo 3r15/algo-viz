@@ -11,6 +11,7 @@
 //     closed: bool,             // 참이면 hull 을 닫아 다각형으로
 //     testEdge: [i, j],         // (선택) 지금 방향 판정 중인 변 — 강조
 //     testApex: k,              // (선택) 판정 대상 점(테스트 삼각형의 꼭짓점)
+//     divideX: 0..1,            // (선택) 세로 분할선(분할 정복 최근접 점 쌍)
 //     caption: str,
 //   }
 //
@@ -43,6 +44,16 @@ export function renderGeometry(host, step) {
   cache.hullPath.setAttribute('points', pointsAttr);
   cache.hullPath.setAttribute('class', 'geo-hull' + (geo.closed ? ' closed' : ''));
 
+  // 세로 분할선(있으면)
+  if (typeof geo.divideX === 'number') {
+    const dx = sx(geo.divideX);
+    cache.divideLine.setAttribute('x1', dx); cache.divideLine.setAttribute('y1', PAD - 2);
+    cache.divideLine.setAttribute('x2', dx); cache.divideLine.setAttribute('y2', VIEW - PAD + 2);
+    cache.divideLine.style.display = '';
+  } else {
+    cache.divideLine.style.display = 'none';
+  }
+
   // 방향 판정 변(있으면)
   if (Array.isArray(geo.testEdge) && geo.testEdge.length === 2) {
     const [i, j] = geo.testEdge;
@@ -71,6 +82,12 @@ function buildSvg(host, geo, structureKey) {
   svg.setAttribute('class', 'geo-svg');
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', '평면 위 점과 껍질 시각화');
+
+  // 세로 분할선(점 아래에 깔린다)
+  const divideLine = document.createElementNS(SVG_NS, 'line');
+  divideLine.setAttribute('class', 'geo-divide');
+  divideLine.style.display = 'none';
+  svg.append(divideLine);
 
   // 껍질 다각형/경로(점 아래에 깔린다)
   const hullPath = document.createElementNS(SVG_NS, 'polyline');
@@ -104,7 +121,7 @@ function buildSvg(host, geo, structureKey) {
   });
 
   host.append(svg);
-  return { svg, dots, hullPath, testLine, structureKey };
+  return { svg, dots, hullPath, testLine, divideLine, structureKey };
 }
 
 registerRenderer('geometry', renderGeometry);
