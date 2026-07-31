@@ -1,0 +1,17 @@
+{
+  "id": "activity-selection",
+  "title": "활동 선택 (그리디)",
+  "aliases": ["activity selection", "interval scheduling", "회의실 배정", "활동 선택", "구간 스케줄링", "activity-selection"],
+  "summary": "겹치지 않는 활동을 최대 개수 고른다. 끝나는 시각이 이른 순으로 정렬해, 직전 선택과 안 겹치면 고르는 그리디. 교환 논법으로 최적임이 증명된다.",
+  "categories": ["greedy"],
+  "dataStructures": ["matrix"],
+  "complexity": {
+    "time": { "best": "O(n log n)", "avg": "O(n log n)", "worst": "O(n log n)" },
+    "space": "O(1)"
+  },
+  "difficulty": "beginner",
+  "tags": ["greedy", "interval-scheduling", "activity-selection", "exchange-argument", "sorting"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/activity-selection/"
+}
