@@ -1,0 +1,17 @@
+{
+  "id": "min-cost-max-flow",
+  "title": "최소 비용 최대 유량 (MCMF)",
+  "aliases": ["min cost max flow", "mcmf", "min-cost flow", "최소 비용 최대 유량", "최소비용유량", "min-cost-max-flow"],
+  "summary": "간선에 용량과 비용이 있을 때, 최대 유량을 흘리되 총비용을 최소로. 증가 경로를 최단 비용 경로(SPFA/벨만-포드)로 찾아 흘리기를 반복한다.",
+  "categories": ["graph"],
+  "dataStructures": ["graph"],
+  "complexity": {
+    "time": { "best": "O(V·E)", "avg": "O(F·V·E)", "worst": "O(F·V·E)" },
+    "space": "O(V+E)"
+  },
+  "difficulty": "advanced",
+  "tags": ["min-cost-max-flow", "network-flow", "augmenting-path", "spfa", "bellman-ford", "graph"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/min-cost-max-flow/"
+}
