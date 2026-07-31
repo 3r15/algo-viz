@@ -1,0 +1,17 @@
+{
+  "id": "segment-tree-lazy",
+  "title": "세그먼트 트리 지연 전파",
+  "aliases": ["segment tree lazy", "lazy propagation", "지연 전파", "구간 갱신 세그먼트 트리", "segment-tree-lazy"],
+  "summary": "구간 전체 갱신([l,r)에 +v)과 구간 질의를 모두 O(log n) 에. 완전히 덮인 노드엔 '나중에 내릴 값(lazy)'만 걸고, 자식이 필요할 때 비로소 내린다(push down).",
+  "categories": ["tree"],
+  "dataStructures": ["tree"],
+  "complexity": {
+    "time": { "best": "O(log n)", "avg": "O(log n)", "worst": "O(log n)" },
+    "space": "O(n)"
+  },
+  "difficulty": "advanced",
+  "tags": ["segment-tree", "lazy-propagation", "range-update", "range-query", "preprocessing", "logarithmic", "divide-and-conquer"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/segment-tree-lazy/"
+}

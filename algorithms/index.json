@@ -255,6 +255,50 @@
     "path": "algorithms/binary-search/"
   },
   {
+    "id": "bipartite-matching",
+    "title": "이분 매칭 (쿤 알고리즘)",
+    "aliases": [
+      "bipartite matching",
+      "kuhn",
+      "maximum matching",
+      "hungarian",
+      "이분 매칭",
+      "최대 매칭",
+      "bipartite-matching"
+    ],
+    "summary": "이분 그래프에서 서로 겹치지 않는 간선을 최대한 많이 고른다. 왼쪽 정점마다 증가 경로를 DFS 로 찾아, 필요하면 기존 매칭을 밀어내며 매칭을 하나씩 늘린다. 단위 용량 최대 유량의 조합론적 형태.",
+    "categories": [
+      "graph"
+    ],
+    "dataStructures": [
+      "graph"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V·E)",
+        "avg": "O(V·E)",
+        "worst": "O(V·E)"
+      },
+      "space": "O(V+E)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "bipartite-matching",
+      "matching",
+      "augmenting-path",
+      "kuhn",
+      "graph",
+      "max-flow"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/bipartite-matching/"
+  },
+  {
     "id": "bit-manipulation",
     "title": "비트 조작 (부분집합 열거)",
     "aliases": [
@@ -336,6 +380,46 @@
       "model-2"
     ],
     "path": "algorithms/bubble-sort/"
+  },
+  {
+    "id": "closest-pair",
+    "title": "최근접 점 쌍 (분할 정복)",
+    "aliases": [
+      "closest pair",
+      "closest pair of points",
+      "최근접 점 쌍",
+      "가장 가까운 두 점",
+      "closest-pair"
+    ],
+    "summary": "평면 위 점들 중 가장 가까운 두 점을, x 로 나눠 재귀하고 분할선 근처 띠(strip)만 검사해 O(n log n) 에. 모든 쌍 비교 O(n²) 를 넘어선다.",
+    "categories": [
+      "geometry"
+    ],
+    "dataStructures": [
+      "geometry"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n log n)",
+        "avg": "O(n log n)",
+        "worst": "O(n log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "computational-geometry",
+      "closest-pair",
+      "divide-and-conquer",
+      "sorting"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/closest-pair/"
   },
   {
     "id": "convex-hull",
@@ -1496,6 +1580,49 @@
     "path": "algorithms/quick-sort/"
   },
   {
+    "id": "rabin-karp",
+    "title": "라빈-카프 (롤링 해시)",
+    "aliases": [
+      "rabin karp",
+      "rolling hash",
+      "라빈 카프",
+      "라빈-카프",
+      "롤링 해시",
+      "rabin-karp"
+    ],
+    "summary": "창마다 문자를 다 비교하지 않고 해시 하나로 먼저 거른다. 창을 옮길 때 앞을 빼고 뒤를 더해 O(1) 로 갱신(롤링 해시). 해시가 같을 때만 실제 비교 — 기대 O(n+m).",
+    "categories": [
+      "string"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n+m)",
+        "avg": "O(n+m)",
+        "worst": "O(n·m)"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "rolling-hash",
+      "hashing",
+      "string-matching",
+      "randomized",
+      "string",
+      "fingerprint"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/rabin-karp/"
+  },
+  {
     "id": "radix-sort",
     "title": "기수 정렬 (Radix Sort)",
     "summary": "낮은 자리부터 자릿수별로 안정 계수 정렬을 반복한다. 비교 없이 O(d·(n + b)) 에 정렬.",
@@ -1577,6 +1704,49 @@
       "model-a"
     ],
     "path": "algorithms/segment-tree/"
+  },
+  {
+    "id": "segment-tree-lazy",
+    "title": "세그먼트 트리 지연 전파",
+    "aliases": [
+      "segment tree lazy",
+      "lazy propagation",
+      "지연 전파",
+      "구간 갱신 세그먼트 트리",
+      "segment-tree-lazy"
+    ],
+    "summary": "구간 전체 갱신([l,r)에 +v)과 구간 질의를 모두 O(log n) 에. 완전히 덮인 노드엔 '나중에 내릴 값(lazy)'만 걸고, 자식이 필요할 때 비로소 내린다(push down).",
+    "categories": [
+      "tree"
+    ],
+    "dataStructures": [
+      "tree"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(log n)",
+        "avg": "O(log n)",
+        "worst": "O(log n)"
+      },
+      "space": "O(n)"
+    },
+    "difficulty": "advanced",
+    "tags": [
+      "segment-tree",
+      "lazy-propagation",
+      "range-update",
+      "range-query",
+      "preprocessing",
+      "logarithmic",
+      "divide-and-conquer"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/segment-tree-lazy/"
   },
   {
     "id": "sieve-of-eratosthenes",
@@ -1884,5 +2054,49 @@
       "model-a"
     ],
     "path": "algorithms/union-find/"
+  },
+  {
+    "id": "zero-one-bfs",
+    "title": "0-1 BFS (덱 최단 경로)",
+    "aliases": [
+      "0-1 bfs",
+      "01 bfs",
+      "zero one bfs",
+      "deque bfs",
+      "0-1 너비 우선 탐색",
+      "zero-one-bfs"
+    ],
+    "summary": "간선 가중치가 0/1 뿐일 때, 우선순위 큐 없이 덱으로 최단 경로를 O(V+E) 에. 완화 시 0-간선은 덱 앞, 1-간선은 뒤로 넣어 거리 순서를 유지한다.",
+    "categories": [
+      "graph"
+    ],
+    "dataStructures": [
+      "graph",
+      "queue"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "avg": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V+E)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "shortest-path",
+      "deque",
+      "0-1-bfs",
+      "bfs",
+      "graph",
+      "weighted"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/zero-one-bfs/"
   }
 ]
