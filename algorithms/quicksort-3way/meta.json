@@ -1,0 +1,17 @@
+{
+  "id": "quicksort-3way",
+  "title": "3-way 퀵 정렬 (네덜란드 국기)",
+  "aliases": ["3-way quicksort", "three way partition", "dutch national flag", "3-way 퀵 정렬", "삼분할 퀵정렬", "quicksort-3way"],
+  "summary": "피벗 기준 <·=·> 세 구간으로 나눈다(네덜란드 국기 분할). 같은 값 구간이 바로 확정돼 재귀에서 빠지므로, 중복이 많은 입력에서 일반 퀵 정렬의 O(n²) 퇴화를 막는다.",
+  "categories": ["sorting"],
+  "dataStructures": ["matrix"],
+  "complexity": {
+    "time": { "best": "O(n)", "avg": "O(n log n)", "worst": "O(n²)" },
+    "space": "O(log n)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["sorting", "quicksort", "3-way-partition", "dutch-national-flag", "divide-and-conquer", "in-place", "comparison-sort"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/quicksort-3way/"
+}

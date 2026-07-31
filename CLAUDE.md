@@ -283,6 +283,14 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
       && !!defaultGraph` 로 좁혀, defaultGraph 를 export 안 하면 편집기 없이 숫자(절) 입력을 받고,
       `paintViz` 가 `step.graph`(파생 함의 그래프)를 렌더러에 넘긴다. 기존 그래프 알고리즘은 무영향.
       → graph-search 유형. 파생 그래프를 렌더하는 첫 사례.
+- [x] 그리디·DP·그래프·선택 6종 (총 56종). 전부 기존 렌더러 재사용:
+      · 활동 선택(matrix 간트) — 끝 시각 그리디, 교환 논법 → **greedy**(huffman 뿐이던 분류를 채움)
+      · 최대 부분합/카데인(matrix) — cur<0 이면 새로 시작, 1D DP O(n) → dp·linear-scan
+      · 아호-코라식(tree+matrix) — 트라이+실패 링크, 다중 패턴 한 번 훑기 → preprocessing
+      · 최소 비용 최대 유량(graph) — 최대 유량 + 최단 비용 증가 경로(SPFA), 역간선 −원가 → graph-search
+      · 퀵셀렉트(matrix) — 파티션 후 한쪽만, k번째 최솟값 평균 O(n) → dc·randomized
+      · 3-way 퀵 정렬(matrix) — 네덜란드 국기 <·=·>, 중복 강함 → sorting·분할 정복
+      MCMF 는 파생 없이 defaultGraph(용량+비용) 를 쓰되 편집기는 용량만. 유형 수집률 100% 유지.
 
 ## 훅 메모 — Stop 훅 오탐
 

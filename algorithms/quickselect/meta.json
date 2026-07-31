@@ -1,0 +1,17 @@
+{
+  "id": "quickselect",
+  "title": "퀵셀렉트 (k번째 최솟값)",
+  "aliases": ["quickselect", "quick select", "kth smallest", "nth element", "퀵셀렉트", "선택 알고리즘", "k번째 최솟값"],
+  "summary": "정렬 없이 k번째로 작은 원소만 평균 O(n) 에 찾는다. 퀵 정렬의 파티션을 쓰되, 피벗 위치와 k 를 비교해 한쪽만 이어서 본다.",
+  "categories": ["search"],
+  "dataStructures": ["matrix"],
+  "complexity": {
+    "time": { "best": "O(n)", "avg": "O(n)", "worst": "O(n²)" },
+    "space": "O(1)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["selection", "quickselect", "partition", "divide-and-conquer", "order-statistic", "randomized"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/quickselect/"
+}
