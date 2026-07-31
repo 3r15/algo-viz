@@ -180,6 +180,9 @@ Model 2 진실 원천도 폴더 규약을 따른다(`algorithms/<id>/code/<id>.c
 - **그래프 알고리즘 입력**: `dataStructure==='graph'` 이면 배열 입력행 대신 `graph-editor.js` 편집기를 붙인다.
   generator 는 `defaultGraph`·`capabilities` 를 export 하고 `generate(graph)` 로 그래프를 받는다(인자 없으면 defaultGraph — 검증기 호환).
   간선은 `[u,v,w]`(가중치 기본 1). 렌더러엔 `ctx.graph`(현재 그린 그래프)를 넘긴다. BFS 는 `queue`, DFS 는 `stack` 필드로 보조 자료구조 표시.
+  - **파생 그래프**(2-SAT 의 함의 그래프): 그래프를 그리지 않고 **입력에서 만들어** 그릴 땐 `defaultGraph` 를 export 하지 마라.
+    그러면 편집기 대신 일반 입력을 받고(숫자/텍스트), 각 `step.graph`(스텝마다 같은 객체 참조)에 파생 그래프를 담는다.
+    뷰는 `usesGraphInput = dataStructure==='graph' && !!defaultGraph`, `paintViz` 는 `step.graph || activeGraph` 로 렌더한다.
 - **옵션 게이팅**: 편집기의 방향/가중치 옵션은 `IMPLEMENTED[opt] && algo.capabilities[opt]` 일 때만 설정 가능.
   아니면 비활성 + 사유("준비 중"=편집기 미구현, "미지원"=알고리즘이 안 씀). **방향·가중치 모두 구현 완료.**
   가중치는 편집기의 `⚖ 가중치` 모드에서 간선 클릭으로 1..9 순환. 방향이면 화살촉을 그린다.
@@ -275,9 +278,11 @@ g++ -std=c++17 -O2 algorithms/bubble-sort/code/bubble_sort.cpp -o /tmp/bs && /tm
       · 세그먼트 트리 지연 전파(tree) — 구간 갱신+질의 O(log n), lazy 배지 → dc·preprocessing
       · 이분 매칭(graph) — 쿤 증가 경로, 단위 용량 최대 유량의 조합론 → graph-search
       · 최근접 점 쌍(geometry) — x 분할 + 띠 검사 O(n log n) → 계산 기하·분할 정복
-- [ ] **2-SAT (보류)** — 함의 그래프가 절 입력에서 **파생**되므로, 편집기 없이 파생 그래프를
-      렌더하려면 뷰/그래프 렌더러 배선 필요(usesGraphInput 을 dataStructures[0]==='graph' 에서
-      분리 + paintViz 가 step.graph 를 렌더러에 전달). 브라우저 검증과 함께 별도로 진행.
+- [x] 2-SAT (총 50종) — 함의 그래프 + SCC(코사라주/타잔 재사용)로 충족성 O(V+E). 무작위 2000회
+      브루트포스와 판정·배정 대조. **뷰/렌더러 배선**: `usesGraphInput` 을 `dataStructure==='graph'
+      && !!defaultGraph` 로 좁혀, defaultGraph 를 export 안 하면 편집기 없이 숫자(절) 입력을 받고,
+      `paintViz` 가 `step.graph`(파생 함의 그래프)를 렌더러에 넘긴다. 기존 그래프 알고리즘은 무영향.
+      → graph-search 유형. 파생 그래프를 렌더하는 첫 사례.
 
 ## 훅 메모 — Stop 훅 오탐
 

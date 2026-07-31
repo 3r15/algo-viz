@@ -248,7 +248,9 @@ export async function renderAlgorithm(container, id) {
   ui.input.value = formatInput(current.defaultInput);
 
   // 그래프 알고리즘: 배열 입력행 대신 그래프 편집기를 붙인다.
-  const usesGraphInput = current.dataStructure === 'graph';
+  // 단, 그래프를 "그리지 않고" 입력에서 파생만 하는 경우(2-SAT 의 함의 그래프)는
+  // defaultGraph 를 export 하지 않는다 → 편집기 없이 일반 입력을 받고, 렌더는 step.graph 로 한다.
+  const usesGraphInput = current.dataStructure === 'graph' && !!current.defaultGraph;
   let activeGraph = usesGraphInput ? (current.defaultGraph || { nodes: [], edges: [], start: 0 }) : null;
   if (usesGraphInput) {
     find('.inputrow').style.display = 'none';
@@ -301,7 +303,8 @@ export async function renderAlgorithm(container, id) {
       const slotKey = VIZ_SLOT[type];
       const hasData = !slotKey || step[slotKey];
       host.hidden = !hasData;
-      if (hasData) (getRenderer(type) || getRenderer('array'))(host, step, { graph: activeGraph });
+      // step.graph 가 있으면(파생 그래프: 2-SAT 의 함의 그래프) 그걸로 그린다. 없으면 편집기 그래프.
+      if (hasData) (getRenderer(type) || getRenderer('array'))(host, step, { graph: step.graph || activeGraph });
     }
   }
 
