@@ -255,6 +255,50 @@
     "path": "algorithms/binary-search/"
   },
   {
+    "id": "bipartite-matching",
+    "title": "이분 매칭 (쿤 알고리즘)",
+    "aliases": [
+      "bipartite matching",
+      "kuhn",
+      "maximum matching",
+      "hungarian",
+      "이분 매칭",
+      "최대 매칭",
+      "bipartite-matching"
+    ],
+    "summary": "이분 그래프에서 서로 겹치지 않는 간선을 최대한 많이 고른다. 왼쪽 정점마다 증가 경로를 DFS 로 찾아, 필요하면 기존 매칭을 밀어내며 매칭을 하나씩 늘린다. 단위 용량 최대 유량의 조합론적 형태.",
+    "categories": [
+      "graph"
+    ],
+    "dataStructures": [
+      "graph"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(V·E)",
+        "avg": "O(V·E)",
+        "worst": "O(V·E)"
+      },
+      "space": "O(V+E)"
+    },
+    "difficulty": "intermediate",
+    "tags": [
+      "bipartite-matching",
+      "matching",
+      "augmenting-path",
+      "kuhn",
+      "graph",
+      "max-flow"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/bipartite-matching/"
+  },
+  {
     "id": "bit-manipulation",
     "title": "비트 조작 (부분집합 열거)",
     "aliases": [
