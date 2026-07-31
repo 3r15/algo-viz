@@ -1,0 +1,17 @@
+{
+  "id": "rabin-karp",
+  "title": "라빈-카프 (롤링 해시)",
+  "aliases": ["rabin karp", "rolling hash", "라빈 카프", "라빈-카프", "롤링 해시", "rabin-karp"],
+  "summary": "창마다 문자를 다 비교하지 않고 해시 하나로 먼저 거른다. 창을 옮길 때 앞을 빼고 뒤를 더해 O(1) 로 갱신(롤링 해시). 해시가 같을 때만 실제 비교 — 기대 O(n+m).",
+  "categories": ["string"],
+  "dataStructures": ["matrix"],
+  "complexity": {
+    "time": { "best": "O(n+m)", "avg": "O(n+m)", "worst": "O(n·m)" },
+    "space": "O(1)"
+  },
+  "difficulty": "intermediate",
+  "tags": ["rolling-hash", "hashing", "string-matching", "randomized", "string", "fingerprint"],
+  "languages": ["cpp"],
+  "generation": ["model-a"],
+  "path": "algorithms/rabin-karp/"
+}
