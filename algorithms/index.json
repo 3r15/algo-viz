@@ -1327,6 +1327,47 @@
     "path": "algorithms/max-flow/"
   },
   {
+    "id": "max-subarray",
+    "title": "최대 부분합 (카데인)",
+    "aliases": [
+      "kadane",
+      "maximum subarray",
+      "max subarray",
+      "최대 부분합",
+      "최대 연속 부분합",
+      "max-subarray"
+    ],
+    "summary": "연속 부분 배열의 최대 합을 O(n) 에. '여기서 끝나는 최대 합' cur 을 이어 가되, 앞이 손해면(cur<0) 버리고 새로 시작한다. 가장 단순한 1D DP.",
+    "categories": [
+      "dp"
+    ],
+    "dataStructures": [
+      "matrix"
+    ],
+    "complexity": {
+      "time": {
+        "best": "O(n)",
+        "avg": "O(n)",
+        "worst": "O(n)"
+      },
+      "space": "O(1)"
+    },
+    "difficulty": "beginner",
+    "tags": [
+      "dynamic-programming",
+      "kadane",
+      "maximum-subarray",
+      "linear-scan"
+    ],
+    "languages": [
+      "cpp"
+    ],
+    "generation": [
+      "model-a"
+    ],
+    "path": "algorithms/max-subarray/"
+  },
+  {
     "id": "merge-sort",
     "title": "병합 정렬",
     "summary": "반으로 나눠 각각 정렬한 뒤 병합하는 안정적 분할정복 정렬.",
